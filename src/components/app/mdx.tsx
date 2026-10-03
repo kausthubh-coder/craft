@@ -6,6 +6,10 @@ import { Demo } from "@/components/app/demo";
 import { ProseLink } from "@/components/app/prose-link";
 import { LinkList } from "@/components/app/resources";
 import {
+  AlignmentDemo,
+  AlignmentIconsDemo,
+} from "@/components/demos/alignment";
+import {
   ButtonPressDemo,
   PressAmountDemo,
   PressEverywhereDemo,
@@ -17,6 +21,10 @@ import {
   ClipPathTabsDemo,
 } from "@/components/demos/clip-path";
 import {
+  ColorRolesDemo,
+  ColorTintDemo,
+} from "@/components/demos/color-roles";
+import {
   CommandMenuDemo,
   CommandSearchDemo,
   CommandShortcutsDemo,
@@ -25,6 +33,22 @@ import {
   CurveOvershootDemo,
   CurveSmoothingDemo,
 } from "@/components/demos/curve-smoothing";
+import {
+  DarkElevationDemo,
+  DarkModeDemo,
+} from "@/components/demos/dark-mode";
+import {
+  DensityDemo,
+  DensityPaddingDemo,
+} from "@/components/demos/density";
+import {
+  DesignTokensDemo,
+  TokenRolesDemo,
+} from "@/components/demos/design-tokens";
+import {
+  ConfirmDialogDemo,
+  DeleteUndoDemo,
+} from "@/components/demos/destructive-actions";
 import {
   EasingCurveDemo,
   EasingsDemo,
@@ -98,6 +122,7 @@ import {
   SoundLayersDemo,
   TextureLayersDemo,
 } from "@/components/demos/layering-sounds";
+import { FontSwapDemo, LayoutShiftDemo } from "@/components/demos/layout-shift";
 import {
   LetterSpacingDemo,
   UppercaseTrackingDemo,
@@ -111,6 +136,11 @@ import {
   LivingBarsDemo,
   LivingChartsDemo,
 } from "@/components/demos/living-charts";
+import {
+  ErrorMessagesDemo,
+  MicrocopyDemo,
+  PluralCountDemo,
+} from "@/components/demos/microcopy";
 import {
   NestedRadiusDemo,
   NestedRadiusExamplesDemo,
@@ -148,11 +178,23 @@ import {
   PerceivedPerformanceDemo,
   SpinnerSpeedDemo,
 } from "@/components/demos/perceived-performance";
+import {
+  FeelMismatchDemo,
+  ProductFeelDemo,
+} from "@/components/demos/product-feel";
+import {
+  RealContentDemo,
+  RealContentGridDemo,
+} from "@/components/demos/real-content";
 import { ReducedMotionDemo } from "@/components/demos/reduced-motion";
 import {
   DepthOfFieldDemo,
   RubberBandDemo,
 } from "@/components/demos/references";
+import {
+  ContainerQueryDemo,
+  FluidTypeDemo,
+} from "@/components/demos/responsive";
 import {
   ScaleEntrancesDemo,
   StartingScaleDemo,
@@ -201,6 +243,11 @@ import {
   StructureErasDemo,
   SurfaceErasDemo,
 } from "@/components/demos/timelessness";
+import { ToastStackingDemo, ToastsDemo } from "@/components/demos/toasts";
+import {
+  TypeScaleDemo,
+  TypeScaleRatioDemo,
+} from "@/components/demos/type-scale";
 import {
   HierarchyActionsDemo,
   HierarchyLabelsDemo,
@@ -288,6 +335,8 @@ const components: MDXComponents = {
     <hr className={cn("my-10", className)} {...props} />
   ),
   Demo,
+  AlignmentDemo,
+  AlignmentIconsDemo,
   AnimationCostDemo,
   ArpeggioSpacingDemo,
   ButtonPressDemo,
@@ -295,25 +344,39 @@ const components: MDXComponents = {
   ClipPathHoldDemo,
   ClipPathRevealDemo,
   ClipPathTabsDemo,
+  ColorRolesDemo,
+  ColorTintDemo,
   CommandMenuDemo,
   CommandSearchDemo,
   CommandShortcutsDemo,
+  ConfirmDialogDemo,
+  ContainerQueryDemo,
   CurveOvershootDemo,
   CurveSmoothingDemo,
+  DarkElevationDemo,
+  DarkModeDemo,
+  DeleteUndoDemo,
+  DensityDemo,
+  DensityPaddingDemo,
   DepthOfFieldDemo,
+  DesignTokensDemo,
   DisabledReasonDemo,
   EasingCurveDemo,
   EasingsDemo,
   EmptySearchDemo,
   EmptyStatesDemo,
   ExitAnimationsDemo,
+  ErrorMessagesDemo,
   ExitListDemo,
+  FeelMismatchDemo,
+  FluidTypeDemo,
   FocusForcedColorsDemo,
   FocusObscuredDemo,
   FocusOffsetDemo,
   FocusRingsDemo,
   FontSmoothingDemo,
   FontSmoothingWeightsDemo,
+  FontSwapDemo,
   HamburgerMorphDemo,
   HangingPunctuationDemo,
   HierarchyActionsDemo,
@@ -339,6 +402,7 @@ const components: MDXComponents = {
   InteractionStatesDemo,
   InterruptibilityDemo,
   KeyboardActionDemo,
+  LayoutShiftDemo,
   LetterSpacingDemo,
   LineHeightDemo,
   LineLengthDemo,
@@ -346,6 +410,7 @@ const components: MDXComponents = {
   LivingBarsDemo,
   LivingChartsDemo,
   LoadingFlashDemo,
+  MicrocopyDemo,
   NestedRadiusDemo,
   NestedRadiusExamplesDemo,
   NoiseBandingDemo,
@@ -365,9 +430,13 @@ const components: MDXComponents = {
   OverlayScrollDemo,
   PairJudgementDemo,
   PerceivedPerformanceDemo,
+  PluralCountDemo,
   PressAmountDemo,
   PressEverywhereDemo,
+  ProductFeelDemo,
   RadiusCalculatorDemo,
+  RealContentDemo,
+  RealContentGridDemo,
   ReducedMotionDemo,
   RubberBandDemo,
   ScaleEntrancesDemo,
@@ -405,7 +474,12 @@ const components: MDXComponents = {
   TextPrettyDemo,
   TextureLayersDemo,
   ToastStackDemo,
+  TokenRolesDemo,
+  ToastStackingDemo,
+  ToastsDemo,
   TransformOriginDemo,
+  TypeScaleDemo,
+  TypeScaleRatioDemo,
   UppercaseTrackingDemo,
   VisualHierarchyDemo,
   WhitespaceDemo,

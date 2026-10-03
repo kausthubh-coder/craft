@@ -423,3 +423,238 @@ img {
 - [outline-offset](https://developer.mozilla.org/en-US/docs/Web/CSS/outline-offset): The property that pulls an outline inside the box instead of around it.
 - [box-shadow](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow): The inset form is the other way to draw the same line, with full support for rounded corners.
 - [color-mix()](https://developer.mozilla.org/en-US/docs/Web/CSS/color-mix): Handy for mixing the outline color into the current text color so it adapts to any theme.
+
+
+## Color Roles
+
+> Gray does the work, color has a job.
+
+- Section: Color
+- URL: https://craft.gustavofior.com/color-roles
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/color/color-roles.mdx
+
+Give the brand color to everything that could take it, and it stops meaning
+anything. The title is blue, the tabs are blue, the numbers, links and status
+badges are blue, and the one button you want people to press is just another
+blue thing.
+
+**Let neutrals do almost all the work. Use the accent only for the main
+action and the current selection, and use green, amber and red only when they
+mean something.**
+
+> **Interactive demo: Color Roles.** Open https://craft.gustavofior.com/color-roles to try it.
+
+In the first card the accent is on 16 elements. "Ready", "Building" and
+"Failed" wear the same blue pill, so the statuses carry no meaning at all. In
+the second, the accent is on two: the selected tab and Deploy. Each status
+gets a small dot, and the failed build is the first thing you notice after the
+button.
+
+This is [visual hierarchy](https://craft.gustavofior.com/visual-hierarchy) applied to color. Every colored
+element competes for attention, so only color the ones that should win.
+
+### Three roles
+
+- **Neutrals** are backgrounds, surfaces, lines, text and icons. They are
+  nearly everything on screen.
+- **The accent** marks what you can do next and where you are: the primary
+  button, the selected tab, a checked box. One hue.
+- **Status colors** report state: success, warning, danger. They never
+  decorate. If something is red, something went wrong.
+
+### Tinted neutrals
+
+Pure gray is chroma `0` in [OKLCH](https://craft.gustavofior.com/oklch). Next to a saturated accent it can
+look flat and unrelated. Add a trace of the brand hue to every neutral and the
+grays and the accent start to look like one palette.
+
+> **Interactive demo: Color Tint.** Open https://craft.gustavofior.com/color-roles to try it.
+
+Between `0.005` and `0.015` the grays still read as gray, just cooler, toward
+the indigo accent. By `0.03` the whole card has turned blue.
+
+Not everyone tints. Radix ships plain gray, which works with any accent, next
+to grays pre-tinted toward each hue. Linear's redesign went the other way and
+cut back the blue in its neutrals. I'd tint, and stay under `0.015`.
+This site has no brand hue, so its own grays sit at `0`.
+
+### Usage
+
+**Tailwind**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-page: oklch(0.965 0.01 265);
+  --color-surface: oklch(0.99 0.005 265);
+  --color-line: oklch(0.92 0.01 265);
+  --color-ink: oklch(0.21 0.01 265);
+  --color-ink-soft: oklch(0.52 0.01 265);
+  --color-accent: oklch(0.52 0.18 265);
+  --color-success: oklch(0.62 0.15 150);
+  --color-warning: oklch(0.75 0.15 75);
+  --color-danger: oklch(0.58 0.2 27);
+}
+
+/* <button class="bg-accent text-white">Deploy</button> */
+```
+
+**CSS**
+
+```css
+:root {
+  --hue: 265;
+  --tint: 0.01;
+
+  --page: oklch(0.965 var(--tint) var(--hue));
+  --surface: oklch(0.99 calc(var(--tint) / 2) var(--hue));
+  --line: oklch(0.92 var(--tint) var(--hue));
+  --ink: oklch(0.21 var(--tint) var(--hue));
+  --ink-soft: oklch(0.52 var(--tint) var(--hue));
+
+  --accent: oklch(0.52 0.18 var(--hue));
+  --success: oklch(0.62 0.15 150);
+  --warning: oklch(0.75 0.15 75);
+  --danger: oklch(0.58 0.2 27);
+}
+```
+
+If your brand hue is red or green, it will collide with danger or success.
+Keep the brand for the accent, and move the status color far enough along the
+hue wheel, or add an icon, so nobody mistakes your logo color for an error.
+
+### Resources
+
+- [Composing a palette](https://www.radix-ui.com/colors/docs/palette-composition/composing-a-palette): Radix on pairing an accent with plain gray or with a gray tinted toward its hue.
+- [How we redesigned the Linear UI](https://linear.app/now/how-we-redesigned-the-linear-ui): Linear rebuilt its themes from a base color, an accent and a contrast value, with less blue in the neutrals.
+- [Material 3 color roles](https://m3.material.io/styles/color/roles): A full system of named roles, from surfaces and outlines to primary and error.
+- [Using color to enhance your design](https://www.nngroup.com/articles/color-enhance-design/): Nielsen Norman Group on small palettes, the 60-30-10 rule, and keeping one color for calls to action.
+
+
+## Dark Mode
+
+> A second design, not an inverted one.
+
+- Section: Color
+- URL: https://craft.gustavofior.com/dark-mode
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/color/dark-mode.mdx
+
+The quickest dark mode is an inversion: white backgrounds turn black, black
+text turns white, and everything else stays. It looks wrong in ways that are
+hard to name. Cards vanish into the page, the menu has no edge, and the brand
+blue buzzes against the black.
+
+**Design dark mode as its own theme: lift surfaces with lightness, soften the
+extremes, and recheck every color.**
+
+> **Interactive demo: Dark Mode.** Open https://craft.gustavofior.com/dark-mode to try it.
+
+Inverted, the page, the card and the menu are all `#000`, and the light mode
+shadows have nothing left to darken. Text is pure white at 21:1, so bright it
+glows, while the light mode link drops to 3.2:1. The designed version uses
+this site's values: a `0.17` page, a `0.205` card, text at `0.945`, plus a
+`0.24` menu and an accent raised to `0.72` lightness with about half the chroma.
+Text lands at 15.3:1 and the link at 7.1:1.
+
+Apple puts it simply: dark colors "aren't necessarily inversions of their
+light counterparts."
+
+### Lighter means closer
+
+In light mode, shadows show what sits on top. On a dark page there is little
+left to darken, so elevation comes from the surface instead: the higher a
+layer, the lighter it gets. Material's dark theme and Apple's base and
+elevated backgrounds both work this way.
+
+> **Interactive demo: Dark Elevation.** Open https://craft.gustavofior.com/dark-mode to try it.
+
+At `+0.000` only shadows separate the layers, and they barely do. At
+`+0.035` per level, the step this site takes from page to card, every layer
+reads at a glance. Push past `+0.05` and the menu starts to look gray rather
+than dark. Keep the shadows anyway: here they carry a faint inset highlight
+along the top edge, as in [shadows, not borders](https://craft.gustavofior.com/shadows-not-borders).
+
+### Recheck the rest
+
+- **Accents:** saturated colors vibrate on dark backgrounds. Raise the
+  lightness, lower the chroma, and measure contrast again, because a color
+  that passed on white can fail on dark gray.
+- **Text weight:** light text on dark renders heavier on macOS. See
+  [font smoothing](https://craft.gustavofior.com/font-smoothing).
+- **The canvas:** paint the root background too, or overscroll shows a white
+  strip. See [HTML background](https://craft.gustavofior.com/html-background).
+- **Browser UI:** `color-scheme: dark` makes scrollbars, form controls and the
+  default canvas dark as well.
+
+### Usage
+
+**Tailwind**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-page: oklch(0.985 0 0);
+  --color-card: oklch(1 0 0);
+  --color-popover: oklch(1 0 0);
+  --color-ink: oklch(0.205 0 0);
+  --color-accent: oklch(0.52 0.18 265);
+}
+
+:root {
+  color-scheme: light;
+
+  @variant dark {
+    color-scheme: dark;
+    --color-page: oklch(0.17 0 0);     /* not #000 */
+    --color-card: oklch(0.205 0 0);    /* one step up */
+    --color-popover: oklch(0.24 0 0);  /* two steps up */
+    --color-ink: oklch(0.945 0 0);     /* not #fff */
+    --color-accent: oklch(0.72 0.12 265);
+  }
+}
+
+/* <body class="bg-page text-ink antialiased"> */
+```
+
+**CSS**
+
+```css
+:root {
+  color-scheme: light dark;
+  --page: oklch(0.985 0 0);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --ink: oklch(0.205 0 0);
+  --accent: oklch(0.52 0.18 265);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: oklch(0.17 0 0);
+    --card: oklch(0.205 0 0);
+    --popover: oklch(0.24 0 0);
+    --ink: oklch(0.945 0 0);
+    --accent: oklch(0.72 0.12 265);
+  }
+}
+
+html {
+  background: var(--page);
+  color: var(--ink);
+}
+```
+
+With a manual theme toggle, set `color-scheme` from the same switch that swaps
+your colors, or a dark page ships with light scrollbars. next-themes, which
+this site uses, writes it on the root element for you.
+
+### Resources
+
+- [Dark Mode](https://developer.apple.com/design/human-interface-guidelines/dark-mode): Apple's guidance, including base and elevated backgrounds and why dark colors are not inversions.
+- [Material dark theme](https://m2.material.io/design/color/dark-theme.html): Google's dark theme guide, with a dark gray base, lighter surfaces as elevation rises, and desaturated colors.
+- [Improved dark mode default styling with color-scheme](https://web.dev/articles/color-scheme): Thomas Steiner on what the color-scheme property and meta tag change in the browser's own UI.
+- [color-scheme](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/color-scheme): Syntax, values and browser support on MDN.

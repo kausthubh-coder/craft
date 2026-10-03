@@ -4,6 +4,7 @@ export const SECTIONS = [
   "Color",
   "Layout",
   "Interaction",
+  "Content",
   "Motion",
   "Sound",
   "Data",

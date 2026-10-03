@@ -14,24 +14,33 @@ React to do it. The live site pairs every concept with an interactive demo.
 
 ## How to use this skill
 
-There are two modes. Pick the one that matches the request.
+There are two modes. Pick the one that matches the request. To audit or fix
+a whole existing app (a URL or a repo), use the `audit` skill instead; it
+runs a full top-down pass with these concepts.
 
 ### Build mode: writing or changing UI
 
-1. Find the concepts that match the work in the index below. A button needs
-   interaction states, press, hover and hit areas; a form needs input details
-   and focus rings; a table or timer needs tabular numbers; a modal needs
-   overlays and scale entrances; anything with an image needs image outlines.
-2. Read the matching section in `references/` before writing code. Each
+1. Start from the feel. Before picking any value, decide in one line who uses
+   this, how often, and how it should feel: compact or comfortable, instant
+   or animated, quiet or expressive. Read **Product Feel** for how each
+   choice maps to values. If the project already has tokens (spacing scale,
+   type scale, color roles, radii), use them instead of adding new ones.
+2. Find the concepts that match the work in the index below. A button needs
+   interaction states, press, hover and hit areas; a form needs input details,
+   focus rings and microcopy; a table or timer needs tabular numbers and
+   density; a modal needs overlays and scale entrances; a page needs
+   alignment, whitespace and hierarchy; anything with an image needs image
+   outlines.
+3. Read the matching section in `references/` before writing code. Each
    concept there has the full reasoning, the rule, and the code. Do not apply a
    concept from its one-line summary alone.
-3. Apply the rule, and prefer the exact values from the reference (durations,
+4. Apply the rule, and prefer the exact values from the reference (durations,
    easings, scales, radii, opacities, spacing steps) over inventing your own.
    Reuse the same few values everywhere instead of tuning each component.
-4. Mention the concepts you applied in one line at the end, so the user can
+5. Mention the concepts you applied in one line at the end, so the user can
    look them up.
 
-### Review mode: "review", "audit", "polish" or "what feels off"
+### Review mode: "review", "polish" or "what feels off" on a component or page
 
 1. Read the code (and screenshots, if you can take them) with the index open.
    Check every state, not just the resting one: hover, pressed, focus,
@@ -89,6 +98,8 @@ is in the index.
 - **Novelty Budget**: Save delight for the rare moments. ([reference](references/craft.md#novelty-budget), [demo](https://craft.gustavofior.com/novelty-budget))
 - **Taste Is Trained**: Taste is a skill, and it takes reps. ([reference](references/craft.md#taste-is-trained), [demo](https://craft.gustavofior.com/taste-is-trained))
 - **Timelessness**: Surface ages fast. Structure doesn't. ([reference](references/craft.md#timelessness), [demo](https://craft.gustavofior.com/timelessness))
+- **Product Feel**: Decide the feel before the numbers. ([reference](references/craft.md#product-feel), [demo](https://craft.gustavofior.com/product-feel))
+- **Design Tokens**: Name the role, not the value. ([reference](references/craft.md#design-tokens), [demo](https://craft.gustavofior.com/design-tokens))
 
 ### Typography
 
@@ -100,6 +111,7 @@ is in the index.
 - **Font Smoothing**: Light text on dark renders heavier. ([reference](references/typography.md#font-smoothing), [demo](https://craft.gustavofior.com/font-smoothing))
 - **Visual Hierarchy**: Quiet the rest so one thing leads. ([reference](references/typography.md#visual-hierarchy), [demo](https://craft.gustavofior.com/visual-hierarchy))
 - **Line Length**: Lines short enough to find the next one. ([reference](references/typography.md#line-length), [demo](https://craft.gustavofior.com/line-length))
+- **Type Scale**: A few sizes, each with a job. ([reference](references/typography.md#type-scale), [demo](https://craft.gustavofior.com/type-scale))
 
 ### Color
 
@@ -107,6 +119,8 @@ is in the index.
 - **Noise**: Grain hides banding and adds texture. ([reference](references/color.md#noise), [demo](https://craft.gustavofior.com/noise))
 - **Shadows, Not Borders**: Layered shadows give edge and depth. ([reference](references/color.md#shadows-not-borders), [demo](https://craft.gustavofior.com/shadows-not-borders))
 - **Image Outlines**: A faint inner edge that frames images. ([reference](references/color.md#image-outlines), [demo](https://craft.gustavofior.com/image-outlines))
+- **Color Roles**: Gray does the work, color has a job. ([reference](references/color.md#color-roles), [demo](https://craft.gustavofior.com/color-roles))
+- **Dark Mode**: A second design, not an inverted one. ([reference](references/color.md#dark-mode), [demo](https://craft.gustavofior.com/dark-mode))
 
 ### Layout
 
@@ -118,6 +132,10 @@ is in the index.
 - **Squircles**: Corners that ease into the edge. ([reference](references/layout.md#squircles), [demo](https://craft.gustavofior.com/squircles))
 - **Whitespace**: Space is how things group. ([reference](references/layout.md#whitespace), [demo](https://craft.gustavofior.com/whitespace))
 - **Spacing Scale**: A few spaces, used everywhere. ([reference](references/layout.md#spacing-scale), [demo](https://craft.gustavofior.com/spacing-scale))
+- **Alignment**: Fewer edges, less to read. ([reference](references/layout.md#alignment), [demo](https://craft.gustavofior.com/alignment))
+- **Density**: Fit the space to how often it's used. ([reference](references/layout.md#density), [demo](https://craft.gustavofior.com/density))
+- **Layout Shift**: Hold the space for what arrives late. ([reference](references/layout.md#layout-shift), [demo](https://craft.gustavofior.com/layout-shift))
+- **Responsive**: Fit the space you're given. ([reference](references/layout.md#responsive), [demo](https://craft.gustavofior.com/responsive))
 
 ### Interaction
 
@@ -127,6 +145,13 @@ is in the index.
 - **Empty States**: Say why it's empty and what to do next. ([reference](references/interaction.md#empty-states), [demo](https://craft.gustavofior.com/empty-states))
 - **Command Menu**: One shortcut to reach everything. ([reference](references/interaction.md#command-menu), [demo](https://craft.gustavofior.com/command-menu))
 - **Overlays**: Keep scroll and focus inside the layer. ([reference](references/interaction.md#overlays), [demo](https://craft.gustavofior.com/overlays))
+- **Toasts**: News from somewhere else. ([reference](references/interaction.md#toasts), [demo](https://craft.gustavofior.com/toasts))
+- **Destructive Actions**: Undo instead of asking. ([reference](references/interaction.md#destructive-actions), [demo](https://craft.gustavofior.com/destructive-actions))
+
+### Content
+
+- **Microcopy**: Buttons say what they do. ([reference](references/content.md#microcopy), [demo](https://craft.gustavofior.com/microcopy))
+- **Real Content**: Design for the data you'll actually get. ([reference](references/content.md#real-content), [demo](https://craft.gustavofior.com/real-content))
 
 ### Motion
 

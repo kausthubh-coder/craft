@@ -113,6 +113,7 @@ const concepts = defineCollection({
       "Color",
       "Layout",
       "Interaction",
+      "Content",
       "Motion",
       "Sound",
       "Data",

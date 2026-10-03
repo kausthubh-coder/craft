@@ -740,3 +740,468 @@ values exist. [Whitespace](https://craft.gustavofior.com/whitespace) decides whe
 - [The 8-Point Grid](https://spec.fm/specifics/8-pt-grid): The case for multiples of 8, paired with a 4pt baseline grid for text.
 - [Tailwind theme variables](https://tailwindcss.com/docs/theme): How the spacing namespace works and how to replace the default values.
 - [Tailwind CSS v4.0](https://tailwindcss.com/blog/tailwindcss-v4): Why every spacing utility in v4 is derived from a single variable.
+
+
+## Alignment
+
+> Fewer edges, less to read.
+
+- Section: Layout
+- URL: https://craft.gustavofior.com/alignment
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/layout/alignment.mdx
+
+Every element starts somewhere, and the eye notices where. When a card's
+content starts at 14px, the list below it at 8px and the input text at 10px,
+nobody can say what is wrong, but the section looks unfinished.
+
+**Line things up to as few edges as possible. Every new left edge is one more
+thing the eye has to resolve.**
+
+> **Interactive demo: Alignment.** Open https://craft.gustavofior.com/alignment to try it.
+
+Both versions use the same components. The near-miss one has 6 left edges,
+because each component brought its own padding: 14px in the card, 8px in the
+rows, 10px in the input. The aligned one has 3: the boxes at 0, everything
+else at 12px, and the text after an icon or avatar at 44px.
+
+### Text aligns to text
+
+When a heading sits above a card, it can line up with the card's border or
+with the text inside it. Pick the text. We read down the left edge of the
+words, not the faint boxes around them. In the demo, Members, Invite by email
+and the placeholder all start at 12px.
+
+Atlassian's grid aligns the containers and leaves what's inside to spacing
+tokens. That keeps the frame tidy, but the text inside can still drift. I'd
+give every box in a section the same inset, so the words line up too.
+
+Within a column, keep one axis. The avatars and the card icon share a 24px
+slot, so the text after them shares an edge too. Apple's guidelines note
+that we read indented items as subordinate, so an accidental indent says
+something you didn't mean.
+
+### Hang the icons
+
+Icon rows under a heading have the same choice.
+
+> **Interactive demo: Alignment Icons.** Open https://craft.gustavofior.com/alignment to try it.
+
+Indented, the icons sit on the heading's edge and the text starts 24px in,
+a second edge for the reader to find. Hanging, the icons move out into the
+margin and the text continues the heading's line. The icons work like
+bullets, which is what they are.
+
+Hanging needs room on the left. Inside a card with 16px of padding there
+often isn't any, so indent there, the same way on every row.
+
+### Usage
+
+Share one inset across the boxes in a section, and hang icons by their own
+width plus the gap.
+
+**Tailwind**
+
+```html
+<section class="flex flex-col gap-4 [--inset:12px]">
+  <h2 class="px-(--inset)">Members</h2>
+  <div class="rounded-lg px-(--inset) py-3">...</div>
+  <input class="px-(--inset)" />
+</section>
+
+<!-- 16px icon + 8px gap = 24px of hang -->
+<ul>
+  <li class="-ms-6 flex items-center gap-2">
+    <svg class="size-4" />
+    Unlimited projects
+  </li>
+</ul>
+```
+
+**CSS**
+
+```css
+section {
+  --inset: 12px;
+}
+
+section h2,
+section .card,
+section input {
+  padding-inline: var(--inset);
+}
+
+/* 16px icon + 8px gap = 24px of hang */
+li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-inline-start: -24px;
+}
+```
+
+Aligned by the numbers is not always aligned to the eye. A round icon or a
+capital T sits slightly inside its box and may need a nudge, which is what
+[optical alignment](https://craft.gustavofior.com/optical-alignment) is for. Alignment groups things
+across, the way [whitespace](https://craft.gustavofior.com/whitespace) groups them down.
+
+### Resources
+
+- [Apple Human Interface Guidelines on layout](https://developer.apple.com/design/human-interface-guidelines/layout): Why aligned items read as related and indented items read as subordinate.
+- [Atlassian grid](https://atlassian.design/foundations/grid): A production grid that aligns top-level containers and leaves the inside to spacing tokens.
+- [Grids](https://practicaltypography.com/grids.html): Matthew Butterick on grids as a tool for consistency, not a guarantee of good layout.
+- [What is Visual Alignment?](https://ixdf.org/literature/topics/visual-alignment): An overview of edge, center and left alignment and why fewer alignment lines read calmer.
+
+
+## Density
+
+> Fit the space to how often it's used.
+
+- Section: Layout
+- URL: https://craft.gustavofior.com/density
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/layout/density.mdx
+
+The same list can show 6 rows or 9 in the same space. Neither is right on its
+own. Someone triaging issues all day wants to see as much as possible, and
+someone picking a plan once wants room to think.
+
+**Choose density from how often and how long people use the screen.**
+
+> **Interactive demo: Density.** Open https://craft.gustavofior.com/density to try it.
+
+In the 288px window, comfortable shows 6 of 12 issues and compact shows 9.
+Everything steps down at once: rows from 48 to 32px, padding from 16 to 8,
+gaps from 12 to 8, text from 14 to 13px and icons from 20 to 16px.
+
+### Who earns compact
+
+Tools people keep open all day earn compact: issue trackers, inboxes, admin
+tables, editors. People learn them, scan them, and pay for every extra
+scroll. Compact means more rows, smaller gaps, smaller type and no decorative
+space.
+
+Rare or emotional flows earn comfortable: onboarding, checkout, a failed
+payment. There the space is for reading carefully, and a little air helps
+people slow down. Density is one of the three dials in
+[product feel](https://craft.gustavofior.com/product-feel).
+
+When both kinds of people use the same screen, let them choose. Cloudscape
+ships both modes and defaults to comfortable.
+
+### A system, not less padding
+
+The tempting shortcut is to cut the padding and keep everything else.
+
+> **Interactive demo: Density Padding.** Open https://craft.gustavofior.com/density to try it.
+
+The left list keeps the comfortable 14px text and 20px icons and cuts the
+padding until the rows are 28px. It fits more rows and it is worse: the text
+crowds the icons, and every target shrinks to the size of its icon. The right
+list steps everything down together. Its rows are 32px, and the 16px icons
+sit in 24px buttons, so every target stays at the 24px floor from
+[hit areas](https://craft.gustavofior.com/hit-areas).
+
+Cloudscape describes its compact mode as the spacing scale reduced in 4px
+steps. I'd go one step further and bring the type and icons down a size with
+it, so the proportions survive.
+
+### Usage
+
+Switch the whole set of values with one attribute on the container.
+
+**Tailwind**
+
+```html
+<!-- In your CSS:
+@custom-variant compact (&:where([data-density="compact"] *)); -->
+<ul data-density="compact">
+  <li
+    class="flex h-12 items-center gap-3 px-4 text-sm
+      compact:h-8 compact:gap-2 compact:px-2 compact:text-[13px]"
+  >
+    <svg class="size-5 compact:size-4" />
+    Fix login redirect loop
+    <button class="size-8 compact:size-6">...</button>
+  </li>
+</ul>
+```
+
+**CSS**
+
+```css
+.list {
+  --row: 48px;
+  --pad: 16px;
+  --gap: 12px;
+  --text: 14px;
+  --icon: 20px;
+}
+
+.list[data-density="compact"] {
+  --row: 32px;
+  --pad: 8px;
+  --gap: 8px;
+  --text: 13px;
+  --icon: 16px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  height: var(--row);
+  padding-inline: var(--pad);
+  gap: var(--gap);
+  font-size: var(--text);
+}
+
+.row svg {
+  width: var(--icon);
+  height: var(--icon);
+}
+```
+
+Compact is for a mouse. A 32px row is fine to click and too small to tap, so
+under `@media (pointer: coarse)` go back to the comfortable values. Take both
+sets from your [spacing scale](https://craft.gustavofior.com/spacing-scale), not from new one-off numbers.
+
+### Resources
+
+- [UI Density](https://mattstromawn.com/writing/ui-density/): Matt Ström-Awn on density as the value a screen delivers for the time and space it takes.
+- [Cloudscape content density](https://cloudscape.design/foundation/visual-foundation/content-density/): AWS's comfortable and compact modes, with compact meant for data-heavy views and chosen by the user.
+- [Carbon data table style](https://carbondesignsystem.com/components/data-table/style/): Five table row heights from 24px to 64px, with the header row always matching.
+- [Understanding 2.5.8: Target Size (Minimum)](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html): The 24 by 24 CSS pixel minimum that still applies when rows get tight.
+
+
+## Layout Shift
+
+> Hold the space for what arrives late.
+
+- Section: Layout
+- URL: https://craft.gustavofior.com/layout-shift
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/layout/layout-shift.mdx
+
+You go to press a button, and just before you click, something loads above it
+and the button slides away. You hit whatever moved into its place.
+
+**Anything that arrives late should land in space that was already waiting for
+it.**
+
+> **Interactive demo: Layout Shift.** Open https://craft.gustavofior.com/layout-shift to try it.
+
+In the jumpy card, a photo, a banner and an error each push Post down. In the
+reserved card, the photo fills a box that was there from the start, the banner
+floats over the post, and the error has its own line.
+
+### Where shifts come from
+
+- **Images and video:** set `width` and `height`, or an `aspect-ratio`, so the
+  browser can size the box before the file arrives.
+- **Async content:** give the [skeleton](https://craft.gustavofior.com/performance-is-design) the final
+  dimensions, or the container a fixed height.
+- **Validation messages:** reserve the line under the field, as in
+  [input details](https://craft.gustavofior.com/input-details).
+- **Conditional buttons and badges:** keep their slot, or overlay them. A
+  number that changes width as it ticks is a small shift too, which
+  [tabular numbers](https://craft.gustavofior.com/tabular-numbers) fixes.
+- **Scrollbars:** on Windows, a scrollbar appearing narrows the page and
+  everything centered jumps sideways. `scrollbar-gutter: stable` keeps room
+  for it.
+
+### Web fonts
+
+With `font-display: swap`, text renders first in a fallback font, then in the
+web font. If the two have different widths, lines rewrap and everything below
+them moves.
+
+> **Interactive demo: Font Swap.** Open https://craft.gustavofior.com/layout-shift to try it.
+
+Both fall back to Arial. Plain Arial is narrower, so the paragraph loses a
+line and the link jumps 24px when Inter arrives. The adjusted one scales Arial
+with `size-adjust: 107.89%` and matches its ascent and descent, so nothing
+moves. next/font generates these overrides for every font it loads.
+
+### CLS
+
+Chrome measures this as Cumulative Layout Shift, one of the Core Web Vitals.
+0.1 or less is good, over 0.25 is poor. Shifts within 500ms of a click or key press
+don't count, so the error that pushes Post down right after you press it costs
+nothing in CLS. It still costs the person pressing again.
+
+### Usage
+
+**Tailwind**
+
+```html
+<img src="/pond.jpg" width="1200" height="600" class="h-auto w-full" alt="" />
+
+<div class="aspect-2/1 rounded-lg bg-muted">...</div>
+
+<p class="h-5 text-sm text-red-600">{error}</p>
+
+<html class="[scrollbar-gutter:stable]">
+```
+
+**CSS**
+
+```css
+img {
+  height: auto;
+}
+
+.photo {
+  aspect-ratio: 2 / 1;
+}
+
+.field-error {
+  height: 1.25rem;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107.89%;
+  ascent-override: 89.79%;
+  descent-override: 22.36%;
+  line-gap-override: 0%;
+}
+
+body {
+  font-family: "Inter", "Inter Fallback", sans-serif;
+}
+```
+
+Safari supports `size-adjust` but not yet the ascent and descent overrides.
+Give text an explicit `line-height` and the line boxes stay the same height
+there anyway.
+
+### Resources
+
+- [Cumulative Layout Shift (CLS)](https://web.dev/articles/cls): How Chrome scores unexpected movement, where the 0.1 and 0.25 thresholds come from, and which shifts are excluded.
+- [Optimize Cumulative Layout Shift](https://web.dev/articles/optimize-cls): The usual causes, from images without dimensions to late embeds and web fonts, with a fix for each.
+- [Improved font fallbacks](https://developer.chrome.com/blog/font-fallbacks): How size-adjust and the metric overrides make a fallback font take up the same space as the web font.
+- [scrollbar-gutter](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/scrollbar-gutter): Keep room for a scrollbar so content does not move sideways when one appears.
+
+
+## Responsive
+
+> Fit the space you're given.
+
+- Section: Layout
+- URL: https://craft.gustavofior.com/responsive
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/layout/responsive.mdx
+
+A component doesn't know where it will end up. The same card sits in a wide
+column, a narrow sidebar and a phone. Media queries ask how big the screen is,
+which is the wrong question for anything smaller than the page.
+
+**A component should respond to the space it is given, not to the size of the
+screen.**
+
+> **Interactive demo: Container Query.** Open https://craft.gustavofior.com/responsive to try it.
+
+Drag the edge. The container query card stacks below 256px and goes back to a
+row above it. The viewport card asks whether the window is 768px wide, so on a
+laptop it stays a row in any container and squeezes its title to nothing. On a
+phone it stays stacked even when there is room.
+
+### Change the layout, not just the size
+
+At narrow widths, don't shrink everything until it fits. Stack the row, give
+actions their own line, drop what is secondary. Here the 56px thumbnail
+becomes a banner and the button goes full width.
+
+When a row stays a row, give its text `min-width: 0`. Flex children won't
+shrink below their content by default, so the title pushes the button out
+instead of truncating.
+
+### Fluid type
+
+Type and spacing can scale with the space too, within limits.
+
+> **Interactive demo: Fluid Type.** Open https://craft.gustavofior.com/responsive to try it.
+
+The fluid heading uses `clamp(1.25rem, 0.25rem + 8cqi, 2.5rem)`: 20px in
+containers up to 200px wide, 40px from 450px. `cqi` is 1% of the container's
+width, so it follows the card, not the window. Keep a `rem` in the middle
+value. Sizes in `vw` alone don't grow when people zoom.
+
+### On phones
+
+Use `100dvh` for full-height layouts. On phones, `100vh` is the height with the
+toolbars hidden, so it runs under them when they show. And grow targets to the
+44px from [hit areas](https://craft.gustavofior.com/hit-areas) on touch screens, with Tailwind's
+`pointer-coarse:` variant.
+
+### Usage
+
+In Tailwind v4, `@container` marks the container and `@3xs:` applies from 16rem
+(256px) up. `@min-[...]:` takes any value.
+
+**Tailwind**
+
+```html
+<div class="@container">
+  <article class="flex flex-col gap-3 @3xs:flex-row @3xs:items-center">
+    <img class="h-20 w-full object-cover @3xs:size-14" src="..." alt="" />
+    <div class="min-w-0 flex-1">
+      <p class="truncate">Water Lilies, evening effect</p>
+    </div>
+    <button class="h-9 w-full @3xs:w-auto pointer-coarse:h-11">Save</button>
+  </article>
+</div>
+
+<h1 class="text-[length:clamp(1.25rem,0.25rem+8cqi,2.5rem)]">...</h1>
+
+<main class="min-h-dvh">...</main>
+```
+
+**CSS**
+
+```css
+.card-wrapper {
+  container-type: inline-size;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+@container (width >= 16rem) {
+  .card {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.card-text {
+  min-width: 0;
+}
+
+h1 {
+  font-size: clamp(1.25rem, 0.25rem + 8cqi, 2.5rem);
+}
+
+main {
+  min-height: 100dvh;
+}
+```
+
+An element can't query its own size, only its ancestors'. Put `@container` on
+a wrapper around the card, not on the card you want to change.
+
+### Resources
+
+- [CSS container queries](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Container_queries): MDN's guide to container-type, @container and the container query length units.
+- [Tailwind responsive design](https://tailwindcss.com/docs/responsive-design): Breakpoints and the built-in @container variants, including the size of each one.
+- [A friendly introduction to container queries](https://www.joshwcomeau.com/css/container-queries-introduction/): Josh Comeau on how container queries work and the containment that makes them possible.
+- [Modern fluid typography using CSS clamp](https://www.smashingmagazine.com/2022/01/modern-fluid-typography-css-clamp/): How to build a fluid type scale with clamp(), and why to test it with zoom.
+- [The large, small and dynamic viewport units](https://web.dev/blog/viewport-units): Why 100vh is too tall on mobile and which of svh, lvh and dvh to use instead.

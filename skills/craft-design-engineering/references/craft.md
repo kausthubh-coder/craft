@@ -355,3 +355,227 @@ one.
 - [Taste for Makers](https://paulgraham.com/taste.html): Paul Graham on why aiming at timelessness is a way to escape the grip of fashion.
 - [Good Design](https://shud.in/thoughts/good-design): Shu Ding on trends as a moving target, and taking time out of the design process.
 - [On Dynamic Island](https://shud.in/thoughts/on-dynamic-island): Shu Ding on why a clever, flashy compromise is still not built to last.
+
+
+## Product Feel
+
+> Decide the feel before the numbers.
+
+- Section: Craft
+- URL: https://craft.gustavofior.com/product-feel
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/craft/product-feel.mdx
+
+Ask for a task app, a banking app and a habit tracker, and you often get the
+same app three times: 16px padding, 8px corners, a 200ms fade on everything.
+Each value is defensible. Together they don't feel like anything, because
+nobody decided what the product should feel like before picking them.
+
+AI agents make this worse. They usually know what the product does, but not
+how it should feel, so they reach for the average.
+
+**Decide how it should feel, then let that pick the numbers.**
+
+Same tasks, three feels. Tick a task, add one, then switch.
+
+> **Interactive demo: Product Feel.** Open https://craft.gustavofior.com/product-feel to try it.
+
+None of the three is wrong. What makes each one work is that every value in
+it came from the same decision, so they agree with each other.
+
+### Three dials
+
+Most of a feel comes down to three dials. Set them first and the values
+mostly follow.
+
+**Density: compact or comfortable.** The tool uses 32px rows and 8px of
+padding, the calm version 48px rows and 16px. Both come from the same
+[spacing scale](https://craft.gustavofior.com/spacing-scale). Density only decides which end of it you
+live at. Radius tends to follow: 6px reads precise, 16px reads soft.
+
+**Pace: instant or animated.** Frequency sets this one, as with
+[hover restraint](https://craft.gustavofior.com/hover-restraint). The tool answers in 150ms with a strong
+ease-out, calm takes 300ms on a gentler [easing](https://craft.gustavofior.com/easings), and playful uses
+a spring that overshoots.
+
+**Tone: quiet or expressive.** Weight, color and sound. Quiet means 400 and
+500, a neutral palette and silence. Expressive means 600, a saturated accent,
+pill shapes and a sound when you finish something. Even then, keep the
+loudest moments for the rare actions. That is the
+[novelty budget](https://craft.gustavofior.com/novelty-budget).
+
+### Archetypes
+
+**A tool people keep open all day**, like an issue tracker or a launcher:
+compact, instant, quiet. Emil Kowalski
+[uses Raycast](https://emilkowal.ski/ui/you-dont-need-animations) hundreds of
+times a day, and points out that it opens with no animation at all.
+
+**A calm app you visit a few times a day**, like a bank, a journal or a
+reader: comfortable, unhurried, quiet. Trust matters more than speed.
+
+**A playful app you choose to open**, like a habit tracker or a language
+course: comfortable, springy, expressive. Delight is part of the job.
+
+### Mismatch
+
+A bland app is forgettable. A mismatched one feels broken. Here is a dense
+table, the kind you scan fifty times a day, wearing the playful feel. Sort
+it, pick a few rows, then match it.
+
+> **Interactive demo: Feel Mismatch.** Open https://craft.gustavofior.com/product-feel to try it.
+
+Every animation in the mismatched version would be fine in a habit tracker.
+Here, each sort makes you wait about a second for numbers you wanted to read
+now.
+
+### Before you design
+
+Answer these first, and put them in the prompt if an agent is building it:
+
+- Who uses it, and are they experts or first-timers?
+- How often: all day, daily, or a few times a year?
+- In what state of mind: focused, rushed, relaxed, anxious?
+- What should it feel like, in three words?
+
+"A pro tool used all day: compact, instant, quiet" changes more values than
+any list of values would.
+
+### Resources
+
+- [You don't need animations](https://emilkowal.ski/ui/you-dont-need-animations): Emil Kowalski on letting purpose and frequency decide whether something animates at all.
+- [How we redesigned the Linear UI](https://linear.app/now/how-we-redesigned-the-linear-ui): Linear's team on testing everything from very condensed to spacious, and details you only feel after a few minutes.
+- [The Four Dimensions of Tone of Voice](https://www.nngroup.com/articles/tone-of-voice-dimensions/): NN/g's dials for writing tone, a useful model for naming the feel of the rest of the interface.
+- [Family Values](https://benji.org/family-values): Benji Taylor on simplicity, fluidity and delight as the principles behind Family, an intentionally expressive product.
+
+
+## Design Tokens
+
+> Name the role, not the value.
+
+- Section: Craft
+- URL: https://craft.gustavofior.com/design-tokens
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/craft/design-tokens.mdx
+
+A product makes the same few decisions hundreds of times: which blue, how
+round, how quiet the secondary text is. Write the answer into each component
+and changing it means finding every copy. You never find every copy.
+
+**Name the role, not the value, and let components use only the names.**
+
+Both cards started out identical. Pick a new accent, or drag the radius.
+
+> **Interactive demo: Design Tokens.** Open https://craft.gustavofior.com/design-tokens to try it.
+
+The hardcoded card had its blue in four places, written three ways:
+`#2563eb`, `#2563EB` and `rgb(37 99 235)`. A find-and-replace caught the
+button. The token card asks for `--accent` everywhere, so one edit reaches all
+four, and the same goes for `--radius-control`.
+
+### Roles, not values
+
+`--gray-100` and `--blue-600` say what a value is. `--surface-sunken`,
+`--text-muted` and `--radius-control` say what it is for, so the value can
+change without the name becoming a lie. Switch the theme.
+
+> **Interactive demo: Token Roles.** Open https://craft.gustavofior.com/design-tokens to try it.
+
+`--gray-100` can't turn dark, so dark mode needs an override in every
+component, and the ones nobody wrote stay bright. The roles just point at new
+values. The [product feel](https://craft.gustavofior.com/product-feel) demo works the same way: three
+feels are three sets of values for the same roles.
+
+A raw palette is fine as the layer underneath. Components only ever see the
+roles.
+
+### A few per category
+
+Tokens help for the same reason a [spacing scale](https://craft.gustavofior.com/spacing-scale) does: they
+cut choices. Each category needs a handful, not dozens.
+
+- Surface: `surface`, `surface-raised`, `surface-sunken`.
+- Text: `text`, `text-muted`, `text-faint`.
+- Radius: `radius-control`, and `radius-card` as the control radius plus the
+  card's padding, so [nested corners](https://craft.gustavofior.com/nested-border-radius) stay concentric.
+- Shadow: `shadow-raised` and `shadow-overlay`, layered as in
+  [shadows, not borders](https://craft.gustavofior.com/shadows-not-borders).
+
+When a component needs a value no token has, that is a design conversation,
+not a new hex code.
+
+### Usage
+
+**Tailwind**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --color-*: initial;
+  --color-surface: oklch(0.985 0 0);
+  --color-surface-raised: oklch(1 0 0);
+  --color-fg: oklch(0.205 0 0);
+  --color-fg-muted: oklch(0.556 0 0);
+  --color-accent: oklch(0.546 0.215 262.9);
+  --radius-control: 8px;
+  --radius-card: calc(var(--radius-control) + 8px);
+}
+
+.dark {
+  --color-surface: oklch(0.17 0 0);
+  --color-surface-raised: oklch(0.205 0 0);
+  --color-fg: oklch(0.945 0 0);
+  --color-fg-muted: oklch(0.66 0 0);
+}
+
+/* <div class="rounded-card bg-surface-raised p-2">
+     <button class="rounded-control bg-accent">Save</button>
+   </div> */
+```
+
+**CSS**
+
+```css
+:root {
+  --surface: oklch(0.985 0 0);
+  --surface-raised: oklch(1 0 0);
+  --text: oklch(0.205 0 0);
+  --text-muted: oklch(0.556 0 0);
+  --accent: oklch(0.546 0.215 262.9);
+  --radius-control: 8px;
+  --radius-card: calc(var(--radius-control) + 8px);
+}
+
+.dark {
+  --surface: oklch(0.17 0 0);
+  --surface-raised: oklch(0.205 0 0);
+  --text: oklch(0.945 0 0);
+  --text-muted: oklch(0.66 0 0);
+}
+
+.card {
+  padding: 8px;
+  border-radius: var(--radius-card);
+  background: var(--surface-raised);
+}
+
+.button {
+  border-radius: var(--radius-control);
+  background: var(--accent);
+}
+```
+
+In Tailwind v4 the namespace decides the class: `--color-*` makes `bg-`,
+`text-` and `border-` utilities, `--radius-*` makes `rounded-*`. `--text-*` is
+already taken by font sizes, which is why the text roles here are `fg` and
+`fg-muted` (`text-fg-muted`). `--color-*: initial` removes the default
+palette, so a stray `bg-blue-600` generates nothing instead of quietly
+drifting.
+
+### Resources
+
+- [Tailwind theme variables](https://tailwindcss.com/docs/theme): How theme variables turn into utilities, which namespace makes which class, and how to reset one.
+- [Using CSS custom properties](https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Cascading_variables/Using_custom_properties): MDN on declaring, inheriting and overriding the variables every token system is built on.
+- [Primer token names](https://primer.style/product/primitives/token-names/): GitHub's naming convention, which separates base values from the functional tokens components use.
+- [Design Tokens Format Module](https://www.designtokens.org/tr/2025.10/format/): The W3C community group's format for moving tokens between design tools and code.

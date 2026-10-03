@@ -619,3 +619,218 @@ for the scroll that starts inside.
 - [inert](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert): The attribute that takes a whole subtree out of focus, clicks and the accessibility tree.
 - [The dialog element](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog): What showModal() gives you for free, from inert backgrounds to Escape and focus.
 - [Dialog (Modal) Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/): The ARIA Authoring Practices rules for where focus goes when a dialog opens and closes.
+
+
+## Toasts
+
+> News from somewhere else.
+
+- Section: Interaction
+- URL: https://craft.gustavofior.com/toasts
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/interaction/toasts.mdx
+
+A toast is a small message that slides in from a corner and leaves on its own.
+It's good at one thing: telling you about something that happened away from
+where you're looking. Most apps use it for everything.
+
+**Toast what happened out of sight. If the change already shows where the
+person is looking, show it there instead.**
+
+Star the report, copy the link, then export it.
+
+> **Interactive demo: Toasts.** Open https://craft.gustavofior.com/toasts to try it.
+
+Toasting every action turns three clicks into four toasts, and none of them
+say anything the interface didn't. The star already filled in. "Copied"
+belongs on the button you just pressed, under your cursor. Inline first, the
+only toast left is the one that earns it: the export finishing 3 seconds
+later, when you could be anywhere.
+
+Keep the words short and lead with what happened, "Q4 report.pdf is ready",
+not "Success!". One action at most. Plain news here lasts 4 seconds, Sonner's
+default. Toasts with a button get 8, because reading and then reaching takes
+longer.
+
+### Stacking
+
+Toasts arrive in bursts. They shouldn't build a wall over the page, or leave
+while someone is reading them. Add a few, then hover them.
+
+> **Interactive demo: Toast Stacking.** Open https://craft.gustavofior.com/toasts to try it.
+
+Piled up, five toasts cover most of the inbox and keep expiring under your
+cursor. Stacked, the newest sits in front with two more peeking out 8px
+behind it. Hover or focus fans them out and pauses every timer. How they move
+between those spots is [interruptibility](https://craft.gustavofior.com/interruptibility), and how they
+leave is [exit animations](https://craft.gustavofior.com/exit-animations).
+
+Sonner works the same way: three visible, a stack that opens on hover, and
+timers that stop while it's hovered or the tab is hidden. Alt+T (Option+T on
+a Mac) opens it from the keyboard, but tabbing onto a toast doesn't pause it,
+one more reason to give toasts with a button extra time.
+
+### Errors need a place to stay
+
+"Couldn't save" fades away while the work is still unsaved. An error that
+needs action belongs next to the thing that failed, or in a banner that stays
+until it's fixed.
+
+Adrian Roselli argues no toast should time out, since a message that leaves
+on its own fails slow readers. I'd keep the timer for news you can also find
+elsewhere, and make anything with a button stay until it's dismissed or
+reachable another way.
+
+### Usage
+
+**Tailwind**
+
+```html
+<!-- In the page from the start, so screen readers are listening -->
+<div role="status" aria-atomic="false" class="fixed right-6 bottom-6 flex w-80 flex-col gap-2">
+  <div class="flex items-center gap-2 rounded-lg bg-white px-4 py-3 text-sm shadow-lg">
+    Q4 report.pdf is ready
+    <button class="ml-auto rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium">
+      Download
+    </button>
+  </div>
+</div>
+```
+
+**React**
+
+```tsx
+import { toast } from "sonner";
+
+// <Toaster /> renders once, at the root of the app.
+
+// A background job finished: the person may be anywhere by now
+toast("Q4 report.pdf is ready", {
+  duration: 8000,
+  action: { label: "Download", onClick: download },
+});
+
+// Nothing to do but read, so the default 4 seconds is fine
+toast("Ada joined Design");
+```
+
+The live region has to be in the page before the first message lands. A
+`role="status"` element inserted together with its text often isn't announced
+at all. Render the empty container once and add toasts into it, which is what
+Sonner's `<Toaster />` does.
+
+### Resources
+
+- [Building a Toast Component](https://emilkowal.ski/ui/building-a-toast-component): Emil Kowalski on the decisions behind Sonner, from the stack that expands on hover to the timer that pauses in hidden tabs.
+- [ARIA status role](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/status_role): The live region role that announces a message politely, without moving focus.
+- [Defining 'Toast' Messages](https://adrianroselli.com/2020/01/defining-toast-messages.html): Adrian Roselli's case that toasts should never time out and shouldn't hold interactive content.
+- [Understanding status messages](https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html): The WCAG criterion behind role="status", for messages that are announced without taking focus.
+
+
+## Destructive Actions
+
+> Undo instead of asking.
+
+- Section: Interaction
+- URL: https://craft.gustavofior.com/destructive-actions
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/interaction/destructive-actions.mdx
+
+"Are you sure?" on every delete stops protecting anyone by the third time.
+People learn where OK is and click it without reading, and the one time it
+matters, the habit clicks through too.
+
+**If an action can be undone, do it right away and offer Undo. Save
+confirmation for what can't be undone.**
+
+Delete a few files each way.
+
+> **Interactive demo: Delete Undo.** Open https://craft.gustavofior.com/destructive-actions to try it.
+
+With a dialog on every row, three files take six clicks, and every dialog asks
+the same question. With Undo they take three. The file goes as soon as you
+press, and a toast keeps Undo around for 5 seconds. Delete another while it's
+up and Undo brings both back where they were.
+
+Aza Raskin made this case in 2007: never use a warning when you mean undo. A
+warning asks people to predict a mistake. Undo lets them notice it
+afterwards, which is when people actually notice.
+
+Undo needs a soft delete behind it. Hide the row, keep it with a `deletedAt`,
+and purge it later. The toast goes away, so give deleted things a home that
+stays, like a Trash that keeps them for 30 days.
+
+### When you have to ask
+
+Some things can't come back, like a project with all its deployments. Here a
+confirmation earns its place, as long as it says something. Open the dialog
+and press Enter.
+
+> **Interactive demo: Confirm Dialog.** Open https://craft.gustavofior.com/destructive-actions to try it.
+
+"Are you sure?" could be about anything, and with focus on OK, Enter deletes
+the project. The specific dialog names the project, says what goes with it,
+and the button repeats the verb: "Delete project", not "OK". Focus starts on
+Cancel, so a stray Enter does nothing. The rest follows the
+[overlays](https://craft.gustavofior.com/overlays) rules: focus goes in, Escape cancels, and focus comes
+back to the button.
+
+For the catastrophic, add friction on purpose. GitHub asks you to type the
+repository's full name before it deletes one. It works because it's rare. Ask
+for it on every delete and typing becomes one more reflex.
+
+### Red where it counts
+
+Red is a warning, and warnings wear out. Keep it for the button that actually
+destroys something. The trash icons in the file list stay grey and turn red
+on hover, one of their [interaction states](https://craft.gustavofior.com/interaction-states) rather than
+a color they wear all the time.
+
+### Usage
+
+**Tailwind**
+
+```html
+<dialog id="delete" role="alertdialog" aria-labelledby="delete-title"
+  class="max-w-sm rounded-xl p-4 backdrop:bg-black/20">
+  <h2 id="delete-title" class="text-sm font-medium">Delete “Craft website”?</h2>
+  <p class="mt-1.5 text-sm text-neutral-500">
+    This permanently deletes 214 deployments, 3 environments and the craft.dev domain.
+  </p>
+  <form method="dialog" class="mt-4 flex justify-end gap-2">
+    <button value="cancel" autofocus class="rounded-full px-3 py-1.5 text-sm">
+      Cancel
+    </button>
+    <button value="delete" class="rounded-full bg-red-500/10 px-3 py-1.5 text-sm text-red-600">
+      Delete project
+    </button>
+  </form>
+</dialog>
+```
+
+**React**
+
+```tsx
+import { toast } from "sonner";
+
+function remove(file: File) {
+  // Soft delete: hidden now, purged later
+  softDelete(file.id);
+
+  toast(`Deleted “${file.name}”`, {
+    duration: 5000,
+    action: { label: "Undo", onClick: () => restore(file.id) },
+  });
+}
+```
+
+Undo has to reverse everything the delete set off. If removing a file also
+emails its collaborators, bringing the file back doesn't unsend the emails.
+Hold side effects like these until the undo window has closed.
+
+### Resources
+
+- [Never Use a Warning When You Mean Undo](https://alistapart.com/article/neveruseawarning/): Aza Raskin's 2007 essay on why people click through warnings out of habit, and why undo works instead.
+- [Confirmation Dialogs Can Prevent User Errors (If Not Overused)](https://www.nngroup.com/articles/confirmation-dialog/): Jakob Nielsen on saving confirmations for serious consequences and labeling buttons with what they do.
+- [How To Manage Dangerous Actions In User Interfaces](https://www.smashingmagazine.com/2024/09/how-manage-dangerous-actions-user-interfaces/): Victor Ponamariov's tour of undo, specific dialogs and type-to-confirm, and when each one fits.
+- [Alert and Message Dialogs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/alertdialog/): The ARIA Authoring Practices for the alertdialog role, including where focus should start.

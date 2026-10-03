@@ -685,3 +685,110 @@ cleans up.
 - [Understanding visual presentation](https://www.w3.org/WAI/WCAG22/Understanding/visual-presentation.html): The WCAG criterion that caps lines at 80 characters and asks for 1.5 line spacing.
 - [Axioms](https://every-layout.dev/rudiments/axioms/): Every Layout on setting a measure in ch once and letting the whole site inherit it.
 - [CSS length units](https://developer.mozilla.org/en-US/docs/Web/CSS/length): How ch is defined, as the advance width of the 0 glyph.
+
+
+## Type Scale
+
+> A few sizes, each with a job.
+
+- Section: Typography
+- URL: https://craft.gustavofior.com/type-scale
+- Published: 2026-10-03
+- Source: https://github.com/gustavo-fior/craft/blob/main/content/typography/type-scale.mdx
+
+Font sizes drift the same way spacing does. A heading gets 22px because 20
+looked small, a value gets 17px so it stands out from the 16px next to it, and
+soon one card holds nine sizes. Some of them are a pixel apart, and two sizes
+a pixel apart don't read as a choice. They read as a mistake.
+
+**Pick about five sizes from a scale, give each one a job, and use nothing
+else.**
+
+> **Interactive demo: Type Scale.** Open https://craft.gustavofior.com/type-scale to try it.
+
+The card set by eye uses 9 sizes, from 13 to 26, including both 15 and 15.5.
+The scale version uses 5: 12, 14, 16, 20 and 24. Hover a size to see where it
+is used. Nothing in the second card got plainer, but every difference that is
+left is one you can actually see.
+
+### One ratio
+
+A scale is a base size multiplied by the same ratio, step after step. Start at
+14px, multiply by 1.2, round to an even pixel, and you get 12, 14, 16, 20 and
+24. Those happen to be Tailwind's `text-xs`, `sm`, `base`, `xl` and `2xl`.
+
+> **Interactive demo: Type Scale Ratio.** Open https://craft.gustavofior.com/type-scale to try it.
+
+For app interfaces I'd stay between 1.2 and 1.25. Dense screens need small
+steps, but each step still has to be visible. At 1.1 and below, neighbouring
+steps round to the same size and the scale stops being one. Marketing pages,
+with a few big words per screen, can go to 1.333 or 1.5.
+
+Name the steps by their job: caption, body, subhead, title, display. The name
+tells the next person which one to reach for. A button or form label doesn't
+need a sixth size; it is body size at a heavier weight, as in
+[visual hierarchy](https://craft.gustavofior.com/visual-hierarchy).
+
+### Sizes come in sets
+
+A size isn't finished until it has a line height and letter spacing. Here line
+heights sit on a 4px grid and get relatively tighter as text grows: 20px on
+14px body, 32px on a 24px display. Tracking follows
+[letter spacing](https://craft.gustavofior.com/letter-spacing): none at body size, `-0.01em` from 18px,
+`-0.02em` from 24px. Store the three together, so nobody sets a heading with a
+body line height.
+
+### Usage
+
+**Tailwind**
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --text-*: initial;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1rem;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.25rem;
+  --text-subhead: 1rem;
+  --text-subhead--line-height: 1.5rem;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.75rem;
+  --text-title--letter-spacing: -0.01em;
+  --text-display: 1.5rem;
+  --text-display--line-height: 2rem;
+  --text-display--letter-spacing: -0.02em;
+}
+
+/* <h2 class="text-title font-semibold">Billing</h2> */
+```
+
+**CSS**
+
+```css
+:root {
+  --text-caption: 0.75rem/1rem;   /* 12/16 */
+  --text-body: 0.875rem/1.25rem;  /* 14/20 */
+  --text-subhead: 1rem/1.5rem;    /* 16/24 */
+  --text-title: 1.25rem/1.75rem;  /* 20/28 */
+  --text-display: 1.5rem/2rem;    /* 24/32 */
+}
+
+.title {
+  font: 600 var(--text-title) Inter, sans-serif;
+  letter-spacing: -0.01em;
+}
+```
+
+Keep sizes and line heights in `rem`. Someone who raises their browser's
+default font size then gets the whole scale bigger, still in proportion. The
+`--text-*: initial` line removes Tailwind's default sizes, so `text-sm` stops
+existing and only the five roles are left to choose from.
+
+### Resources
+
+- [Type Scale](https://typescale.com/): Pick a base size and a ratio and preview the whole scale in your own font.
+- [Modular scale](https://every-layout.dev/rudiments/modular-scale/): Every Layout on deriving sizes from one ratio, and why sticking to it matters more than which one you pick.
+- [Material 3 type scale tokens](https://m3.material.io/styles/typography/type-scale-tokens): A production scale where every size is a named role with its own line height and tracking.
+- [Font size in Tailwind](https://tailwindcss.com/docs/font-size): The text utilities, and how to give a custom size its own line height and letter spacing.

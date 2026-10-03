@@ -228,6 +228,34 @@ function LineLengthThumbnail() {
   );
 }
 
+// Rest: five sizes picked by eye, a pixel or so apart. Hover: they snap to
+// the 1.2 scale (12, 14, 16, 20, 24) and every step becomes visible.
+const TYPE_SIZES = [
+  [15, 12],
+  [15.5, 14],
+  [16, 16],
+  [17, 20],
+  [18, 24],
+];
+
+function TypeScaleThumbnail() {
+  return (
+    <div className={`flex items-baseline gap-1.5 border-b pb-1 font-medium transition-colors duration-300 ${GUIDE}`}>
+      {TYPE_SIZES.map(([rest, step]) => (
+        <span
+          key={step}
+          className="leading-none [font-size:var(--rest)] transition-[font-size] duration-500 ease-snappy group-hover:[font-size:var(--step)]"
+          style={
+            { "--rest": `${rest}px`, "--step": `${step}px` } as React.CSSProperties
+          }
+        >
+          Aa
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /* Color */
 
 const OKLCH_SWATCHES = [
@@ -281,6 +309,55 @@ function ImageOutlinesThumbnail() {
       <div className="absolute top-4 right-5 size-4 rounded-full bg-neutral-200 dark:bg-neutral-700" />
       <div className="absolute -bottom-4 -left-2 h-10 w-20 rounded-[50%] bg-neutral-200 dark:bg-neutral-700" />
       <div className="absolute -right-4 -bottom-5 h-10 w-20 rounded-[50%] bg-neutral-300 dark:bg-neutral-600" />
+    </div>
+  );
+}
+
+const STATUS_DOTS = [
+  "group-hover:bg-[oklch(0.62_0.15_150)]",
+  "group-hover:bg-[oklch(0.75_0.15_75)]",
+  "group-hover:bg-[oklch(0.58_0.2_27)]",
+];
+
+function ColorRolesThumbnail() {
+  // Rest: the accent is on everything. Hover: it drains to gray except for
+  // the button, and the status dots take on their meanings.
+  return (
+    <div
+      className={`flex w-28 flex-col gap-2.5 rounded-xl bg-card p-3 [--acc:oklch(0.55_0.18_265)] dark:[--acc:oklch(0.72_0.12_265)] ${EDGE}`}
+    >
+      {STATUS_DOTS.map((dot, i) => (
+        <div key={i} className="flex items-center gap-2">
+          <span
+            className="h-1.5 w-12 rounded-full bg-(--acc) transition-colors duration-500 group-hover:bg-muted-foreground/40"
+            style={{ transitionDelay: `${i * 40}ms` }}
+          />
+          <span
+            className={`ml-auto size-1.5 rounded-full bg-(--acc) transition-colors duration-500 ${dot}`}
+            style={{ transitionDelay: `${i * 40}ms` }}
+          />
+        </div>
+      ))}
+      <span className="h-4 w-10 self-end rounded-full bg-(--acc)" />
+    </div>
+  );
+}
+
+function DarkModeThumbnail() {
+  // Rest: inverted, so page, card and menu are all black and the edges are
+  // gone. Hover: each layer steps up in lightness and the accent softens.
+  return (
+    <div
+      className={`relative h-20 w-28 overflow-hidden rounded-xl bg-black transition-colors duration-500 group-hover:bg-[oklch(0.17_0_0)] ${EDGE}`}
+    >
+      <div className="absolute top-3 left-3 flex h-12 w-18 flex-col gap-1.5 rounded-lg bg-black p-2.5 transition-[background-color,box-shadow] duration-500 group-hover:bg-[oklch(0.205_0_0)] group-hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),inset_0_0_0_1px_rgba(255,255,255,0.04),0_2px_6px_rgba(0,0,0,0.4)]">
+        <span className="h-1.5 w-9 rounded-full bg-white transition-colors duration-500 group-hover:bg-[oklch(0.945_0_0)]" />
+        <span className="h-1.5 w-6 rounded-full bg-[oklch(0.5_0.25_265)] transition-colors duration-500 group-hover:bg-[oklch(0.72_0.12_265)]" />
+      </div>
+      <div className="absolute right-3 bottom-3 flex h-8 w-11 flex-col justify-center gap-1.5 rounded-md bg-black px-2 transition-[background-color,box-shadow] delay-75 duration-500 group-hover:bg-[oklch(0.24_0_0)] group-hover:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06),inset_0_0_0_1px_rgba(255,255,255,0.05),0_4px_10px_rgba(0,0,0,0.5)]">
+        <span className="h-1 w-6 rounded-full bg-white transition-colors duration-500 group-hover:bg-[oklch(0.945_0_0)]" />
+        <span className="h-1 w-4 rounded-full bg-white/50 transition-colors duration-500 group-hover:bg-[oklch(0.66_0_0)]" />
+      </div>
     </div>
   );
 }
@@ -427,6 +504,128 @@ function SpacingScaleThumbnail() {
           }
         />
       ))}
+    </div>
+  );
+}
+
+// Left offsets at rest: each block starts a few px off its neighbor.
+const NEAR_MISSES = [0, 5, 2, 7, 3];
+
+function AlignmentThumbnail() {
+  // Rest: near misses. Hover: everything snaps to one edge, and the guide
+  // shows it.
+  const nudge = (i: number) =>
+    ({ "--off": `${NEAR_MISSES[i]}px` }) as React.CSSProperties;
+  const SNAP =
+    "translate-x-(--off) transition-transform duration-500 ease-snappy group-hover:translate-x-0";
+
+  return (
+    <div className="relative flex w-24 flex-col gap-2">
+      <span
+        className={`absolute -inset-y-2 left-0 border-l transition-colors duration-500 ${GUIDE}`}
+      />
+      <div
+        className={`h-2 w-14 rounded-full bg-muted-foreground/50 ${SNAP}`}
+        style={nudge(0)}
+      />
+      <div
+        className={`h-5 w-full rounded-[5px] bg-muted ${EDGE} ${SNAP}`}
+        style={nudge(1)}
+      />
+      {[16, 12, 14].map((w, i) => (
+        <div
+          key={i}
+          className={`flex items-center gap-1.5 ${SNAP}`}
+          style={nudge(i + 2)}
+        >
+          <span className="size-2 rounded-full bg-muted-foreground/40" />
+          <span
+            className="h-1.5 rounded-full bg-muted-foreground/25"
+            style={{ width: w * 4 }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const DENSITY_ROWS = [18, 13, 16, 11, 15, 12, 17, 14, 10, 16];
+
+function DensityThumbnail() {
+  // Rest: comfortable rows, about 4 to a screen. Hover: every value steps
+  // down together and 7 fit.
+  return (
+    <div
+      className={`h-20 w-28 overflow-hidden rounded-lg bg-card px-2 py-1 ${EDGE}`}
+    >
+      {DENSITY_ROWS.map((w, i) => (
+        <div
+          key={i}
+          className="flex h-4 items-center gap-1.5 transition-[height,gap] duration-500 ease-snappy group-hover:h-2.5 group-hover:gap-1"
+        >
+          <span className="size-2 shrink-0 rounded-full bg-muted-foreground/40 transition-[width,height] duration-500 ease-snappy group-hover:size-1.5" />
+          <span
+            className="h-1.5 rounded-full bg-muted-foreground/25 transition-[height] duration-500 ease-snappy group-hover:h-1"
+            style={{ width: w * 4 }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ShiftMini({ reserved }: { reserved: boolean }) {
+  // A post with a photo that arrives late and a button under the cursor.
+  return (
+    <div className={`relative flex h-20 w-14 flex-col rounded-lg bg-card p-1.5 ${EDGE}`}>
+      <div className="mb-1.5 h-1.5 w-8 shrink-0 rounded-full bg-muted-foreground/40" />
+      {reserved ? (
+        <div className="mb-1.5 h-6 shrink-0 rounded-[3px] bg-muted">
+          <div className="size-full rounded-[3px] bg-muted-foreground/30 opacity-0 transition-opacity delay-200 duration-300 group-hover:opacity-100" />
+        </div>
+      ) : (
+        <>
+          <div className="h-0 shrink-0 rounded-[3px] bg-muted-foreground/30 transition-[height,margin] delay-200 duration-150 ease-snappy group-hover:mb-1.5 group-hover:h-6" />
+          <span
+            className={`absolute inset-x-1.5 top-[18px] h-3 rounded-full border ${GUIDE}`}
+          />
+        </>
+      )}
+      <div className="h-3 w-full shrink-0 rounded-full bg-foreground/80" />
+      <Cursor
+        className={`absolute left-6 ${reserved ? "top-[52px]" : "top-[22px]"}`}
+      />
+    </div>
+  );
+}
+
+function LayoutShiftThumbnail() {
+  // Hover: a photo arrives in both. On the left nothing was holding its
+  // place, so the button drops out from under the cursor.
+  return (
+    <div className="flex gap-3">
+      <ShiftMini reserved={false} />
+      <ShiftMini reserved />
+    </div>
+  );
+}
+
+function ResponsiveThumbnail() {
+  // A real container query: the box narrows on hover and the card inside
+  // stacks once its container drops below 5rem.
+  return (
+    <div
+      className={`@container w-28 rounded-xl border p-1 transition-[width,border-color] duration-700 ease-snappy group-hover:w-16 ${GUIDE}`}
+    >
+      <div
+        className={`flex flex-col gap-1.5 rounded-lg bg-card p-1.5 @min-[5rem]:flex-row @min-[5rem]:items-center ${EDGE}`}
+      >
+        <div className="h-6 w-full shrink-0 rounded-[3px] bg-muted-foreground/30 @min-[5rem]:w-6" />
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <div className="h-1.5 w-full rounded-full bg-muted-foreground/45" />
+          <div className="h-1 w-2/3 rounded-full bg-muted-foreground/25" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -592,6 +791,163 @@ function OverlaysThumbnail() {
           className={`absolute inset-0.5 rounded-md border transition-colors duration-300 ${GUIDE}`}
         />
       </div>
+    </div>
+  );
+}
+
+// Rest: three toasts piled into a column over the page. Hover: they fold
+// into one stack in the corner, the two behind peeking out.
+const TOAST_PILE = [
+  "",
+  "-translate-y-5 group-hover:-translate-y-[3px] group-hover:scale-[0.92]",
+  "-translate-y-10 group-hover:-translate-y-1.5 group-hover:scale-[0.84]",
+];
+
+function ToastsThumbnail() {
+  return (
+    <div
+      className={`relative h-20 w-28 overflow-hidden rounded-xl bg-card ${EDGE}`}
+    >
+      <div className="flex flex-col gap-1.5 p-2.5">
+        {[20, 16, 22, 14, 18].map((width, i) => (
+          <div
+            key={i}
+            className="h-1 rounded-full bg-muted-foreground/20"
+            style={{ width: width * 4 }}
+          />
+        ))}
+      </div>
+      {TOAST_PILE.map((pose, i) => (
+        <div
+          key={i}
+          className={`absolute inset-x-1.5 bottom-1.5 flex h-4 items-center gap-1 rounded-[5px] bg-card px-1.5 shadow-xs transition-[translate,scale] duration-500 ease-snappy ${EDGE} ${pose}`}
+          style={{ zIndex: 3 - i }}
+        >
+          <span
+            className={`flex items-center gap-1 transition-opacity duration-300 ${i > 0 ? "group-hover:opacity-0" : ""}`}
+          >
+            <span className="size-1.5 rounded-full bg-muted-foreground/50" />
+            <span
+              className="h-1 rounded-full bg-muted-foreground/40"
+              style={{ width: [40, 32, 36][i] }}
+            />
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Rest: "Are you sure?" over the list. Hover: no question, the row just
+// goes and an Undo toast rises in its place.
+function DestructiveActionsThumbnail() {
+  return (
+    <div
+      className={`relative h-20 w-28 overflow-hidden rounded-xl bg-card p-1.5 ${EDGE}`}
+    >
+      {[12, 9, 11].map((width, i) => (
+        <div
+          key={i}
+          className={`flex h-5 items-center justify-between overflow-hidden px-1 transition-[height,opacity] duration-300 ease-snappy ${
+            i === 1 ? "group-hover:h-0 group-hover:opacity-0" : ""
+          }`}
+        >
+          <span
+            className="h-1 rounded-full bg-muted-foreground/35"
+            style={{ width: width * 4 }}
+          />
+          <span className="size-2 rounded-[2px] bg-muted-foreground/25" />
+        </div>
+      ))}
+      <div className="absolute inset-0 bg-black/10 transition-opacity duration-150 group-hover:opacity-0 dark:bg-black/40" />
+      <div
+        className={`absolute inset-x-5 top-1/2 flex -translate-y-1/2 flex-col gap-2 rounded-lg bg-card p-2 shadow-sm transition-opacity duration-150 group-hover:opacity-0 ${EDGE}`}
+      >
+        <span className="h-1.5 w-10 rounded-full bg-muted-foreground/45" />
+        <span className="flex justify-end gap-1">
+          <span className="h-2.5 w-5 rounded-full bg-muted" />
+          <span className="h-2.5 w-5 rounded-full bg-foreground/80" />
+        </span>
+      </div>
+      <div
+        className={`absolute inset-x-1.5 bottom-1.5 flex h-5 translate-y-2 items-center justify-between rounded-md bg-card pr-1 pl-1.5 opacity-0 shadow-sm transition-[translate,opacity] delay-150 duration-500 ease-snappy group-hover:translate-y-0 group-hover:opacity-100 ${EDGE}`}
+      >
+        <span className="h-1 w-10 rounded-full bg-muted-foreground/40" />
+        <span className="h-3 w-6 rounded-full bg-foreground/80" />
+      </div>
+    </div>
+  );
+}
+
+/* Content */
+
+// Both labels share one grid cell, so the button keeps its width while the
+// words cross-fade.
+function SwapLabel({ rest, hover }: { rest: string; hover: string }) {
+  return (
+    <span className="grid justify-items-center">
+      <span className="[grid-area:1/1] transition-opacity duration-300 group-hover:opacity-0">
+        {rest}
+      </span>
+      <span className="[grid-area:1/1] opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        {hover}
+      </span>
+    </span>
+  );
+}
+
+function MicrocopyThumbnail() {
+  // Rest: "Are you sure?" with No / Yes. Hover: the dialog names the thing
+  // and the buttons name the action.
+  return (
+    <div
+      className={`flex h-20 w-28 flex-col justify-between rounded-xl bg-card p-2.5 shadow-xs ${EDGE}`}
+    >
+      <div className="flex flex-col items-start gap-1.5">
+        <span className="text-[10px] leading-none font-medium [&>span]:justify-items-start">
+          <SwapLabel hover="Delete project?" rest="Are you sure?" />
+        </span>
+        <span className="h-1 w-16 rounded-full bg-muted-foreground/20" />
+      </div>
+      <div className="flex justify-end gap-1 text-[9px] leading-none font-medium">
+        <span className="rounded-full px-1.5 py-1 text-muted-foreground ring-1 ring-border">
+          <SwapLabel hover="Cancel" rest="No" />
+        </span>
+        <span className="rounded-full bg-foreground px-1.5 py-1 text-background">
+          <SwapLabel hover="Delete" rest="Yes" />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function RealContentThumbnail() {
+  // Rest: a long name runs off the card and takes its count with it.
+  // Hover: it truncates and the count lines up with the others again.
+  return (
+    <div
+      className={`relative flex h-20 w-28 flex-col justify-center gap-2.5 overflow-hidden rounded-xl bg-card px-2.5 shadow-xs ${EDGE}`}
+    >
+      <div className="flex items-center gap-1.5">
+        <span className="size-4 shrink-0 rounded-full bg-muted-foreground/25" />
+        <span className="max-w-[200px] shrink-0 truncate text-[9px] leading-none font-medium transition-[max-width] duration-700 ease-snappy group-hover:max-w-[46px]">
+          Maximiliane Wolfeschlegelsteinhausen
+        </span>
+        <span className="ml-auto h-1.5 w-4 shrink-0 rounded-full bg-muted-foreground/40" />
+      </div>
+      {[10, 7].map((width, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <span className="size-4 shrink-0 rounded-full bg-muted-foreground/25" />
+          <span
+            className="h-1.5 rounded-full bg-muted-foreground/30"
+            style={{ width: width * 4 }}
+          />
+          <span className="ml-auto h-1.5 w-4 shrink-0 rounded-full bg-muted-foreground/40" />
+        </div>
+      ))}
+      <div
+        className={`absolute inset-y-2 right-[1.875rem] border-r transition-colors duration-300 ${GUIDE}`}
+      />
     </div>
   );
 }
@@ -1046,6 +1402,75 @@ function NoveltyBudgetThumbnail() {
   );
 }
 
+// Rest: three products built from the same defaults. Hover: each picks a
+// feel - compact and square, roomy and soft, round and springy.
+const FEEL_CARDS = [
+  {
+    card: "group-hover:rounded-[4px] group-hover:p-1 group-hover:gap-0.5",
+    row: "group-hover:h-1.5 group-hover:rounded-[1px]",
+    extra: "group-hover:h-1.5 group-hover:opacity-100",
+    ease: "ease-snappy",
+  },
+  {
+    card: "group-hover:rounded-[12px] group-hover:p-2 group-hover:gap-2",
+    row: "group-hover:h-2 group-hover:rounded-[3px] group-hover:bg-muted-foreground/20",
+    extra: "",
+    ease: "ease-snappy",
+  },
+  {
+    card: "group-hover:rounded-[16px] group-hover:gap-1.5",
+    row: "group-hover:h-3 group-hover:rounded-full",
+    extra: "",
+    ease: "ease-spring",
+  },
+];
+
+function ProductFeelThumbnail() {
+  return (
+    <div className="flex items-center gap-1.5">
+      {FEEL_CARDS.map((feel, i) => (
+        <div
+          key={i}
+          className={`flex w-9 flex-col gap-1 rounded-[8px] bg-card p-1.5 shadow-xs ring-1 ring-border transition-all duration-500 ${feel.ease} ${feel.card}`}
+          style={{ transitionDelay: `${i * 40}ms` }}
+        >
+          {[0, 1, 2].map((r) => (
+            <div
+              key={r}
+              className={`h-2 shrink-0 rounded-[3px] bg-muted-foreground/30 transition-all duration-500 ${feel.ease} ${feel.row}`}
+              style={{ transitionDelay: `${i * 40}ms` }}
+            />
+          ))}
+          <div
+            className={`-mt-1 h-0 shrink-0 rounded-[1px] bg-muted-foreground/30 opacity-0 transition-all duration-500 ${feel.ease} ${feel.extra} group-hover:mt-0`}
+            style={{ transitionDelay: `${i * 40}ms` }}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DesignTokensThumbnail() {
+  // Rest: three controls, each with its own hand-picked radius and tone.
+  // Hover: they all read the same token, marked by the dashed guide.
+  const item =
+    "transition-[border-radius,background-color] duration-500 ease-snappy group-hover:rounded-[6px] group-hover:bg-muted-foreground/35";
+  return (
+    <div
+      className={`flex flex-col items-start gap-1.5 rounded-xl border p-2 ${GUIDE}`}
+    >
+      <div className={`h-5 w-20 rounded-[2px] bg-muted-foreground/20 ${item}`} />
+      <div className="flex gap-1.5">
+        <div className={`h-5 w-10 rounded-[10px] bg-muted-foreground/30 ${item}`} />
+        <div
+          className={`h-5 w-8 rounded-[4px] bg-muted-foreground/45 ${item}`}
+        />
+      </div>
+    </div>
+  );
+}
+
 const thumbnails: Record<string, () => React.ReactNode> = {
   "letter-spacing": LetterSpacingThumbnail,
   "text-wrapping": TextWrappingThumbnail,
@@ -1060,6 +1485,8 @@ const thumbnails: Record<string, () => React.ReactNode> = {
   noise: NoiseThumbnail,
   "shadows-not-borders": ShadowsNotBordersThumbnail,
   "image-outlines": ImageOutlinesThumbnail,
+  "color-roles": ColorRolesThumbnail,
+  "dark-mode": DarkModeThumbnail,
   "hit-areas": HitAreasThumbnail,
   "html-background": HtmlBackgroundThumbnail,
   "button-press": ButtonPressThumbnail,
@@ -1079,19 +1506,30 @@ const thumbnails: Record<string, () => React.ReactNode> = {
   "scroll-fades": ScrollFadesThumbnail,
   whitespace: WhitespaceThumbnail,
   "spacing-scale": SpacingScaleThumbnail,
+  alignment: AlignmentThumbnail,
+  density: DensityThumbnail,
+  "layout-shift": LayoutShiftThumbnail,
+  responsive: ResponsiveThumbnail,
   "interaction-states": InteractionStatesThumbnail,
   "focus-rings": FocusRingsThumbnail,
   "input-details": InputDetailsThumbnail,
   "empty-states": EmptyStatesThumbnail,
   "command-menu": CommandMenuThumbnail,
   overlays: OverlaysThumbnail,
+  toasts: ToastsThumbnail,
+  "destructive-actions": DestructiveActionsThumbnail,
+  microcopy: MicrocopyThumbnail,
+  "real-content": RealContentThumbnail,
   "reduced-motion": ReducedMotionThumbnail,
   "font-smoothing": FontSmoothingThumbnail,
   "visual-hierarchy": VisualHierarchyThumbnail,
   "line-length": LineLengthThumbnail,
+  "type-scale": TypeScaleThumbnail,
   "curve-smoothing": CurveSmoothingThumbnail,
   "taste-is-trained": TasteThumbnail,
   timelessness: TimelessnessThumbnail,
+  "product-feel": ProductFeelThumbnail,
+  "design-tokens": DesignTokensThumbnail,
 };
 
 export function ConceptThumbnail({
