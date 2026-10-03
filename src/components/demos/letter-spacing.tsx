@@ -4,13 +4,13 @@ import { useState } from "react";
 
 import { Compare, CompareItem } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
-import { SegmentedControl } from "@/components/app/segmented-control";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
 /**
  * Inter's dynamic metrics: the letter spacing (in em) that keeps the
- * typeface looking even at a given pixel size. From rsms.me/inter/dynmetrics.
+ * typeface looking even at a given pixel size. Published by Rasmus Andersson
+ * for Inter 3, which had a single (text) design for every size.
  */
 function interTracking(fontSizePx: number) {
   const a = -0.0223;
@@ -21,12 +21,50 @@ function interTracking(fontSizePx: number) {
 
 function formatEm(value: number) {
   const rounded = Math.round(value * 1000) / 1000;
-  if (rounded === 0) return "0";
-  return `${rounded > 0 ? "+" : ""}${rounded}em`;
+  if (rounded === 0) return "0em";
+  return `${rounded > 0 ? "+" : "−"}${Math.abs(rounded).toFixed(3)}em`;
 }
 
-function unwrap(value: number | readonly number[]) {
-  return Array.isArray(value) ? value[0] : (value as number);
+function getSliderValue(value: number | readonly number[]) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+/**
+ * The site loads Inter 4, whose optical size axis already tightens display
+ * sizes on its own. Pinning `opsz` to the text design shows the problem the
+ * way most fonts have it: one drawing, scaled up.
+ */
+const TEXT_DESIGN: React.CSSProperties = {
+  fontVariationSettings: '"opsz" 14',
+};
+
+function Word({
+  size,
+  tracking,
+  guide = false,
+}: {
+  size: number;
+  tracking: number;
+  guide?: boolean;
+}) {
+  return (
+    <span
+      className="relative w-fit font-semibold leading-none whitespace-nowrap text-foreground"
+      style={{ ...TEXT_DESIGN, fontSize: size, letterSpacing: `${tracking}em` }}
+    >
+      Headline
+      {guide ? (
+        // Marks where the tracked word ends and runs up through the row
+        // above, so the untracked word's extra width shows as overshoot.
+        <span
+          aria-hidden="true"
+          className="absolute bottom-0 h-[calc(200%+2.5rem)] border-l border-dashed border-sky-300 dark:border-sky-800"
+          // letter-spacing also trails the last letter; sit on the glyph.
+          style={{ right: `${tracking}em` }}
+        />
+      ) : null}
+    </span>
+  );
 }
 
 export function LetterSpacingDemo() {
@@ -34,96 +72,41 @@ export function LetterSpacingDemo() {
   const tracking = interTracking(size);
 
   return (
-    <Demo className="gap-8">
-      <div className="grid w-full max-w-sm gap-1 rounded-xl bg-card px-6 py-5 shadow-(--custom-shadow)">
-        {[0, tracking].map((value, index) => (
-          <div
-            key={index}
-            className="flex min-w-0 items-baseline justify-between gap-4"
-          >
-            <span
-              className="truncate font-semibold leading-none text-foreground"
-              style={{
-                fontSize: size,
-                letterSpacing: `${value}em`,
-              }}
-            >
-              Headline
-            </span>
-            <span className="shrink-0 text-[10px] tabular-nums text-muted-foreground">
-              {formatEm(value)}
-            </span>
-          </div>
-        ))}
+    <Demo className="gap-10 px-4 sm:px-8">
+      <div
+        aria-hidden="true"
+        className="flex w-full max-w-sm flex-col gap-5 rounded-xl bg-card px-5 py-5 shadow-(--custom-shadow)"
+      >
+        {/* Label (16px) + gap (4px) per row and a 20px gap between rows:
+            the guide spans 2 words + 40px. */}
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] leading-4 tabular-nums text-muted-foreground">
+            No tracking
+          </span>
+          <Word size={size} tracking={0} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] leading-4 tabular-nums text-sky-500">
+            {formatEm(tracking)}
+          </span>
+          <Word guide size={size} tracking={tracking} />
+        </div>
       </div>
+
       <label className="grid w-full max-w-xs gap-2.5">
-        <span className="flex justify-between text-xs text-muted-foreground">
-          Size
+        <span className="flex items-center justify-between text-xs text-muted-foreground">
+          Font size
           <span className="tabular-nums text-foreground">{size}px</span>
         </span>
         <Slider
           aria-label="Font size"
-          max={72}
-          min={16}
-          onValueChange={(value) => setSize(unwrap(value))}
+          max={56}
+          min={12}
+          onValueChange={(value) => setSize(getSliderValue(value))}
           step={1}
           value={[size]}
         />
       </label>
-    </Demo>
-  );
-}
-
-type Tracking = "flat" | "scaled";
-
-const TRACKING_OPTIONS = [
-  { value: "flat", label: "Flat" },
-  { value: "scaled", label: "Scaled" },
-] as const;
-
-const SCALE = [
-  { size: 34, weight: 600, text: "Launch week", lineHeight: 1.05 },
-  { size: 20, weight: 500, text: "Five days of shipping", lineHeight: 1.2 },
-  {
-    size: 14,
-    weight: 400,
-    text: "Every day this week we release one thing we have been working on for months. Some are big, most are small.",
-    lineHeight: 1.55,
-  },
-  { size: 11, weight: 500, text: "Posted Monday, 9:00", lineHeight: 1.4 },
-] as const;
-
-export function TrackingScaleDemo() {
-  const [mode, setMode] = useState<Tracking>("flat");
-
-  return (
-    <Demo className="gap-8">
-      <div className="grid w-full max-w-sm gap-2.5 rounded-xl bg-card px-6 py-6 shadow-(--custom-shadow)">
-        {SCALE.map((step, index) => (
-          <span
-            key={step.size}
-            className={cn(
-              "transition-[letter-spacing] duration-200 ease-out motion-reduce:transition-none",
-              index >= 2 ? "text-muted-foreground" : "text-foreground"
-            )}
-            style={{
-              fontSize: step.size,
-              fontWeight: step.weight,
-              lineHeight: step.lineHeight,
-              letterSpacing:
-                mode === "scaled" ? `${interTracking(step.size)}em` : "0",
-            }}
-          >
-            {step.text}
-          </span>
-        ))}
-      </div>
-      <SegmentedControl
-        ariaLabel="Letter spacing across the scale"
-        onChange={setMode}
-        options={TRACKING_OPTIONS}
-        value={mode}
-      />
     </Demo>
   );
 }
@@ -172,11 +155,11 @@ export function UppercaseTrackingDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
-        <CompareItem verdict="wrong">
+        <CompareItem verdict="wrong" caption="0em">
           <PinnedList tracking="0" />
         </CompareItem>
-        <CompareItem verdict="right">
-          <PinnedList tracking="0.06em" />
+        <CompareItem verdict="right" caption="0.05em">
+          <PinnedList tracking="0.05em" />
         </CompareItem>
       </Compare>
     </Demo>

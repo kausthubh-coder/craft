@@ -94,22 +94,31 @@ export function SquircleCurvatureView({
   curvature: number;
   onCurvatureChange?: (curvature: number) => void;
 }) {
-  const name = CURVATURE_NAMES[String(curvature)];
+  // Slider steps can carry float noise, so round before naming the stop.
+  const rounded = Math.round(curvature * 10) / 10;
+  const name = CURVATURE_NAMES[String(rounded)];
 
   return (
     <Demo className="gap-10 px-4 sm:px-8">
       <div className="flex flex-col items-center gap-4" aria-hidden="true">
-        <div
-          className="size-36 rounded-[48px] bg-card shadow-(--custom-shadow) transition-[corner-shape] duration-200 ease-out motion-reduce:transition-none dark:bg-muted"
-          style={
-            {
-              cornerShape: `superellipse(${curvature})`,
-            } as React.CSSProperties
-          }
-        />
+        <div className="relative size-36">
+          <div
+            className="size-full rounded-[48px] bg-card shadow-(--custom-shadow) dark:bg-muted"
+            style={
+              {
+                cornerShape: `superellipse(${rounded})`,
+              } as React.CSSProperties
+            }
+          />
+          {/* Where a plain 48px round corner would sit, for reference. */}
+          <div className="pointer-events-none absolute inset-0 rounded-[48px] border border-dashed border-sky-400 dark:border-sky-500" />
+          <span className="absolute -top-5 right-0 text-[9px] text-sky-400 dark:text-sky-500">
+            Round
+          </span>
+        </div>
         <span className="font-mono text-[11px] text-muted-foreground">
           <span className="text-foreground">
-            superellipse({curvature.toFixed(1)})
+            superellipse({rounded.toFixed(1)})
           </span>
           {name ? <span className="ml-2">{name}</span> : null}
         </span>
@@ -119,7 +128,7 @@ export function SquircleCurvatureView({
         <span className="flex items-center justify-between text-xs text-muted-foreground">
           Curvature
           <span className="tabular-nums text-foreground">
-            {curvature.toFixed(1)}
+            {rounded.toFixed(1)}
           </span>
         </span>
         <Slider

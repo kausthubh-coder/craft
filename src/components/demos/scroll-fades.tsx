@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  CheckCircleIcon,
-  CircleIcon,
-} from "@phosphor-icons/react";
-import {
-  type CSSProperties,
-  type UIEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { CheckCircleIcon, CircleIcon } from "@phosphor-icons/react";
+import { type UIEvent, useCallback, useRef, useState } from "react";
 
 import { Compare, CompareItem, CompareLabel } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
@@ -30,19 +20,96 @@ const TASKS = [
   { title: "Archive the old marketing site", done: false },
 ] as const;
 
-const FADE = "2.5rem";
+/** How far each fade reaches, and how much scroll it takes to grow in. */
+const FADE_PX = 40;
+
+const STATIC_FADE_Y = `linear-gradient(to bottom, transparent, black ${FADE_PX}px, black calc(100% - ${FADE_PX}px), transparent)`;
+
+/*
+ * The scroll-linked fade, in plain CSS. Each fade size is a registered custom
+ * property driven by the element's own scroll position: the start fade grows
+ * over the first 40px of scroll and the end fade shrinks over the last 40px.
+ * Without scroll-driven animations the declared 40px values apply, which is
+ * the static fade, and the demo's scroll listener takes over.
+ */
+const SCROLL_FADE_CSS = `
+@property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@keyframes scroll-fade-start { from { --fade-start: 0px; } to { --fade-start: ${FADE_PX}px; } }
+@keyframes scroll-fade-end { from { --fade-end: ${FADE_PX}px; } to { --fade-end: 0px; } }
+.scroll-fade-y, .scroll-fade-x { --fade-start: ${FADE_PX}px; --fade-end: ${FADE_PX}px; }
+.scroll-fade-y { mask-image: linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent); }
+.scroll-fade-x { mask-image: linear-gradient(to right, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent); }
+@supports (animation-timeline: scroll()) {
+  .scroll-fade-y, .scroll-fade-x {
+    --fade-start: 0px;
+    --fade-end: 0px;
+    animation: scroll-fade-start linear both, scroll-fade-end linear both;
+    animation-range: 0 ${FADE_PX}px, calc(100% - ${FADE_PX}px) 100%;
+  }
+  .scroll-fade-y { animation-timeline: scroll(self y); }
+  .scroll-fade-x { animation-timeline: scroll(self x); }
+}
+`;
+
+function ScrollFadeStyles() {
+  return (
+    <style href="craft-scroll-fade" precedence="default">
+      {SCROLL_FADE_CSS}
+    </style>
+  );
+}
+
+/**
+ * Fallback for browsers without scroll-driven animations (Firefox, as of
+ * October 2026): write the same two properties from a scroll listener.
+ */
+function useScrollFadeFallback(axis: "x" | "y") {
+  return useCallback(
+    (node: HTMLElement | null) => {
+      if (!node || CSS.supports("animation-timeline: scroll()")) return;
+
+      const update = () => {
+        const position = axis === "y" ? node.scrollTop : node.scrollLeft;
+        const size = axis === "y" ? node.clientHeight : node.clientWidth;
+        const total = axis === "y" ? node.scrollHeight : node.scrollWidth;
+        const remaining = Math.max(0, total - size - position);
+        node.style.setProperty(
+          "--fade-start",
+          `${Math.min(FADE_PX, Math.max(0, position))}px`
+        );
+        node.style.setProperty(
+          "--fade-end",
+          `${Math.min(FADE_PX, remaining)}px`
+        );
+      };
+
+      update();
+      node.addEventListener("scroll", update, { passive: true });
+      const observer = new ResizeObserver(update);
+      observer.observe(node);
+      return () => {
+        node.removeEventListener("scroll", update);
+        observer.disconnect();
+      };
+    },
+    [axis]
+  );
+}
 
 /* Keeps two scrollers at the same position so both edges can be compared. */
 function useSyncedScroll() {
   const refs = useRef<(HTMLDivElement | null)[]>([]);
+  const callbacks = useRef<((node: HTMLDivElement | null) => void)[]>([]);
   const lock = useRef(false);
 
-  const register = useCallback(
-    (index: number) => (node: HTMLDivElement | null) => {
+  // Cached per index, so the ref callbacks stay stable across renders.
+  const register = useCallback((index: number) => {
+    callbacks.current[index] ??= (node: HTMLDivElement | null) => {
       refs.current[index] = node;
-    },
-    []
-  );
+    };
+    return callbacks.current[index];
+  }, []);
 
   const onScroll = useCallback((event: UIEvent<HTMLDivElement>) => {
     if (lock.current) return;
@@ -60,6 +127,26 @@ function useSyncedScroll() {
   }, []);
 
   return { register, onScroll };
+}
+
+/* One stable ref callback that registers for syncing and attaches the
+   fallback listener. */
+function useScrollFadeRef(
+  register: (node: HTMLDivElement | null) => void,
+  axis: "x" | "y"
+) {
+  const fallback = useScrollFadeFallback(axis);
+  return useCallback(
+    (node: HTMLDivElement | null) => {
+      register(node);
+      const cleanup = fallback(node);
+      return () => {
+        register(null);
+        cleanup?.();
+      };
+    },
+    [register, fallback]
+  );
 }
 
 function TaskList() {
@@ -83,7 +170,12 @@ function TaskList() {
               weight="regular"
             />
           )}
-          <span className={cn("truncate", task.done && "text-muted-foreground line-through")}>
+          <span
+            className={cn(
+              "truncate",
+              task.done && "text-muted-foreground line-through"
+            )}
+          >
             {task.title}
           </span>
         </li>
@@ -91,6 +183,16 @@ function TaskList() {
     </ul>
   );
 }
+
+function ListFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+      {children}
+    </div>
+  );
+}
+
+const LIST_CLASS = "h-44 overflow-y-auto overscroll-contain";
 
 /* Hard edge versus a static mask. */
 
@@ -100,124 +202,74 @@ export function ScrollFadesDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
-        <CompareItem verdict="wrong">
-          <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+        <CompareItem caption="Hard edge" verdict="wrong">
+          <ListFrame>
             <div
+              aria-label="Tasks, hard edge"
+              className={LIST_CLASS}
+              onScroll={onScroll}
               ref={register(0)}
-              className="h-44 overflow-y-auto overscroll-contain"
-              onScroll={onScroll}
+              tabIndex={0}
             >
               <TaskList />
             </div>
-          </div>
+          </ListFrame>
         </CompareItem>
-        <CompareItem verdict="right">
-          <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+        <CompareItem caption="40px fade" verdict="right">
+          <ListFrame>
             <div
-              ref={register(1)}
-              className="h-44 overflow-y-auto overscroll-contain"
+              aria-label="Tasks, faded edges"
+              className={LIST_CLASS}
               onScroll={onScroll}
-              style={{
-                maskImage: `linear-gradient(to bottom, transparent, black ${FADE}, black calc(100% - ${FADE}), transparent)`,
-              }}
+              ref={register(1)}
+              style={{ maskImage: STATIC_FADE_Y }}
+              tabIndex={0}
             >
               <TaskList />
             </div>
-          </div>
+          </ListFrame>
         </CompareItem>
       </Compare>
     </Demo>
   );
 }
 
-/* Edge aware: the fade only appears on the side that can still scroll. */
-
-function useRegisterFadeProperties() {
-  useEffect(() => {
-    if (typeof CSS === "undefined" || !("registerProperty" in CSS)) return;
-    for (const name of ["--fade-start", "--fade-end"]) {
-      try {
-        CSS.registerProperty({
-          name,
-          syntax: "<length>",
-          inherits: false,
-          initialValue: "0px",
-        });
-      } catch {
-        // Already registered by another instance of this demo.
-      }
-    }
-  }, []);
-}
-
-function useEdgeState(axis: "y" | "x") {
-  const [edges, setEdges] = useState({ start: false, end: true });
-
-  const measure = useCallback(
-    (node: HTMLElement) => {
-      const position = axis === "y" ? node.scrollTop : node.scrollLeft;
-      const size = axis === "y" ? node.clientHeight : node.clientWidth;
-      const total = axis === "y" ? node.scrollHeight : node.scrollWidth;
-      const next = {
-        start: position > 1,
-        end: position + size < total - 1,
-      };
-      setEdges((current) =>
-        current.start === next.start && current.end === next.end ? current : next
-      );
-    },
-    [axis]
-  );
-
-  const style = {
-    "--fade-start": edges.start ? FADE : "0px",
-    "--fade-end": edges.end ? FADE : "0px",
-    maskImage:
-      axis === "y"
-        ? "linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent)"
-        : "linear-gradient(to right, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent)",
-    transition: "--fade-start 200ms ease-out, --fade-end 200ms ease-out",
-  } as CSSProperties;
-
-  return { measure, style };
-}
+/* Static fade versus a fade linked to the scroll position. */
 
 export function ScrollFadesEdgeDemo() {
-  useRegisterFadeProperties();
   const { register, onScroll } = useSyncedScroll();
-  const { measure, style } = useEdgeState("y");
+  const linkedRef = useScrollFadeRef(register(1), "y");
 
   return (
     <Demo className="gap-7 px-4 sm:px-8">
+      <ScrollFadeStyles />
       <Compare>
-        <CompareItem verdict="wrong">
-          <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+        <CompareItem caption="Always faded" verdict="wrong">
+          <ListFrame>
             <div
-              ref={register(0)}
-              className="h-44 overflow-y-auto overscroll-contain"
+              aria-label="Tasks, static fade"
+              className={LIST_CLASS}
               onScroll={onScroll}
-              style={{
-                maskImage: `linear-gradient(to bottom, transparent, black ${FADE}, black calc(100% - ${FADE}), transparent)`,
-              }}
+              ref={register(0)}
+              style={{ maskImage: STATIC_FADE_Y }}
+              tabIndex={0}
             >
               <TaskList />
             </div>
-          </div>
+          </ListFrame>
         </CompareItem>
-        <CompareItem verdict="right">
-          <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+        <CompareItem caption="Follows the scroll" verdict="right">
+          <ListFrame>
             <div
-              ref={register(1)}
-              className="h-44 overflow-y-auto overscroll-contain motion-reduce:transition-none"
-              onScroll={(event) => {
-                onScroll(event);
-                measure(event.currentTarget);
-              }}
-              style={style}
+              aria-label="Tasks, scroll-linked fade"
+              className={cn(LIST_CLASS, "scroll-fade-y")}
+              onScroll={onScroll}
+              ref={linkedRef}
+              tabIndex={0}
             >
               <TaskList />
             </div>
-          </div>
+          </ListFrame>
         </CompareItem>
       </Compare>
     </Demo>
@@ -242,32 +294,33 @@ const TOPICS = [
 function ChipRow({
   scrollRef,
   onScroll,
-  style,
   className,
+  label,
 }: {
   scrollRef: (node: HTMLDivElement | null) => void;
   onScroll: (event: UIEvent<HTMLDivElement>) => void;
-  style?: CSSProperties;
   className?: string;
+  label: string;
 }) {
   const [active, setActive] = useState<string>("All");
 
   return (
     <div
-      ref={scrollRef}
+      aria-label={label}
       className={cn(
-        "flex w-full gap-1.5 overflow-x-auto px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "flex w-full gap-1.5 overflow-x-auto overscroll-x-contain px-3 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className
       )}
       onScroll={onScroll}
-      style={style}
+      ref={scrollRef}
+      role="group"
     >
       {TOPICS.map((topic) => (
         <button
           key={topic}
           aria-pressed={active === topic}
           className={cn(
-            "h-7 shrink-0 cursor-pointer rounded-full px-3 text-xs font-medium whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring/50 motion-reduce:transition-none",
+            "h-7 shrink-0 cursor-pointer rounded-full px-3 text-xs font-medium whitespace-nowrap outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset",
             active === topic
               ? "bg-foreground text-background"
               : "bg-muted text-muted-foreground hover:text-foreground"
@@ -283,31 +336,32 @@ function ChipRow({
 }
 
 export function ScrollFadesHorizontalDemo() {
-  useRegisterFadeProperties();
   const { register, onScroll } = useSyncedScroll();
-  const { measure, style } = useEdgeState("x");
+  const linkedRef = useScrollFadeRef(register(1), "x");
 
   return (
     <Demo className="gap-6 px-4 sm:px-8">
+      <ScrollFadeStyles />
       <div className="flex w-full max-w-md flex-col gap-2">
         <CompareLabel verdict="wrong" />
-        <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
-          <ChipRow onScroll={onScroll} scrollRef={register(0)} />
-        </div>
+        <ListFrame>
+          <ChipRow
+            label="Topics, hard edge"
+            onScroll={onScroll}
+            scrollRef={register(0)}
+          />
+        </ListFrame>
       </div>
       <div className="flex w-full max-w-md flex-col gap-2">
         <CompareLabel verdict="right" />
-        <div className="w-full rounded-xl bg-card shadow-(--custom-shadow)">
+        <ListFrame>
           <ChipRow
-            className="motion-reduce:transition-none"
-            onScroll={(event) => {
-              onScroll(event);
-              measure(event.currentTarget);
-            }}
-            scrollRef={register(1)}
-            style={style}
+            className="scroll-fade-x"
+            label="Topics, scroll-linked fade"
+            onScroll={onScroll}
+            scrollRef={linkedRef}
           />
-        </div>
+        </ListFrame>
       </div>
     </Demo>
   );

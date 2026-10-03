@@ -1,9 +1,16 @@
 "use client";
 
+import {
+  animate,
+  motion,
+  useMotionValue,
+  type AnimationPlaybackControlsWithThen,
+} from "motion/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import monet from "@/assets/claude-monet-water-lilies.jpg";
+import { Compare, CompareItem } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
 import { SegmentedControl } from "@/components/app/segmented-control";
 import { cn } from "@/lib/utils";
@@ -76,6 +83,7 @@ export function DepthOfFieldDemo() {
               : "pointer-events-none scale-95 opacity-0"
           )}
           aria-label="Delete collection"
+          inert={!open}
           role="dialog"
         >
           <div className="text-sm font-medium text-foreground">
@@ -107,6 +115,7 @@ export function DepthOfFieldDemo() {
             "absolute inset-0 grid cursor-pointer place-items-center text-xs font-medium text-foreground transition-opacity duration-300 motion-reduce:transition-none",
             open ? "pointer-events-none opacity-0" : "opacity-100"
           )}
+          inert={open}
           onClick={() => setOpen(true)}
           type="button"
         >
@@ -122,6 +131,120 @@ export function DepthOfFieldDemo() {
         options={MODES}
         value={mode}
       />
+    </Demo>
+  );
+}
+
+/*
+ * Overscroll borrowed from a physical object. The list already fits, so any
+ * pull is past the end. A hard stop ignores it. A rubber band gives way less
+ * and less the further you pull, then springs back on release.
+ */
+
+const FOLDERS = [
+  { label: "Inbox", count: "12" },
+  { label: "Drafts", count: "3" },
+  { label: "Sent", count: "" },
+  { label: "Archive", count: "" },
+] as const;
+
+const LIST_HEIGHT = 168;
+const KEY_PULL = 120;
+
+/** Displacement for a pull of `distance`px: approaches `LIST_HEIGHT`, never reaches it. */
+function rubberBand(distance: number) {
+  const resisted =
+    (1 - 1 / ((Math.abs(distance) * 0.55) / LIST_HEIGHT + 1)) * LIST_HEIGHT;
+  return Math.sign(distance) * resisted;
+}
+
+function OverscrollList({ elastic }: { elastic: boolean }) {
+  const y = useMotionValue(0);
+  const start = useRef<number | null>(null);
+  const spring = useRef<AnimationPlaybackControlsWithThen>(undefined);
+  const [reading, setReading] = useState<{ pull: number; moved: number }>();
+
+  function pullTo(distance: number) {
+    spring.current?.stop();
+    const moved = elastic ? rubberBand(distance) : 0;
+    y.set(moved);
+    setReading({ pull: Math.abs(distance), moved: Math.abs(moved) });
+  }
+
+  function release() {
+    start.current = null;
+    spring.current = animate(y, 0, { type: "spring", duration: 0.5, bounce: 0 });
+  }
+
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <div
+        aria-label={`${elastic ? "Rubber band" : "Hard stop"} list. Drag it, or press the up and down arrow keys.`}
+        className="relative w-full cursor-grab touch-none overflow-hidden rounded-xl bg-card shadow-(--custom-shadow) select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 active:cursor-grabbing"
+        onKeyDown={(event) => {
+          if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+          event.preventDefault();
+          const distance = event.key === "ArrowDown" ? KEY_PULL : -KEY_PULL;
+          const moved = elastic ? rubberBand(distance) : 0;
+          spring.current?.stop();
+          setReading({ pull: KEY_PULL, moved: Math.abs(moved) });
+          const out = animate(y, moved, { duration: 0.15, ease: "easeOut" });
+          spring.current = out;
+          out.finished.then(() => {
+            if (spring.current === out) release();
+          });
+        }}
+        onLostPointerCapture={release}
+        onPointerDown={(event) => {
+          event.currentTarget.setPointerCapture(event.pointerId);
+          start.current = event.clientY;
+          pullTo(0);
+        }}
+        onPointerMove={(event) => {
+          if (start.current === null) return;
+          pullTo(event.clientY - start.current);
+        }}
+        role="group"
+        style={{ height: LIST_HEIGHT }}
+        tabIndex={0}
+      >
+        <motion.ul className="flex flex-col p-1" style={{ y }}>
+          {FOLDERS.map((folder, index) => (
+            <li
+              key={folder.label}
+              className={cn(
+                "flex h-10 items-center justify-between gap-3 rounded-lg px-2.5 text-xs",
+                index === 0 ? "bg-muted text-foreground" : "text-muted-foreground"
+              )}
+            >
+              {folder.label}
+              <span className="tabular-nums text-muted-foreground">
+                {folder.count}
+              </span>
+            </li>
+          ))}
+        </motion.ul>
+      </div>
+      <span className="text-[10px] tabular-nums text-muted-foreground">
+        {reading
+          ? `Pulled ${Math.round(reading.pull)}px, moved ${Math.round(reading.moved)}px`
+          : "Drag the list down"}
+      </span>
+    </div>
+  );
+}
+
+export function RubberBandDemo() {
+  return (
+    <Demo className="gap-8 px-4 sm:px-8">
+      <Compare>
+        <CompareItem verdict="wrong" label="Hard stop">
+          <OverscrollList elastic={false} />
+        </CompareItem>
+        <CompareItem verdict="right" label="Rubber band">
+          <OverscrollList elastic />
+        </CompareItem>
+      </Compare>
     </Demo>
   );
 }

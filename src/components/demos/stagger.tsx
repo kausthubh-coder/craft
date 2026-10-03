@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
-import { useReducedMotion } from "motion/react";
-import { useState } from "react";
+import { useInView } from "motion/react";
+import { useRef, useState } from "react";
 
 import { Compare, CompareItem } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
@@ -37,6 +37,8 @@ function getSliderValue(value: number | readonly number[]) {
   return Array.isArray(value) ? value[0] : (value as number);
 }
 
+// Reduced motion keeps the stagger, which is the point of every demo here,
+// but drops the 8px rise and only fades.
 function StaggerStyles() {
   return (
     <style>{`
@@ -44,29 +46,49 @@ function StaggerStyles() {
         from { opacity: 0; transform: translateY(8px); }
         to { opacity: 1; transform: translateY(0); }
       }
+      @keyframes craft-stagger-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .craft-stagger-row { animation-name: craft-stagger-fade !important; }
+      }
     `}</style>
   );
+}
+
+/**
+ * Holds the rows at their first frame until the list scrolls into view, so
+ * the first run is one the reader actually sees. `run` restarts it.
+ */
+function useStaggerRun() {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const [run, setRun] = useState(0);
+  const replay = () => setRun((n) => n + 1);
+  return { ref, run, replay, paused: !inView };
 }
 
 function MailRow({
   mail,
   delay,
-  duration,
+  paused,
   compact,
 }: {
   mail: Mail;
   delay: number;
-  duration: number;
+  paused: boolean;
   compact?: boolean;
 }) {
   return (
     <li
       className={cn(
-        "flex items-center gap-2.5 px-3",
+        "craft-stagger-row flex items-center gap-2.5 px-3",
         compact ? "py-1.5" : "py-2"
       )}
       style={{
-        animation: `craft-stagger-in ${duration}ms ${EASE_OUT} ${delay}ms both`,
+        animation: `craft-stagger-in ${ITEM_MS}ms ${EASE_OUT} ${delay}ms both`,
+        animationPlayState: paused ? "paused" : "running",
       }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -97,15 +119,15 @@ function MailRow({
 function MailList({
   items,
   step,
-  duration,
   run,
+  paused,
   compact,
   className,
 }: {
   items: readonly Mail[];
   step: number;
-  duration: number;
   run: number;
+  paused: boolean;
   compact?: boolean;
   className?: string;
 }) {
@@ -122,8 +144,8 @@ function MailList({
           key={mail.from}
           compact={compact}
           delay={index * step}
-          duration={duration}
           mail={mail}
+          paused={paused}
         />
       ))}
     </ul>
@@ -133,28 +155,22 @@ function MailList({
 function ReplayButton({ onClick }: { onClick: () => void }) {
   return (
     <Button onClick={onClick} variant="secondary">
-      <ArrowsClockwiseIcon weight="bold" />
+      <ArrowsClockwiseIcon aria-hidden="true" weight="bold" />
       Replay
     </Button>
   );
 }
 
 export function StaggerDemo() {
-  const reduceMotion = useReducedMotion();
+  const { ref, run, replay, paused } = useStaggerRun();
   const [step, setStep] = useState(40);
-  const [run, setRun] = useState(0);
-  const duration = reduceMotion ? 0 : ITEM_MS;
 
   return (
     <Demo className="gap-8">
       <StaggerStyles />
-      <MailList
-        className="max-w-xs"
-        duration={duration}
-        items={INBOX}
-        run={run}
-        step={reduceMotion ? 0 : step}
-      />
+      <div ref={ref} className="w-full max-w-xs">
+        <MailList items={INBOX} paused={paused} run={run} step={step} />
+      </div>
 
       <div className="flex w-full max-w-xs flex-col items-center gap-5">
         <label className="grid w-full gap-2.5">
@@ -168,47 +184,41 @@ export function StaggerDemo() {
             min={0}
             onValueChange={(value) => {
               setStep(getSliderValue(value));
-              setRun((n) => n + 1);
+              replay();
             }}
             step={10}
             value={[step]}
           />
         </label>
-        <ReplayButton onClick={() => setRun((n) => n + 1)} />
+        <ReplayButton onClick={replay} />
       </div>
     </Demo>
   );
 }
 
 export function StaggerCompareDemo() {
-  const reduceMotion = useReducedMotion();
-  const [run, setRun] = useState(0);
-  const duration = reduceMotion ? 0 : ITEM_MS;
+  const { ref, run, replay, paused } = useStaggerRun();
 
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <StaggerStyles />
-      <Compare>
-        <CompareItem verdict="wrong">
-          <MailList
-            compact
-            duration={duration}
-            items={INBOX}
-            run={run}
-            step={0}
-          />
-        </CompareItem>
-        <CompareItem verdict="right">
-          <MailList
-            compact
-            duration={duration}
-            items={INBOX}
-            run={run}
-            step={reduceMotion ? 0 : 40}
-          />
-        </CompareItem>
-      </Compare>
-      <ReplayButton onClick={() => setRun((n) => n + 1)} />
+      <div ref={ref} className="flex w-full justify-center">
+        <Compare>
+          <CompareItem verdict="wrong" label="Block">
+            <MailList compact items={INBOX} paused={paused} run={run} step={0} />
+          </CompareItem>
+          <CompareItem verdict="right" label="40ms stagger">
+            <MailList
+              compact
+              items={INBOX}
+              paused={paused}
+              run={run}
+              step={40}
+            />
+          </CompareItem>
+        </Compare>
+      </div>
+      <ReplayButton onClick={replay} />
     </Demo>
   );
 }
@@ -223,10 +233,8 @@ const FIXED_STEP = 60;
 const TOTAL_CAP = 300;
 
 export function StaggerCapDemo() {
-  const reduceMotion = useReducedMotion();
+  const { ref, run, replay, paused } = useStaggerRun();
   const [mode, setMode] = useState<CapMode>("fixed");
-  const [run, setRun] = useState(0);
-  const duration = reduceMotion ? 0 : ITEM_MS;
   const step =
     mode === "fixed" ? FIXED_STEP : TOTAL_CAP / (LONG_LIST.length - 1);
   const lastStart = Math.round(step * (LONG_LIST.length - 1));
@@ -234,16 +242,16 @@ export function StaggerCapDemo() {
   return (
     <Demo className="gap-8">
       <StaggerStyles />
-      <div className="flex w-full max-w-xs flex-col items-end gap-2">
+      <div ref={ref} className="flex w-full max-w-xs flex-col items-end gap-2">
         <MailList
           compact
-          duration={duration}
           items={LONG_LIST}
+          paused={paused}
           run={run}
-          step={reduceMotion ? 0 : step}
+          step={step}
         />
         <span className="text-[10px] tabular-nums text-muted-foreground">
-          Last item starts at {lastStart}ms
+          {Math.round(step)}ms step, last row starts at {lastStart}ms
         </span>
       </div>
 
@@ -252,12 +260,12 @@ export function StaggerCapDemo() {
           ariaLabel="Stagger strategy"
           onChange={(value) => {
             setMode(value);
-            setRun((n) => n + 1);
+            replay();
           }}
           options={CAP_MODES}
           value={mode}
         />
-        <ReplayButton onClick={() => setRun((n) => n + 1)} />
+        <ReplayButton onClick={replay} />
       </div>
     </Demo>
   );

@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import { MoonIcon, PlayIcon } from "@phosphor-icons/react";
-import {
-  definePatch,
-  defineSound,
-  ensureReady,
-  type Layer,
-} from "@web-kits/audio";
+import type { Layer, SoundDefinition } from "@web-kits/audio";
 import { motion, useReducedMotion } from "motion/react";
 
 import { Demo } from "@/components/app/demo";
@@ -15,17 +10,13 @@ import { SegmentedControl } from "@/components/app/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { playDefinitionAlways } from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
-async function trigger(layers: Layer[]) {
-  try {
-    await ensureReady();
-    defineSound({ layers })();
-  } catch {
-    // Audio unavailable before a user gesture. Stay silent.
-  }
+function trigger(layers: Layer[]) {
+  void playDefinitionAlways({ layers });
 }
 
 function unwrap(value: number | readonly number[]) {
@@ -34,25 +25,13 @@ function unwrap(value: number | readonly number[]) {
 
 /* One note, then the same note with layers stacked behind it */
 
-// Every layer is the same C5 in a different shape, a few cents off,
-// and quieter than the one before it.
+// A C: a sine, a triangle on the same pitch, then an octave up and an
+// octave down. Each layer is quieter than the one before it.
 const NOTE_LAYERS = [
   { source: { type: "sine", frequency: 523 }, decay: 0.09, gain: 0.08 },
-  {
-    source: { type: "triangle", frequency: 523, detune: 8 },
-    decay: 0.09,
-    gain: 0.05,
-  },
-  {
-    source: { type: "sine", frequency: 1046, detune: -6 },
-    decay: 0.07,
-    gain: 0.03,
-  },
-  {
-    source: { type: "square", frequency: 261, detune: 5 },
-    decay: 0.08,
-    gain: 0.02,
-  },
+  { source: { type: "triangle", frequency: 523 }, decay: 0.09, gain: 0.05 },
+  { source: { type: "sine", frequency: 1046 }, decay: 0.07, gain: 0.03 },
+  { source: { type: "square", frequency: 261 }, decay: 0.08, gain: 0.02 },
 ] as const;
 
 const LAYER_TINT = [
@@ -208,9 +187,9 @@ export function ArpeggioSpacingDemo() {
         source: { type: "square", frequency: note.frequency },
         envelope: {
           attack: 0,
-          decay: 0.06,
+          decay: i === NOTES.length - 1 ? 0.08 : 0.06,
           sustain: 0,
-          release: i === NOTES.length - 1 ? 0.08 : 0.02,
+          release: i === NOTES.length - 1 ? 0.025 : 0.02,
         },
         gain: note.gain,
         delay: (i * spacing) / 1000,
@@ -289,16 +268,13 @@ const NOISE = {
   gain: 0.06,
 } satisfies Layer;
 
-const textures = definePatch({
-  name: "Textures",
-  sounds: {
-    tone: TONE,
-    noise: NOISE,
-    both: { layers: [TONE, NOISE] },
-  },
-});
-
 type Texture = "tone" | "noise" | "both";
+
+const TEXTURES: Record<Texture, SoundDefinition> = {
+  tone: TONE,
+  noise: NOISE,
+  both: { layers: [TONE, NOISE] },
+};
 
 const TEXTURE_OPTIONS = [
   { value: "tone", label: "Tone" },
@@ -310,14 +286,9 @@ export function TextureLayersDemo() {
   const [texture, setTexture] = useState<Texture>("both");
   const [on, setOn] = useState(false);
 
-  const flip = async (next: boolean) => {
+  const flip = (next: boolean) => {
     setOn(next);
-    try {
-      await ensureReady();
-      textures.play(texture);
-    } catch {
-      // Audio unavailable before a user gesture. Stay silent.
-    }
+    void playDefinitionAlways(TEXTURES[texture]);
   };
 
   return (
@@ -330,7 +301,7 @@ export function TextureLayersDemo() {
         <Switch
           aria-label="Do not disturb"
           checked={on}
-          onCheckedChange={(next) => void flip(next)}
+          onCheckedChange={flip}
         />
       </div>
       <SegmentedControl

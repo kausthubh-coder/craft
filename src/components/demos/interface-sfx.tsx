@@ -12,7 +12,7 @@ import {
   TrayIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { definePatch, ensureReady } from "@web-kits/audio";
+import type { SoundDefinition } from "@web-kits/audio";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { Demo } from "@/components/app/demo";
@@ -20,7 +20,11 @@ import { SegmentedControl } from "@/components/app/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { playSoundAlways, progressionDetune } from "@/lib/sounds";
+import {
+  playDefinitionAlways,
+  playSoundAlways,
+  progressionDetune,
+} from "@/lib/sounds";
 import { cn } from "@/lib/utils";
 
 const CARD =
@@ -196,30 +200,21 @@ export function SoundCuesDemo() {
 
 /* The same action at three levels */
 
-// The site's success cue, pushed far past where it should sit: louder
-// layers and a longer tail. Only here so the reader can hear the difference.
-const levels = definePatch({
-  name: "Levels",
-  sounds: {
-    loud: {
-      layers: [523, 659, 784, 1047].map((frequency, i) => ({
-        source: { type: "square", frequency },
-        envelope: { attack: 0, decay: 0.16, sustain: 0, release: 0.06 },
-        gain: 0.2,
-        delay: i * 0.06,
-      })),
-    },
-  },
-});
-
-async function playLevel(name: string) {
-  try {
-    await ensureReady();
-    levels.play(name);
-  } catch {
-    // Audio unavailable before a user gesture. Stay silent.
-  }
-}
+// The site's success cue with every layer at five times its gain. The top
+// note lands at 0.3, still below the library's 0.5 default.
+const LOUD_SUCCESS: SoundDefinition = {
+  layers: [
+    { frequency: 523, gain: 0.3, decay: 0.06, release: 0.02 },
+    { frequency: 659, gain: 0.25, decay: 0.06, release: 0.02 },
+    { frequency: 784, gain: 0.225, decay: 0.06, release: 0.02 },
+    { frequency: 1047, gain: 0.2, decay: 0.08, release: 0.025 },
+  ].map(({ frequency, gain, decay, release }, i) => ({
+    source: { type: "square", frequency },
+    envelope: { attack: 0, decay, sustain: 0, release },
+    delay: i * 0.06,
+    gain,
+  })),
+};
 
 type Level = "silent" | "quiet" | "loud";
 
@@ -237,8 +232,8 @@ export function SoundLevelDemo() {
   useEffect(() => () => clearTimeout(timer.current), []);
 
   const copy = () => {
-    if (level === "quiet") playSoundAlways("success", { volume: 0.35 });
-    if (level === "loud") void playLevel("loud");
+    if (level === "quiet") void playSoundAlways("success");
+    if (level === "loud") void playDefinitionAlways(LOUD_SUCCESS);
     setCopied(true);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => setCopied(false), 1500);

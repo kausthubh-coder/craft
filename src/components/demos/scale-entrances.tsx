@@ -12,7 +12,6 @@ import {
   TrashIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
-import { useReducedMotion } from "motion/react";
 import { useState } from "react";
 
 import { Compare, CompareItem } from "@/components/app/compare";
@@ -21,12 +20,19 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 
+// Every animation here is started by the reader and the motion is the lesson,
+// so none of them drop to zero for reduced motion.
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+const ENTER_MS = 320;
+// The origin demo uses the bottom of the recommended range so the difference
+// between origins is visible without exaggerating the scale.
+const ORIGIN_SCALE = 0.9;
+// Slowed down so the shape of the entrance is easier to see.
+const SLOW_MS = 480;
 
 function getSliderValue(value: number | readonly number[]) {
   return Array.isArray(value) ? value[0] : (value as number);
 }
-const ENTER_MS = 320;
 
 const SHARE_ITEMS = [
   { label: "Copy link", Icon: LinkSimpleIcon },
@@ -92,9 +98,8 @@ function FakeTrigger({ open }: { open: boolean }) {
 }
 
 export function ScaleEntrancesDemo() {
-  const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const ms = reduceMotion ? 0 : ENTER_MS;
+  const ms = ENTER_MS;
 
   const popover = (from: number) =>
     ({
@@ -121,7 +126,12 @@ export function ScaleEntrancesDemo() {
         </CompareItem>
       </Compare>
 
-      <Button onClick={() => setOpen((value) => !value)} variant="secondary">
+      <Button
+        aria-pressed={open}
+        className="min-w-24"
+        onClick={() => setOpen((value) => !value)}
+        variant="secondary"
+      >
         {open ? "Close" : "Open"}
       </Button>
     </Demo>
@@ -131,12 +141,15 @@ export function ScaleEntrancesDemo() {
 function CornerCard({
   open,
   origin,
-  ms,
+  marker,
 }: {
   open: boolean;
   origin: string;
-  ms: number;
+  /** Where the dot marking the transform origin sits, in the menu's box. */
+  marker: string;
 }) {
+  const ms = ENTER_MS;
+
   return (
     <div className="relative h-44 w-full overflow-hidden rounded-xl bg-muted p-3 dark:bg-muted/40">
       <div aria-hidden="true" className="flex items-start justify-between">
@@ -153,37 +166,48 @@ function CornerCard({
           <DotsThreeIcon className="size-4" weight="bold" />
         </span>
       </div>
-      <Menu
-        items={MORE_ITEMS}
-        className="absolute top-10 right-3"
-        style={{
-          opacity: open ? 1 : 0,
-          transform: open ? "scale(1)" : "scale(0.85)",
-          transformOrigin: origin,
-          transition: `opacity ${ms}ms ${EASE_OUT}, transform ${ms}ms ${EASE_OUT}`,
-        }}
-      />
+      <div className="absolute top-10 right-3">
+        <Menu
+          className="w-28 sm:w-36"
+          items={MORE_ITEMS}
+          style={{
+            opacity: open ? 1 : 0,
+            transform: open ? "scale(1)" : `scale(${ORIGIN_SCALE})`,
+            transformOrigin: origin,
+            transition: `opacity ${ms}ms ${EASE_OUT}, transform ${ms}ms ${EASE_OUT}`,
+          }}
+        />
+        {/* Guide: the point the menu grows from. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute size-2 -translate-1/2 rounded-full border border-dashed border-sky-500 bg-sky-500/20"
+          style={{ left: marker.split(" ")[0], top: marker.split(" ")[1] }}
+        />
+      </div>
     </div>
   );
 }
 
 export function TransformOriginDemo() {
-  const reduceMotion = useReducedMotion();
   const [open, setOpen] = useState(false);
-  const ms = reduceMotion ? 0 : ENTER_MS;
 
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
         <CompareItem verdict="wrong" caption="Origin: center">
-          <CornerCard ms={ms} open={open} origin="center" />
+          <CornerCard marker="50% 50%" open={open} origin="center" />
         </CompareItem>
         <CompareItem verdict="right" caption="Origin: top right">
-          <CornerCard ms={ms} open={open} origin="top right" />
+          <CornerCard marker="100% 0%" open={open} origin="top right" />
         </CompareItem>
       </Compare>
 
-      <Button onClick={() => setOpen((value) => !value)} variant="secondary">
+      <Button
+        aria-pressed={open}
+        className="min-w-24"
+        onClick={() => setOpen((value) => !value)}
+        variant="secondary"
+      >
         {open ? "Close" : "Open"}
       </Button>
     </Demo>
@@ -191,10 +215,9 @@ export function TransformOriginDemo() {
 }
 
 export function StartingScaleDemo() {
-  const reduceMotion = useReducedMotion();
   const [from, setFrom] = useState(0.95);
   const [run, setRun] = useState(0);
-  const ms = reduceMotion ? 0 : 480;
+  const ms = SLOW_MS;
 
   return (
     <Demo className="gap-8">
@@ -222,9 +245,9 @@ export function StartingScaleDemo() {
 
       <div className="flex w-full max-w-xs flex-col items-center gap-5">
         <label className="grid w-full gap-2.5">
-          <span className="flex justify-between text-xs text-muted-foreground">
+          <span className="flex items-center justify-between text-xs text-muted-foreground">
             Start scale
-            <span className="tabular-nums text-foreground">
+            <span className="font-mono text-[10px] tabular-nums text-foreground">
               {from.toFixed(2)}
             </span>
           </span>
@@ -232,16 +255,15 @@ export function StartingScaleDemo() {
             aria-label="Starting scale"
             max={1}
             min={0}
-            onValueChange={(value) => {
-              setFrom(getSliderValue(value));
-              setRun((n) => n + 1);
-            }}
-            step={0.05}
+            onValueChange={(value) => setFrom(getSliderValue(value))}
+            // Replay once the thumb is released, not on every step of a drag.
+            onValueCommitted={() => setRun((n) => n + 1)}
+            step={0.01}
             value={[from]}
           />
         </label>
         <Button onClick={() => setRun((n) => n + 1)} variant="secondary">
-          <ArrowsClockwiseIcon weight="bold" />
+          <ArrowsClockwiseIcon aria-hidden="true" weight="bold" />
           Replay
         </Button>
       </div>

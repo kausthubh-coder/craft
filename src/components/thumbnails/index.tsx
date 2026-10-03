@@ -169,6 +169,65 @@ function FontSmoothingThumbnail() {
   );
 }
 
+// Inter is variable, so the weight eases down with the tone.
+const QUIET =
+  "transition-[color,font-weight] duration-500 ease-snappy group-hover:font-normal group-hover:text-muted-foreground";
+
+function VisualHierarchyThumbnail() {
+  // Rest: every line bold and dark. Hover: nothing grows, the details just
+  // step back, and the names and prices lead.
+  return (
+    <div
+      className={`flex w-40 flex-col divide-y divide-border rounded-xl bg-card text-[11px] leading-4 ${EDGE}`}
+    >
+      {[
+        ["Linen Shirt", "Sand", "$68", "12 left"],
+        ["Wool Hoodie", "Charcoal", "$145", "3 left"],
+      ].map(([name, meta, price, stock]) => (
+        <div key={name} className="flex items-center gap-2 px-2.5 py-2">
+          <span className="size-6 shrink-0 rounded-md bg-muted" />
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate font-semibold">{name}</span>
+            <span className={`truncate font-semibold ${QUIET}`}>{meta}</span>
+          </div>
+          <div className="flex flex-col items-end tabular-nums">
+            <span className="font-semibold">{price}</span>
+            <span className={`font-semibold ${QUIET}`}>{stock}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Line widths at rest (one long measure) and on hover (the 65 character
+// band). The text is the same, so the short version needs more lines; the
+// extra ones grow in from nothing so the block stays centered.
+const MEASURE_LINES = [
+  "h-1.5 w-40 group-hover:w-24",
+  "mt-2 h-1.5 w-40 group-hover:w-24",
+  "mt-2 h-1.5 w-24",
+  "mt-0 h-0 w-0 group-hover:mt-2 group-hover:h-1.5 group-hover:w-24",
+  "mt-0 h-0 w-0 group-hover:mt-2 group-hover:h-1.5 group-hover:w-14",
+];
+
+function LineLengthThumbnail() {
+  return (
+    <div className="relative flex w-40 flex-col">
+      {MEASURE_LINES.map((width, i) => (
+        <span
+          key={i}
+          className={`rounded-full bg-muted-foreground/40 transition-[width,height,margin] duration-700 ease-snappy ${width}`}
+        />
+      ))}
+      {/* The edge of the comfortable band. */}
+      <span
+        className={`absolute -inset-y-2 left-25 border-l transition-colors duration-300 ${GUIDE}`}
+      />
+    </div>
+  );
+}
+
 /* Color */
 
 const OKLCH_SWATCHES = [
@@ -330,6 +389,213 @@ function ScrollFadesThumbnail() {
   );
 }
 
+function WhitespaceThumbnail() {
+  // Rest: every gap is equal, so six lines read as one list. Hover: the gaps
+  // inside each group shrink, the gap between them grows.
+  return (
+    <div className="flex w-24 flex-col gap-2 transition-[gap] duration-500 ease-snappy group-hover:gap-5">
+      {[0, 1].map((group) => (
+        <div
+          key={group}
+          className="flex flex-col gap-2 rounded-[3px] outline-1 outline-offset-[3px] outline-sky-500/0 outline-dashed transition-[gap,outline-color] duration-500 ease-snappy group-hover:gap-1 group-hover:outline-sky-500/60"
+        >
+          <div className="h-1.5 w-12 rounded-full bg-muted-foreground/50" />
+          <div className="h-1.5 w-full rounded-full bg-muted-foreground/25" />
+          <div className="h-1.5 w-16 rounded-full bg-muted-foreground/25" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const SPACING_STEPS = [4, 8, 12, 16, 24, 32, 48, 64];
+const ONE_OFF_SPACES = [6, 13, 9, 22, 18, 37, 30, 52];
+
+function SpacingScaleThumbnail() {
+  // Rest: values picked by eye. Hover: they snap to 4, 8, 12 ... 64.
+  return (
+    <div className="flex h-16 items-end gap-1.5">
+      {SPACING_STEPS.map((step, i) => (
+        <div
+          key={step}
+          className="h-(--rest) w-2 rounded-[2px] bg-muted-foreground/30 transition-[height,background-color] duration-500 ease-snappy group-hover:h-(--step) group-hover:bg-muted-foreground/50"
+          style={
+            {
+              "--rest": `${ONE_OFF_SPACES[i]}px`,
+              "--step": `${step}px`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
+/* Interaction */
+
+// Rest: six copies of one face. Hover: each takes its own state - rest,
+// hover, pressed, focus, disabled, loading.
+const STATE_FACES = [
+  "",
+  "group-hover:bg-foreground/75",
+  "group-hover:scale-[0.92] group-hover:bg-foreground/65",
+  "group-hover:outline-foreground group-hover:outline-offset-2",
+  "group-hover:opacity-30",
+  "",
+];
+
+function InteractionStatesThumbnail() {
+  return (
+    <div className="grid grid-cols-3 gap-x-2.5 gap-y-3">
+      {STATE_FACES.map((face, i) => (
+        <span
+          key={i}
+          className={`relative grid h-5 w-8 place-items-center rounded-full bg-foreground outline-2 outline-offset-0 outline-transparent transition-[background-color,scale,opacity,outline-color,outline-offset] duration-300 ease-snappy ${face}`}
+          style={{ transitionDelay: `${i * 40}ms` }}
+        >
+          {i === 5 ? (
+            <span
+              className="size-2.5 rounded-full border-[1.5px] border-background/70 border-t-transparent opacity-0 transition-opacity duration-300 group-hover:animate-spin group-hover:opacity-100"
+              style={{ transitionDelay: "200ms" }}
+            />
+          ) : null}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function FocusRingsThumbnail() {
+  // Tab is pressed and the ring lands on the button, offset from its edge.
+  return (
+    <div className="flex items-center gap-3">
+      <span
+        className={`grid h-6 place-items-center rounded-md bg-card px-1.5 text-[10px] font-medium text-muted-foreground shadow-xs group-hover:animate-[thumb-press_600ms_ease-out] ${EDGE}`}
+      >
+        Tab
+      </span>
+      <span
+        className={`rounded-full bg-card px-4 py-2 text-xs font-medium shadow-xs outline-2 outline-offset-0 outline-transparent transition-[outline-color,outline-offset] delay-150 duration-300 ease-snappy group-hover:outline-foreground group-hover:outline-offset-2 ${EDGE}`}
+      >
+        Invite
+      </span>
+    </div>
+  );
+}
+
+function InputDetailsThumbnail() {
+  // Rest: an error after the first letter. Hover: the rest of the email
+  // types in and the error goes away.
+  return (
+    <div className="flex w-28 flex-col gap-1.5">
+      <div className="flex h-8 items-center rounded-lg bg-card px-2 text-[11px] shadow-xs ring-1 ring-rose-500/60 transition-[box-shadow] duration-300 group-hover:ring-border">
+        <span>j</span>
+        <span className="[clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-700 ease-[steps(12)] group-hover:[clip-path:inset(0_0_0_0)]">
+          ane@site.com
+        </span>
+      </div>
+      <span className="pl-0.5 text-[9px] text-rose-500 transition-opacity duration-200 group-hover:opacity-0">
+        Invalid email
+      </span>
+    </div>
+  );
+}
+
+function EmptyStatesThumbnail() {
+  // Rest: a lone "No data." line. Hover: the same card says what goes here
+  // and offers the one next action.
+  return (
+    <div
+      className={`relative flex h-20 w-28 items-center justify-center rounded-xl bg-card shadow-xs ${EDGE}`}
+    >
+      <div className="h-1.5 w-10 rounded-full bg-muted-foreground/25 transition-opacity duration-200 group-hover:opacity-0" />
+      <div className="absolute inset-0 flex translate-y-1 flex-col items-center justify-center gap-1 opacity-0 transition-[opacity,translate] duration-500 ease-snappy group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="mb-1 size-4 rounded-[5px] bg-muted ring-1 ring-border" />
+        <div className="h-1.5 w-12 rounded-full bg-muted-foreground/45" />
+        <div className="h-1 w-16 rounded-full bg-muted-foreground/20" />
+        <div className="mt-1 h-3.5 w-11 rounded-full bg-foreground/80" />
+      </div>
+    </div>
+  );
+}
+
+function CommandMenuThumbnail() {
+  // One shortcut, and the menu is just there: no transition on purpose.
+  // Every row carries its own shortcut.
+  return (
+    <div className="relative flex h-20 w-28 items-center justify-center">
+      <div className="flex gap-1.5 group-hover:opacity-0">
+        {["⌘", "K"].map((key) => (
+          <span
+            key={key}
+            className={`grid size-8 place-items-center rounded-lg bg-card text-sm font-medium text-muted-foreground shadow-xs ${EDGE}`}
+          >
+            {key}
+          </span>
+        ))}
+      </div>
+      <div
+        className={`absolute inset-0 flex flex-col rounded-xl bg-card p-1 opacity-0 shadow-sm group-hover:opacity-100 ${EDGE}`}
+      >
+        <div className="mb-1 flex h-4 items-center gap-1 border-b border-border px-1 pb-1">
+          <span className="size-1.5 rounded-full bg-muted-foreground/40" />
+          <span className="h-1 w-8 rounded-full bg-muted-foreground/30" />
+        </div>
+        {[14, 10, 12].map((width, i) => (
+          <div
+            key={i}
+            className={`flex h-4.5 items-center justify-between rounded-[5px] px-1 ${i === 0 ? "bg-muted" : ""}`}
+          >
+            <span
+              className="h-1 rounded-full bg-muted-foreground/40"
+              style={{ width: width * 4 }}
+            />
+            <span className="h-2.5 w-3 rounded-[3px] bg-background ring-1 ring-border" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OverlaysThumbnail() {
+  // The modal's list scrolls to its end inside the dashed edge, and the page
+  // behind stays exactly where it was.
+  return (
+    <div
+      className={`relative h-20 w-28 overflow-hidden rounded-xl bg-card ${EDGE}`}
+    >
+      <div className="flex flex-col gap-1.5 p-2.5">
+        <div className="h-1.5 w-10 rounded-full bg-muted-foreground/40" />
+        {[20, 16, 22, 14, 18].map((width, i) => (
+          <div
+            key={i}
+            className="h-1 rounded-full bg-muted-foreground/20"
+            style={{ width: width * 4 }}
+          />
+        ))}
+      </div>
+      <div className="absolute inset-0 bg-black/10 dark:bg-black/40" />
+      <div
+        className={`absolute inset-x-5 inset-y-3 overflow-hidden rounded-lg bg-card shadow-sm ${EDGE}`}
+      >
+        <div className="flex flex-col gap-1.5 p-2 transition-transform duration-700 ease-snappy group-hover:-translate-y-7">
+          {[12, 9, 11, 8, 12, 10, 9].map((width, i) => (
+            <div
+              key={i}
+              className="h-1.5 rounded-full bg-muted-foreground/35"
+              style={{ width: width * 4 }}
+            />
+          ))}
+        </div>
+        <div
+          className={`absolute inset-0.5 rounded-md border transition-colors duration-300 ${GUIDE}`}
+        />
+      </div>
+    </div>
+  );
+}
+
 /* Motion */
 
 function IconMorphThumbnail() {
@@ -481,6 +747,30 @@ function ExitAnimationsThumbnail() {
           }`}
         >
           <div className="h-1.5 w-12 rounded-full bg-muted-foreground/30" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ReducedMotionThumbnail() {
+  // The new row doesn't travel: it fades in right where it lands, inside the
+  // dashed slot, still highlighted so you can see what arrived.
+  return (
+    <div className={`flex w-28 flex-col rounded-xl bg-card p-1 ${EDGE}`}>
+      <div className={`h-5 rounded-lg border p-px ${GUIDE}`}>
+        <div className="flex h-full items-center gap-1.5 rounded-[7px] bg-muted px-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-hover:delay-150">
+          <span className="size-2.5 rounded-full bg-muted-foreground/40" />
+          <span className="h-1.5 w-12 rounded-full bg-muted-foreground/45" />
+        </div>
+      </div>
+      {[10, 14, 8].map((width, i) => (
+        <div key={i} className="flex h-5 items-center gap-1.5 px-2">
+          <span className="size-2.5 rounded-full bg-muted-foreground/20" />
+          <span
+            className="h-1.5 rounded-full bg-muted-foreground/25"
+            style={{ width: width * 4 }}
+          />
         </div>
       ))}
     </div>
@@ -787,7 +1077,18 @@ const thumbnails: Record<string, () => React.ReactNode> = {
   "scale-entrances": ScaleEntrancesThumbnail,
   "clip-path": ClipPathThumbnail,
   "scroll-fades": ScrollFadesThumbnail,
+  whitespace: WhitespaceThumbnail,
+  "spacing-scale": SpacingScaleThumbnail,
+  "interaction-states": InteractionStatesThumbnail,
+  "focus-rings": FocusRingsThumbnail,
+  "input-details": InputDetailsThumbnail,
+  "empty-states": EmptyStatesThumbnail,
+  "command-menu": CommandMenuThumbnail,
+  overlays: OverlaysThumbnail,
+  "reduced-motion": ReducedMotionThumbnail,
   "font-smoothing": FontSmoothingThumbnail,
+  "visual-hierarchy": VisualHierarchyThumbnail,
+  "line-length": LineLengthThumbnail,
   "curve-smoothing": CurveSmoothingThumbnail,
   "taste-is-trained": TasteThumbnail,
   timelessness: TimelessnessThumbnail,

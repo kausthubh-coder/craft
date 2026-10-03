@@ -7,45 +7,59 @@ publishedAt: "2026-07-16"
 resources:
   - url: https://emilkowal.ski/ui/7-practical-animation-tips
     title: 7 Practical Animation Tips
-    description: Emil Kowalski's list, including why popovers should never start from zero.
+    description: Emil Kowalski's list, including why popovers should not start from scale(0) and should grow from their trigger.
   - url: https://emilkowal.ski/ui/css-transforms
     title: CSS Transforms
-    description: A clear walk through scale, translate, and transform-origin, with visuals.
-  - url: https://base-ui.com/react/components/popover
-    title: Base UI Popover
-    description: Exposes the resolved transform origin as a CSS variable so the menu grows from its anchor.
+    description: An interactive walk through scale, translate and transform-origin.
+  - url: https://base-ui.com/react/handbook/animation
+    title: Base UI animation handbook
+    description: The starting and ending style attributes, and the transform origin variable on anchored popups.
   - url: https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin
     title: transform-origin
     description: The MDN reference for the property that decides where a scale grows from.
 ---
 
-Menus, popovers, and dialogs usually enter with a bit of scale. It reads as the element arriving rather than switching on. But the amount matters. A **scale entrance** that starts at zero looks like a cartoon zoom. One that starts at `0.95` looks like a small settle.
+Menus, popovers and dialogs often enter with a bit of scale, so they seem to
+arrive instead of switching on. But a **scale entrance** that starts at zero
+looks like a cartoon zoom. One that starts at `0.95` looks like a small
+settle.
 
-Open the two menus below. They share the same duration and easing. Only the starting scale is different.
+Open both menus. Same duration, same easing, different starting scale.
 
 <ScaleEntrancesDemo />
 
-The menu on the left spends the first part of its animation as a tiny unreadable smudge. Text scales along with the box, so every letter is squashed until the very end. The menu on the right is readable from the first frame. The scale is a hint of movement, not the movement itself.
+The left menu spends the start of its animation as an unreadable smudge,
+because the text scales with the box. The right one is readable from the
+first frame. The scale is a hint of movement, not the movement itself.
 
-Somewhere between `0.9` and `0.97` is the usual range. Combine it with an opacity fade so the element does not pop into existence at its starting size.
+**Start a scale entrance between 0.9 and 0.97, fade it in, and grow it from
+the thing that opened it.**
 
 ## Grow from the trigger
 
-Scale needs an origin. By default an element scales from its center, which is fine for a dialog in the middle of the screen. A menu that opens under a button in a corner should grow from that corner, so it looks attached to the thing you clicked.
+By default an element scales from its center. That suits a dialog in the
+middle of the screen. A menu under a button in the corner should grow out of
+that corner, so it looks attached to what you clicked. The dot marks the
+origin.
 
 <TransformOriginDemo />
 
-On the left the menu inflates from its own middle and seems to drift away from the button. On the right it grows out of the button. Same scale, same timing. The only change is `transform-origin`.
+Same `0.9` start, same timing. The only change is `transform-origin`.
 
-Positioning libraries know where the anchor is. Base UI and Floating UI expose it as a CSS variable, so you can write `transform-origin: var(--transform-origin)` once and get the right corner for every placement.
+A positioning library already knows where the trigger is. Base UI exposes it
+on every anchored popup as `--transform-origin`, so one line covers every side
+the menu can open on. Radix has a variable for each component, like
+`--radix-dropdown-menu-content-transform-origin`.
 
 ## Find your number
 
-Drag the slider to change where the menu starts. The animation here is slowed down so the shape of it is easier to see.
+Drag the slider to change where the menu starts. It is slowed to 480ms so you
+can see the shape of it.
 
 <StartingScaleDemo />
 
-Below `0.8` the entrance starts to feel like a zoom. Above `0.98` you may as well drop the scale and keep only the fade. The sweet spot is small enough that you would barely notice it if you were not looking for it.
+Below `0.8` it starts to read as a zoom. Above `0.98` you may as well drop the
+scale and keep the fade.
 
 ## Usage
 
@@ -53,45 +67,40 @@ Below `0.8` the entrance starts to feel like a zoom. Above `0.98` you may as wel
   tabs={[
     {
       label: "Tailwind",
-      language: "html",
+      language: "tsx",
       icon: "tailwind",
-      code: `<div
-  class="origin-(--transform-origin) transition duration-200 ease-out
-         data-closed:scale-95 data-closed:opacity-0"
+      code: `<Popover.Popup
+  className="origin-(--transform-origin) transition-[opacity,scale] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)]
+    data-starting-style:scale-95 data-starting-style:opacity-0
+    data-ending-style:scale-95 data-ending-style:opacity-0 data-ending-style:duration-100"
 >
   ...
-</div>`,
+</Popover.Popup>`,
     },
     {
       label: "CSS",
       language: "css",
       icon: "css",
-      code: `.menu {
-  transform-origin: var(--transform-origin, top center);
+      code: `.popup {
+  transform-origin: var(--transform-origin);
   transition:
     opacity 200ms cubic-bezier(0.23, 1, 0.32, 1),
-    transform 200ms cubic-bezier(0.23, 1, 0.32, 1);
+    scale 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.menu[data-closed] {
+.popup[data-starting-style],
+.popup[data-ending-style] {
   opacity: 0;
-  transform: scale(0.95);
-}`,
-    },
-    {
-      label: "Motion",
-      language: "tsx",
-      code: `import { motion } from "motion/react";
+  scale: 0.95;
+}
 
-<motion.div
-  initial={{ opacity: 0, scale: 0.95 }}
-  animate={{ opacity: 1, scale: 1 }}
-  exit={{ opacity: 0, scale: 0.95 }}
-  transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-  style={{ transformOrigin: "var(--transform-origin)" }}
-/>`,
+.popup[data-ending-style] {
+  transition-duration: 100ms;
+}`,
     },
   ]}
 />
 
-Keep exits shorter than entrances. A menu that takes 200ms to open can close in 120ms, since the user has already decided to leave and nothing needs to be read on the way out.
+`--transform-origin` only exists inside Base UI's anchored popups. For a
+menu you place yourself, set the origin to the corner nearest the trigger,
+like `origin-top-right` for a menu that opens below a right-aligned button.

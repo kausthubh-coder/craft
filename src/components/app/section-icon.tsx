@@ -3,6 +3,7 @@ import {
   BezierCurveIcon,
   ChartBarHorizontalIcon,
   CirclesThreeIcon,
+  CursorClickIcon,
   LayoutIcon,
   PenNibIcon,
   SpeakerHighIcon,
@@ -15,6 +16,7 @@ const icons = {
   Typography: TextAaIcon,
   Color: CirclesThreeIcon,
   Layout: LayoutIcon,
+  Interaction: CursorClickIcon,
   Motion: BezierCurveIcon,
   Sound: SpeakerHighIcon,
   Data: ChartBarHorizontalIcon,
@@ -27,6 +29,7 @@ export const sectionTextColor: Record<Section, string> = {
   Typography: "text-blue-600 dark:text-blue-400",
   Color: "text-rose-600 dark:text-rose-400",
   Layout: "text-amber-600 dark:text-amber-400",
+  Interaction: "text-lime-600 dark:text-lime-400",
   Motion: "text-violet-600 dark:text-violet-400",
   Sound: "text-emerald-600 dark:text-emerald-400",
   Data: "text-cyan-600 dark:text-cyan-400",
@@ -47,6 +50,8 @@ export const dotColorFrom: Record<DotColor, string> = {
     "[--dot-from:var(--color-rose-500)] dark:[--dot-from:var(--color-rose-400)]",
   Layout:
     "[--dot-from:var(--color-amber-500)] dark:[--dot-from:var(--color-amber-400)]",
+  Interaction:
+    "[--dot-from:var(--color-lime-500)] dark:[--dot-from:var(--color-lime-400)]",
   Motion:
     "[--dot-from:var(--color-violet-500)] dark:[--dot-from:var(--color-violet-400)]",
   Sound:
@@ -64,6 +69,8 @@ export const dotColorTo: Record<DotColor, string> = {
     "[--dot-to:var(--color-rose-500)] dark:[--dot-to:var(--color-rose-400)]",
   Layout:
     "[--dot-to:var(--color-amber-500)] dark:[--dot-to:var(--color-amber-400)]",
+  Interaction:
+    "[--dot-to:var(--color-lime-500)] dark:[--dot-to:var(--color-lime-400)]",
   Motion:
     "[--dot-to:var(--color-violet-500)] dark:[--dot-to:var(--color-violet-400)]",
   Sound:

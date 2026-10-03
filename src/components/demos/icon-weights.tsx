@@ -16,7 +16,12 @@ import {
 import { IconItalic, IconLink, IconStrikethrough } from "@tabler/icons-react";
 import { useState } from "react";
 
-import { Compare, CompareItem } from "@/components/app/compare";
+import {
+  Compare,
+  CompareItem,
+  RIGHT_ICON,
+  WRONG_ICON,
+} from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
 import { SegmentedControl } from "@/components/app/segmented-control";
 import { cn } from "@/lib/utils";
@@ -101,7 +106,7 @@ function ToolbarButton({
 export function IconMixDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
-      <Compare>
+      <Compare className="grid-cols-1 justify-items-center gap-8 sm:grid-cols-2 sm:gap-10">
         <CompareItem verdict="wrong">
           <div className="flex items-center gap-0.5 rounded-full bg-card p-0.5 shadow-(--custom-shadow)">
             <ToolbarButton label="Bold">
@@ -156,8 +161,8 @@ export function IconMixDemo() {
 type IconScale = "same" | "larger";
 
 const SCALE_OPTIONS = [
-  { value: "same", label: "Same as text" },
-  { value: "larger", label: "A little larger" },
+  { value: "same", label: "Same as text", icon: WRONG_ICON },
+  { value: "larger", label: "A little larger", icon: RIGHT_ICON },
 ] as const;
 
 export function IconTextSizeDemo() {
@@ -184,7 +189,6 @@ export function IconTextSizeDemo() {
                   "shrink-0 transition-[width,height] duration-200 ease-out motion-reduce:transition-none",
                   larger ? "mb-px size-[1.15em]" : "size-[1em]"
                 )}
-                weight="duotone"
               />
               {item.label}
             </li>

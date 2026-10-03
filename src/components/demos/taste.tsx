@@ -15,77 +15,106 @@ import { cn } from "@/lib/utils";
 
 /*
  * Two cards that look the same at a glance. One has three small flaws:
- * an icon sitting a pixel low, a corner radius that does not match the
- * rest of the card, and a primary button whose label is not centered.
+ * an icon tile with the wrong corner radius, a bell sitting 2px low, and a
+ * primary button whose padding is lopsided. Click a spot on either card to
+ * mark it; matching spots count on both.
  */
 
+type FlawId = "radius" | "bell" | "padding";
+
+const FLAWS: Record<FlawId, string> = {
+  radius: "4px radius",
+  bell: "2px low",
+  padding: "16px / 8px",
+};
+
 function Flaw({
-  active,
+  id,
+  shown,
+  marked,
+  onFind,
   children,
   className,
-  label,
 }: {
-  active: boolean;
+  id: FlawId;
+  shown: boolean;
+  marked: boolean;
+  onFind: (id: FlawId) => void;
   children: React.ReactNode;
   className?: string;
-  label: string;
 }) {
   return (
-    <span className={cn("relative inline-flex", className)}>
+    <span
+      className={cn("relative inline-flex", className)}
+      onClick={() => onFind(id)}
+    >
       {children}
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute -inset-1 rounded-md border border-rose-500 transition-opacity duration-300 motion-reduce:transition-none",
-          active ? "opacity-100" : "opacity-0"
+          "pointer-events-none absolute -inset-1 rounded-md border transition-opacity duration-200 motion-reduce:transition-none",
+          marked ? "border-rose-500" : "border-transparent",
+          shown ? "opacity-100" : "opacity-0"
         )}
       />
       <span
         aria-hidden="true"
         className={cn(
-          "pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-rose-500 px-1 py-px text-[10px] leading-tight text-white transition-opacity duration-300 motion-reduce:transition-none",
-          active ? "opacity-100" : "opacity-0"
+          "pointer-events-none absolute -top-1 left-1/2 z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-rose-500 px-1 py-px text-[10px] leading-tight text-white transition-opacity duration-200 motion-reduce:transition-none",
+          shown && marked ? "opacity-100" : "opacity-0"
         )}
       >
-        {label}
+        {FLAWS[id]}
       </span>
     </span>
   );
 }
 
-function ProjectCard({ flawed, revealed }: { flawed: boolean; revealed: boolean }) {
-  const show = flawed && revealed;
+function ProjectCard({
+  flawed,
+  shown,
+  onFind,
+}: {
+  flawed: boolean;
+  shown: Set<FlawId>;
+  onFind: (id: FlawId) => void;
+}) {
+  const flaw = (id: FlawId) => ({
+    id,
+    shown: shown.has(id),
+    marked: flawed,
+    onFind,
+  });
+
   return (
-    <div className="w-full max-w-60 rounded-2xl bg-card p-4 shadow-(--custom-shadow)">
-      <div className="flex items-center gap-2.5">
-        <Flaw active={show} label="Radius">
+    <div
+      aria-hidden="true"
+      className="w-full max-w-60 cursor-crosshair rounded-2xl bg-card p-3 shadow-(--custom-shadow) select-none sm:p-4"
+    >
+      <div className="flex items-center gap-2 sm:gap-2.5">
+        <Flaw {...flaw("radius")}>
           <div
             className={cn(
               "grid size-8 shrink-0 place-items-center bg-foreground text-background",
-              flawed ? "rounded-[5px]" : "rounded-lg"
+              flawed ? "rounded-[4px]" : "rounded-lg"
             )}
           >
-            <RocketLaunchIcon
-              aria-hidden="true"
-              className="size-4"
-              weight="fill"
-            />
+            <RocketLaunchIcon className="size-4" weight="fill" />
           </div>
         </Flaw>
         <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium text-foreground">
-            Launch week
+          <div className="truncate text-xs font-medium text-foreground sm:text-sm">
+            Launch
           </div>
-          <div className="truncate text-xs text-muted-foreground">
-            12 tasks, 3 open
+          <div className="truncate text-[11px] text-muted-foreground sm:text-xs">
+            3 open
           </div>
         </div>
-        <Flaw active={show} label="1px low">
+        <Flaw {...flaw("bell")}>
           <BellIcon
-            aria-hidden="true"
             className={cn(
               "size-4 text-muted-foreground",
-              flawed && "translate-y-px"
+              flawed && "translate-y-0.5"
             )}
           />
         </Flaw>
@@ -95,56 +124,73 @@ function ProjectCard({ flawed, revealed }: { flawed: boolean; revealed: boolean 
         <div className="h-full w-3/4 rounded-full bg-foreground" />
       </div>
 
-      <div className="mt-4 flex items-center gap-2">
-        <Flaw active={show} label="Off center">
-          <button
+      <div className="mt-4 flex items-center gap-1">
+        <Flaw {...flaw("padding")}>
+          <span
             className={cn(
-              "inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg bg-foreground text-xs font-medium text-background",
-              flawed ? "pr-2.5 pl-3.5" : "px-3"
+              "inline-flex h-8 items-center gap-1.5 rounded-lg bg-foreground text-xs font-medium whitespace-nowrap text-background",
+              flawed ? "pr-2 pl-4" : "px-3"
             )}
-            tabIndex={-1}
-            type="button"
           >
-            <PlusIcon aria-hidden="true" className="size-3.5" weight="bold" />
+            <PlusIcon className="size-3.5" weight="bold" />
             Add task
-          </button>
+          </span>
         </Flaw>
-        <button
-          className="inline-flex h-8 cursor-pointer items-center rounded-lg px-3 text-xs font-medium text-muted-foreground hover:bg-muted"
-          tabIndex={-1}
-          type="button"
-        >
+        <span className="hidden h-8 items-center rounded-lg px-2.5 text-xs font-medium text-muted-foreground sm:inline-flex">
           Share
-        </button>
+        </span>
       </div>
     </div>
   );
 }
 
+const FLAW_IDS = Object.keys(FLAWS) as FlawId[];
+
 export function SpotTheDifferenceDemo() {
+  const [found, setFound] = useState<Set<FlawId>>(() => new Set());
   const [revealed, setRevealed] = useState(false);
   const [flawedSide, setFlawedSide] = useState<"left" | "right">("right");
 
+  // Pick the flawed side after hydration so the server and client agree.
   useEffect(() => {
-    setFlawedSide(Math.random() < 0.5 ? "left" : "right");
+    if (Math.random() < 0.5) setFlawedSide("left");
   }, []);
 
+  const shown = revealed ? new Set(FLAW_IDS) : found;
+
+  function find(id: FlawId) {
+    if (revealed) return;
+    setFound((prev) => new Set(prev).add(id));
+  }
+
+  function toggleReveal() {
+    if (revealed) setFound(new Set());
+    setRevealed((value) => !value);
+  }
+
   return (
-    <Demo className="gap-8 px-4 sm:px-8">
+    <Demo className="gap-6 px-4 sm:px-8">
       <div className="grid w-full max-w-lg grid-cols-2 gap-3 pt-3 sm:gap-8">
-        <div className="flex min-w-0 justify-center">
-          <ProjectCard flawed={flawedSide === "left"} revealed={revealed} />
-        </div>
-        <div className="flex min-w-0 justify-center">
-          <ProjectCard flawed={flawedSide === "right"} revealed={revealed} />
-        </div>
+        {(["left", "right"] as const).map((side) => (
+          <div key={side} className="flex min-w-0 justify-center">
+            <ProjectCard
+              flawed={flawedSide === side}
+              onFind={find}
+              shown={shown}
+            />
+          </div>
+        ))}
       </div>
-      <Button
-        onClick={() => setRevealed((value) => !value)}
-        size="sm"
-        variant="secondary"
+      <span
+        aria-live="polite"
+        className="text-xs tabular-nums text-muted-foreground"
       >
-        {revealed ? "Hide" : "Reveal"}
+        {revealed
+          ? "All three, revealed"
+          : `Found ${found.size} of 3. Click anything that looks off.`}
+      </span>
+      <Button onClick={toggleReveal} size="sm" variant="secondary">
+        {revealed ? "Try again" : "Reveal"}
       </Button>
     </Demo>
   );
@@ -248,7 +294,8 @@ function MenuStage({
           "absolute top-8 left-0 w-36 rounded-lg bg-card p-1 shadow-(--custom-shadow) transition-[transform,opacity] motion-reduce:transition-none",
           open ? "scale-100 opacity-100" : "scale-90 opacity-0"
         )}
-        style={style}
+        // Closing is instant so only the opening is ever compared.
+        style={open ? style : { ...style, transitionDuration: "0ms" }}
       >
         {MENU_ITEMS.map((item) => (
           <div
@@ -273,7 +320,7 @@ export function PairJudgementDemo() {
     const timer = setTimeout(() => {
       setOpen(true);
       setBusy(false);
-    }, 260);
+    }, 60);
     return () => clearTimeout(timer);
   }, [busy]);
 

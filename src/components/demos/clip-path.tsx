@@ -16,19 +16,24 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
+const REVEAL_MS = 500;
+/* How far the card's shadow reaches past its edge in dark mode. */
+const SHADOW_ROOM = "16px";
 
-/* Reveal: animating width reflows the content, clipping does not. */
+/* Reveal: animating width squeezes the content, clipping does not. */
 
 function DeployCard() {
   return (
     <div className="flex w-full items-start gap-2.5 rounded-xl bg-card p-3 shadow-(--custom-shadow)">
-      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-foreground">
+      <span className="hidden size-7 shrink-0 place-items-center rounded-full bg-muted text-foreground sm:grid">
         <RocketLaunchIcon aria-hidden="true" className="size-3.5" weight="duotone" />
       </span>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-foreground">Deploy finished</p>
-        <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-          Production is live at acme.com
+        <p className="truncate text-xs font-medium text-foreground">
+          Deploy finished
+        </p>
+        <p className="mt-0.5 truncate text-[11px] leading-snug text-muted-foreground">
+          Live at acme.com
         </p>
       </div>
     </div>
@@ -44,10 +49,19 @@ export function ClipPathRevealDemo() {
         <CompareItem verdict="wrong">
           <div className="flex h-20 w-full items-start">
             <div
-              className="overflow-hidden motion-reduce:transition-none"
+              className="box-content shrink-0 overflow-hidden"
               style={{
+                // Padding gives the shadow room inside the overflow box and
+                // the negative margin cancels it out. The left margin and
+                // padding shrink together, so the card does not drift.
+                margin: shown
+                  ? `-${SHADOW_ROOM}`
+                  : `-${SHADOW_ROOM} -${SHADOW_ROOM} -${SHADOW_ROOM} 0`,
+                padding: shown ? SHADOW_ROOM : `${SHADOW_ROOM} 0`,
                 width: shown ? "100%" : "0%",
-                transition: `width 600ms ${EASE_OUT}`,
+                transition: ["width", "margin", "padding"]
+                  .map((property) => `${property} ${REVEAL_MS}ms ${EASE_OUT}`)
+                  .join(", "),
               }}
             >
               <DeployCard />
@@ -57,10 +71,13 @@ export function ClipPathRevealDemo() {
         <CompareItem verdict="right">
           <div className="flex h-20 w-full items-start">
             <div
-              className="w-full motion-reduce:transition-none"
+              className="w-full"
               style={{
-                clipPath: shown ? "inset(0 0 0 0)" : "inset(0 100% 0 0)",
-                transition: `clip-path 600ms ${EASE_OUT}`,
+                // Negative insets keep the card's shadow inside the window.
+                clipPath: shown
+                  ? `inset(-${SHADOW_ROOM} -${SHADOW_ROOM} -${SHADOW_ROOM} -${SHADOW_ROOM})`
+                  : `inset(-${SHADOW_ROOM} calc(100% + ${SHADOW_ROOM}) -${SHADOW_ROOM} -${SHADOW_ROOM})`,
+                transition: `clip-path ${REVEAL_MS}ms ${EASE_OUT}`,
               }}
             >
               <DeployCard />
@@ -113,12 +130,12 @@ export function ClipPathTabsDemo() {
 
   return (
     <Demo className="gap-7 px-4 sm:px-8">
-      <Compare>
+      <Compare className="grid-cols-1 gap-8 sm:grid-cols-2">
         <CompareItem verdict="wrong">
           <div className="relative w-full rounded-full bg-card p-0.5 shadow-(--custom-shadow)">
             <div
               aria-hidden="true"
-              className="absolute inset-y-0.5 left-0.5 rounded-full bg-foreground motion-reduce:transition-none"
+              className="absolute inset-y-0.5 left-0.5 rounded-full bg-foreground"
               style={{
                 width: pillWidth,
                 transform: `translateX(${active * 100}%)`,
@@ -131,7 +148,7 @@ export function ClipPathTabsDemo() {
                   key={tab}
                   aria-pressed={active === index}
                   className={cn(
-                    "h-8 cursor-pointer truncate rounded-full px-2 text-xs font-medium outline-none transition-colors duration-250 focus-visible:ring-2 focus-visible:ring-ring/50 motion-reduce:transition-none",
+                    "h-8 cursor-pointer truncate rounded-full px-2 text-xs font-medium outline-none transition-colors duration-250 focus-visible:ring-2 focus-visible:ring-ring/50",
                     active === index
                       ? "text-background"
                       : "text-muted-foreground hover:text-foreground"
@@ -151,7 +168,7 @@ export function ClipPathTabsDemo() {
             <TabButtons active={active} onChange={setActive} />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 z-20 motion-reduce:transition-none"
+              className="pointer-events-none absolute inset-0 z-20"
               style={{
                 clipPath: `inset(2px calc(2px + ${2 - active} * ${pillWidth}) 2px calc(2px + ${active} * ${pillWidth}) round 9999px)`,
                 transition: "clip-path 250ms ease",

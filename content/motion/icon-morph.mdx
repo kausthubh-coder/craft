@@ -5,91 +5,97 @@ section: Motion
 order: 1
 publishedAt: "2026-07-14"
 resources:
+  - url: https://jakub.kr/writing/details-that-make-interfaces-feel-better
+    title: Details that make interfaces feel better
+    description: Jakub Krehel's list of small fixes, including animating icons with opacity, scale and blur.
+  - url: https://emilkowal.ski/ui/7-practical-animation-tips
+    title: 7 practical animation tips
+    description: Emil Kowalski's short rules for interface motion, ending with using blur when nothing else works.
   - url: https://motion.dev/docs/react-animate-presence
     title: AnimatePresence
     description: The Motion component that keeps an element around long enough to animate it out.
-  - url: https://rauno.me/craft/interaction-design
-    title: Invisible details of interaction design
-    description: Rauno Freiberg on transitions that explain state changes instead of just decorating them.
-  - url: https://emilkowal.ski/ui/great-animations
-    title: Great animations
-    description: Why blur helps a crossfade read as one object changing rather than two objects swapping.
   - url: https://motion.dev/docs/react-transitions#spring
     title: Spring transitions
     description: The duration and bounce options used in the recipe below.
 ---
 
-Icons that change state, copy to check, play to pause, menu to close, swap
-in a single frame by default. It works, but the eye registers a jump. A
-full crossfade is the usual fix, and it is too slow and mushy. The sweet
-spot is a short **blur, scale and fade**, driven by a spring.
+When an icon changes state, like copy to check or play to pause, the default
+is a hard swap. One frame shows the old icon, the next frame shows the new
+one, and the eye registers a jump.
 
-Click both buttons.
+**Don't swap icons. Blur, scale and fade between them.** Click either button.
 
 <IconMorphDemo />
 
-The blur is what sells it. As the old icon shrinks it goes out of focus, and
-the new one sharpens as it grows. The two shapes never sit crisply on top
-of each other, so it reads as one thing changing rather than two things
-being swapped. The whole move takes about 300ms.
+The old icon shrinks and goes out of focus while the new one grows and
+sharpens. Neither shape is crisp while they overlap, so it reads as one icon
+changing rather than two icons trading places. The whole move takes about
+300ms.
 
 ## Tuning it
 
-There are two numbers that matter: how much blur, and how small the icon
-starts. Drag the sliders and keep toggling.
+Two numbers matter: how much blur, and how small the icons get. Switch to slow
+motion and drag the sliders.
 
 <IconMorphTuningDemo />
 
-With no blur the crossfade shows both icons at once for a few frames, and
-that overlap is the mushy look you are trying to avoid. Around `4px` the
-overlap disappears. A start scale near `0.25` gives the new icon somewhere
-to come from. At `1` it is only a fade, at `0` the icon grows from nothing,
-which looks like an effect.
+At `0px` blur you see both icons at once, sharp and stacked on top of each
+other. At `4px` the overlap turns into a soft blend. A start scale of `0.25`
+gives the new icon somewhere to come from. At `1` it is a plain crossfade, and
+at `0` the icon grows out of a single point, which looks like an effect.
 
-The spring has `bounce: 0`, so it is critically damped. Icon swaps want
-snap, not wobble. A duration of `0.3` on a spring is the time it takes to
-settle, which is what you want to reason about.
+Drive it with a spring that has no bounce. Icon swaps should snap into place,
+not wobble.
 
 ## When the shapes are related
 
-Some pairs share geometry. A hamburger and a close icon are both made of
-lines, so you can move the lines instead of crossfading the icons. The top
-and bottom bars rotate into an X while the middle one shrinks away.
+A hamburger and a close icon are both made of lines, so you can move the
+lines instead of crossfading the icons. The top and bottom bars rotate into an
+X while the middle one shrinks away.
 
 <HamburgerMorphDemo />
 
-This only pays off when the shapes really are related. Forcing a morph
-between a copy icon and a check would mean animating path data, and a blur
-crossfade gets you most of the effect for a fraction of the effort.
+This only pays off when the shapes really are related. Turning a copy icon
+into a check would mean animating path data, and the blur crossfade gets you
+most of the effect for a fraction of the work.
 
 ## Usage
 
 <CodeBlock
   tabs={[
     {
-      label: "React",
+      label: "Tailwind",
+      language: "tsx",
+      icon: "tailwind",
+      code: `<button data-copied={copied} className="group grid size-10 place-items-center">
+  <CopyIcon className="col-start-1 row-start-1 transition-[opacity,scale,filter] duration-300 ease-out group-data-[copied=true]:scale-25 group-data-[copied=true]:opacity-0 group-data-[copied=true]:blur-xs" />
+  <CheckIcon className="col-start-1 row-start-1 scale-25 opacity-0 blur-xs transition-[opacity,scale,filter] duration-300 ease-out group-data-[copied=true]:scale-100 group-data-[copied=true]:opacity-100 group-data-[copied=true]:blur-none" />
+</button>`,
+    },
+    {
+      label: "Motion",
       language: "tsx",
       code: `import { AnimatePresence, motion } from "motion/react";
 
 <span className="relative inline-flex">
-    <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span
-            key={copied ? "check" : "copy"}
-            initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
-            transition={{ type: "spring", duration: 0.3, bounce: 0 }}
-        >
-            {copied ? <CheckIcon /> : <CopyIcon />}
-        </motion.span>
-    </AnimatePresence>
+  <AnimatePresence mode="popLayout" initial={false}>
+    <motion.span
+      key={copied ? "check" : "copy"}
+      initial={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+      exit={{ opacity: 0, scale: 0.25, filter: "blur(4px)" }}
+      transition={{ type: "spring", duration: 0.3, bounce: 0 }}
+    >
+      {copied ? <CheckIcon /> : <CopyIcon />}
+    </motion.span>
+  </AnimatePresence>
 </span>`,
     },
   ]}
 />
 
-Two details to keep. `mode="popLayout"` takes the leaving icon out of the
+In the Motion version, `mode="popLayout"` takes the leaving icon out of the
 layout so the two overlap instead of stacking, which is why the wrapper is
-`relative`. And `initial={false}` stops the animation from running on the
-first render, when there is nothing to morph from. The copy link button in
-this site's header is exactly this component.
+`relative`. `initial={false}` skips the animation on first render, when there
+is nothing to morph from. The copy buttons in this site's header use exactly
+this component.

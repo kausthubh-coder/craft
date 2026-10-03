@@ -7,62 +7,59 @@ publishedAt: "2026-07-15"
 resources:
   - url: https://phosphoricons.com
     title: Phosphor Icons
-    description: A large family with six weights per glyph, all drawn on the same grid.
+    description: The set used on this site, with six weights per icon drawn on the same grid.
+  - url: https://lucide.dev/contribute/icons/design-principles
+    title: Lucide design principles
+    description: The rules every icon in Lucide follows, from the 24px canvas to the 2px stroke.
   - url: https://tabler.io/icons
     title: Tabler Icons
-    description: Another consistent set, drawn on a 24px grid with a 2px stroke.
-  - url: https://benji.org/morphing-icons-with-claude
-    title: Morphing icons
-    description: Benji Taylor on drawing a custom icon system where every icon shares three lines.
+    description: Another consistent set, drawn on a 24px grid with an adjustable stroke.
   - url: https://developer.apple.com/design/human-interface-guidelines/sf-symbols
     title: SF Symbols
-    description: How Apple ties icon weight and optical size to the text they sit next to.
+    description: How Apple matches symbol weight and scale to the text beside them.
 ---
 
-Icons are typography. A set of icons is a small alphabet, and like an
-alphabet it has a voice: the stroke width, the corner radius, the grid it was
-drawn on, how much detail fits in a glyph.
+Icons are part of the type. A set has a voice, like a typeface does: the
+stroke width, the corner radius, the grid it was drawn on. Next to text, that
+voice either agrees with the letters or fights them.
 
-The first job is to pick one voice and use it everywhere. Toggle the demo to
-see how much the same icons change between weights.
+**Pick one set, use one weight, and size icons a little larger than the text
+beside them.**
 
 <IconWeightsDemo />
 
-Notice how the weight also has to agree with the text. Thin icons next to
-medium labels look like they belong to a different product. Bold icons shout.
-Regular pairs with regular and medium text, which is why it is the default in
-most sets.
-
-This site uses **duotone** everywhere. The filled second layer sits at low
-opacity, which adds a little depth without adding color.
+The labels are medium weight. Thin icons look like they came from a lighter
+product, and bold ones shout over the words. Regular sits well with regular
+and medium text, which is why it is usually the default. This site uses
+regular in the header and duotone, with its faint filled layer, for the
+section icons.
 
 ## One set
 
-Mixing icon libraries reads exactly like mixing typefaces mid-sentence. The
-grids do not match, the strokes do not match, and the eye picks it up even
-when it cannot say why.
+Mixing icon libraries reads like switching typefaces mid-sentence. The grids,
+strokes and corners stop matching, and you notice even when you can't say why.
 
 <IconMixDemo />
 
-The wrong toolbar has icons from two libraries, three stroke widths, and two
-sizes. The right one has one library, one weight, one size. Nothing else
-changed.
+The wrong toolbar mixes two libraries, four stroke weights and three sizes.
+The right one uses one library at one weight and one size.
 
-When you choose a library, count the icons your product actually needs and
-check that the set covers them. Running out halfway through and reaching for a
-second library is how the wrong toolbar happens.
+Before you commit to a set, list the icons your product needs and check that
+it covers them. Running out halfway and borrowing from a second library is how
+the wrong toolbar happens.
 
 ## Size
 
-Icons are drawn with a little padding inside their box, so an icon at the
-same pixel size as the text looks smaller than the capitals next to it.
+Icons are drawn with padding inside their box. Lucide, for example, keeps at
+least 1px clear on a 24px canvas. So an icon set to the same size as the text
+looks smaller than the capitals next to it.
 
 <IconTextSizeDemo />
 
-A size between `1.1em` and `1.25em` usually balances. Then check the vertical
-position. Flexbox centers the icon's box, not its shape, so a one pixel nudge
-is often needed. Expressing the size in `em` keeps the ratio when the text
-size changes.
+Somewhere between `1.1em` and `1.25em` usually balances. Writing the size in
+`em` keeps that ratio when the text size changes. Flexbox centers the icon's
+box, not its shape, so check the vertical position too. A 1px nudge is
+common.
 
 ## Usage
 
@@ -74,8 +71,8 @@ size changes.
       code: `import { TrayIcon } from "@phosphor-icons/react";
 
 <a className="flex items-center gap-2 text-sm font-medium">
-    <TrayIcon weight="duotone" className="mb-px size-[1.15em]" />
-    Inbox
+  <TrayIcon className="mb-px size-[1.15em]" />
+  Inbox
 </a>`,
     },
     {

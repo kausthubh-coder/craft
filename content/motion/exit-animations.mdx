@@ -5,80 +5,78 @@ section: Motion
 order: 8
 publishedAt: "2026-07-16"
 resources:
-  - url: https://emilkowal.ski/ui/you-dont-need-animations
-    title: You don't need animations
-    description: Emil Kowalski on which animations earn their place, with exits as a recurring example.
   - url: https://jakub.kr/writing/details-that-make-interfaces-feel-better
     title: Details that make interfaces feel better
-    description: Jakub Krehel's collection of small motion decisions, including how things should leave.
+    description: Jakub Krehel's collection of small motion decisions, including why exits should be subtler than entrances.
   - url: https://motion.dev/docs/react-animate-presence
     title: AnimatePresence
-    description: How to animate a React element out after it has been removed from the tree.
+    description: How Motion keeps a removed React element mounted until its exit animation finishes.
   - url: https://developer.mozilla.org/en-US/docs/Web/CSS/@starting-style
     title: "@starting-style"
-    description: The CSS rule that, together with transition-behavior, lets you animate to and from display none.
+    description: The CSS rule that gives an element something to transition from when it first appears.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior
+    title: transition-behavior
+    description: How allow-discrete lets an element fade out before display none removes it.
 ---
 
-The lazy exit is the entrance played backwards. Slide up and fade in, then
-slide down and fade out, same duration, same curve. It is symmetrical, and
-that is the problem. **Something leaving deserves less ceremony than
-something arriving.**
+The lazy exit is the entrance played backwards: same distance, same
+duration, same curve. It looks tidy, but it gives a goodbye as much time as a
+hello. **Something leaving deserves less ceremony than something arriving.**
 
-Dismiss the toasts below and watch how each one goes.
+Dismiss the toasts and watch them go.
 
 <ExitAnimationsDemo />
 
-Both enter the same way, in 240ms with an ease-out. The left one exits by
-running that in reverse, so you sit through another 240ms while it slides
-away. The right one fades out in half the time, with a touch of blur and
-no travel at all.
+Both enter the same way, rising 12px over 240ms. The left one leaves by doing
+that again in reverse. The right one fades out in half the time, 120ms, with
+2px of blur, no travel and an ease-in.
 
-The reason is attention. An entrance asks for it: something new is here,
-and the motion tells you where it came from. An exit is the user saying
-they are done. Anything that keeps them watching after that point is in
-the way.
+An entrance has a job. Something new is here, and the motion shows you where
+it came from. An exit has none. The user has already moved on, and anything
+that makes them watch is in the way. So exits get about half the duration and
+less movement. They are also the one place ease-in fits, since the element is
+speeding away and nobody needs to watch it settle.
 
-A good rule of thumb: exits run at half the duration of the entrance, and
-they can use an ease-in, since the thing is accelerating away and nobody
-needs to see it settle.
+In React, an element removed from the tree is gone before it can animate.
+Motion's `AnimatePresence` keeps it mounted until its `exit` animation
+finishes.
 
-## Exits that keep layout honest
+## Exits that keep layout steady
 
-Removing an item from a list is the exit people forget most. Without one,
-the item vanishes and everything below it jumps up in a single frame.
-Delete a few tasks on each side.
+The exit people forget most is a row leaving a list. Without one, the row
+vanishes and everything below it jumps up in a single frame. Delete a few
+tasks on each side.
 
 <ExitListDemo />
 
-On the right the row collapses its height while it fades, so the rows
-beneath slide up to fill the gap instead of teleporting. It is still fast,
-160ms, and it never draws attention to itself. It just stops the layout
-from jumping.
+On the right the row collapses its height while it fades, so the rows beneath
+slide up instead of teleporting. It takes 160ms, short enough that you barely
+notice it, and long enough that your eye can follow the list.
 
 ## Usage
 
 <CodeBlock
   tabs={[
     {
-      label: "React",
+      label: "Motion",
       language: "tsx",
       code: `import { AnimatePresence, motion } from "motion/react";
 
 <AnimatePresence initial={false}>
-    {open && (
-        <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{
-                opacity: 0,
-                filter: "blur(2px)",
-                transition: { duration: 0.12, ease: "easeIn" },
-            }}
-            transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
-        >
-            Changes saved
-        </motion.div>
-    )}
+  {open && (
+    <motion.div
+      initial={{ opacity: 0, y: 12, filter: "blur(0px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      exit={{
+        opacity: 0,
+        filter: "blur(2px)",
+        transition: { duration: 0.12, ease: "easeIn" },
+      }}
+      transition={{ duration: 0.24, ease: [0.23, 1, 0.32, 1] }}
+    >
+      Changes saved
+    </motion.div>
+  )}
 </AnimatePresence>`,
     },
     {
@@ -87,16 +85,12 @@ from jumping.
       icon: "css",
       code: `.toast {
   display: block;
-  opacity: 1;
-  translate: 0 0;
   transition:
-    opacity 240ms var(--ease-out),
-    translate 240ms var(--ease-out),
+    opacity 240ms cubic-bezier(0.23, 1, 0.32, 1),
+    translate 240ms cubic-bezier(0.23, 1, 0.32, 1),
     display 240ms allow-discrete;
-}
 
-@starting-style {
-  .toast {
+  @starting-style {
     opacity: 0;
     translate: 0 12px;
   }
@@ -116,6 +110,6 @@ from jumping.
 />
 
 In CSS, the transition that runs is the one declared on the state you are
-moving to. So the enter timing lives on `.toast` and the exit timing on
-`.toast[hidden]`, and `allow-discrete` is what lets the fade finish before
-`display: none` takes the element out.
+moving to. So the entrance timing lives on `.toast`, the exit timing lives on
+`.toast[hidden]`, and `allow-discrete` holds off `display: none` until the
+fade has finished.

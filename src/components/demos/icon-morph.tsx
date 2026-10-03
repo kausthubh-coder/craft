@@ -13,26 +13,31 @@ import { useEffect, useState } from "react";
 
 import { Compare, CompareItem } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
+import { SegmentedControl } from "@/components/app/segmented-control";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { cn } from "@/lib/utils";
 
 function getSliderValue(value: number | readonly number[]) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+// The morph is the point of these demos and is only ever user-triggered, so
+// reduced motion keeps the blur and fade and drops only the change in size.
 function MorphIcon({
   id,
   blur = 4,
   scale = 0.25,
+  duration = 0.3,
   children,
 }: {
   id: string;
   blur?: number;
   scale?: number;
+  duration?: number;
   children: React.ReactNode;
 }) {
   const reduceMotion = useReducedMotion();
+  const from = reduceMotion ? 1 : scale;
 
   return (
     <span className="relative inline-flex size-5 items-center justify-center">
@@ -41,13 +46,9 @@ function MorphIcon({
           key={id}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           className="inline-flex"
-          exit={{ opacity: 0, scale, filter: `blur(${blur}px)` }}
-          initial={{ opacity: 0, scale, filter: `blur(${blur}px)` }}
-          transition={
-            reduceMotion
-              ? { duration: 0 }
-              : { type: "spring", duration: 0.3, bounce: 0 }
-          }
+          exit={{ opacity: 0, scale: from, filter: `blur(${blur}px)` }}
+          initial={{ opacity: 0, scale: from, filter: `blur(${blur}px)` }}
+          transition={{ type: "spring", duration, bounce: 0 }}
         >
           {children}
         </motion.span>
@@ -114,10 +115,18 @@ export function IconMorphDemo() {
   );
 }
 
+type Speed = "normal" | "slow";
+
+const SPEED_OPTIONS = [
+  { value: "normal", label: "300ms" },
+  { value: "slow", label: "Slow motion" },
+] as const;
+
 export function IconMorphTuningDemo() {
   const [playing, setPlaying] = useState(false);
   const [blur, setBlur] = useState(4);
   const [scale, setScale] = useState(0.25);
+  const [speed, setSpeed] = useState<Speed>("normal");
 
   return (
     <Demo className="gap-10">
@@ -128,7 +137,12 @@ export function IconMorphTuningDemo() {
           size="icon-lg"
           variant="outline"
         >
-          <MorphIcon blur={blur} id={playing ? "pause" : "play"} scale={scale}>
+          <MorphIcon
+            blur={blur}
+            duration={speed === "slow" ? 1.2 : 0.3}
+            id={playing ? "pause" : "play"}
+            scale={scale}
+          >
             {playing ? (
               <PauseIcon aria-hidden="true" className="size-5" weight="fill" />
             ) : (
@@ -170,6 +184,13 @@ export function IconMorphTuningDemo() {
           />
         </label>
       </div>
+
+      <SegmentedControl
+        ariaLabel="Animation speed"
+        onChange={setSpeed}
+        options={SPEED_OPTIONS}
+        value={speed}
+      />
     </Demo>
   );
 }
@@ -205,31 +226,31 @@ function HeaderBar({
   );
 }
 
+// Bars match Phosphor's bold List icon at 20px: 16px wide, 2px thick, 5px
+// apart, so the swap and the morph start from the same picture.
 function HamburgerBars({ open }: { open: boolean }) {
-  const reduceMotion = useReducedMotion();
-  const transition = reduceMotion
-    ? { duration: 0 }
-    : { type: "spring" as const, duration: 0.4, bounce: 0.15 };
-  const bar = "absolute left-0 h-0.5 w-5 rounded-full bg-current";
+  const transition = { type: "spring" as const, duration: 0.3, bounce: 0 };
+  const bar =
+    "absolute inset-x-0.5 top-1/2 -mt-px h-0.5 rounded-full bg-current";
 
   return (
-    <span
-      aria-hidden="true"
-      className="relative inline-flex size-5 items-center justify-center"
-    >
+    <span aria-hidden="true" className="relative inline-flex size-5">
       <motion.span
-        animate={open ? { y: 0, rotate: 45 } : { y: -6, rotate: 0 }}
-        className={cn(bar, "top-1/2 -mt-px")}
+        animate={open ? { y: 0, rotate: 45 } : { y: -5, rotate: 0 }}
+        className={bar}
+        initial={false}
         transition={transition}
       />
       <motion.span
         animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-        className={cn(bar, "top-1/2 -mt-px")}
+        className={bar}
+        initial={false}
         transition={transition}
       />
       <motion.span
-        animate={open ? { y: 0, rotate: -45 } : { y: 6, rotate: 0 }}
-        className={cn(bar, "top-1/2 -mt-px")}
+        animate={open ? { y: 0, rotate: -45 } : { y: 5, rotate: 0 }}
+        className={bar}
+        initial={false}
         transition={transition}
       />
     </span>

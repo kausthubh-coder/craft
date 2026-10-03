@@ -7,91 +7,113 @@ publishedAt: "2026-07-16"
 resources:
   - url: https://d3js.org/d3-shape/curve
     title: d3-shape curves
-    description: Every interpolation d3 ships, drawn on the same points. The fastest way to build intuition for them.
+    description: Every curve d3 ships, drawn on the same points, including curveMonotoneX.
   - url: https://en.wikipedia.org/wiki/Monotone_cubic_interpolation
     title: Monotone cubic interpolation
-    description: The Fritsch and Carlson method behind monotone curves, with the tangent rules spelled out.
+    description: The Fritsch and Carlson method, with the tangent rules that stop a cubic from overshooting.
   - url: https://shud.in/thoughts/adaptive-polynomial-curve-fitting
     title: Adaptive Polynomial Curve Fitting
-    description: Shu Ding on fitting curves to live data, and where naive smoothing goes wrong.
+    description: Shu Ding on smoothing Vercel Analytics charts by fitting a curve to the trend instead of through every point.
   - url: https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d
     title: The SVG path d attribute
-    description: The cubic Bezier commands the demos here emit, and what each number means.
+    description: The cubic Bezier command each curve here is made of.
 ---
 
-A line chart connects points. How you connect them is a design decision, and it changes what the chart appears to say. Straight segments are honest but jagged. A **smoothed curve** reads more calmly, but some smoothing methods add bumps that were never in the data.
+A line chart joins points, and the way it joins them says something about
+the values in between. Straight segments are honest but jagged. Smooth
+curves read more calmly, but some of them draw values that were never in
+the data.
 
-The chart below draws the same fifteen values three ways. Switch between them and watch what happens between the dots.
+Switch between four common curves. The dashed line marks the highest value
+in the data.
 
 <CurveSmoothingDemo />
 
-Linear is the baseline. Monotone cubic keeps every rise and fall exactly where the data has it: the curve never goes above or below the two points it is joining. Catmull-Rom is the smoothest, and it gets there by swinging past the points on sharp turns.
+**A smooth line should never go higher or lower than the points it
+connects.**
 
-## Overshoot on bounded data
+Catmull-Rom passes through every point, but it swings past them on sharp
+turns. Here it peaks at 97 when nothing in the data is above 90. Basis does
+the opposite. It never touches the inner points, so it shaves the peak to 86
+and flattens the spike at 62 down to 51. Monotone passes through every
+point and stays between each pair of neighbors, so it tops out at exactly 90.
 
-Overshoot is cosmetic on unbounded data and a real problem on bounded data. Percentages, counts, and anything that cannot be negative should never dip below zero on the chart, because readers will believe the chart before they believe the axis.
+## Why monotone holds
 
-Below, an uptime series sits flat at zero and flat at a hundred for a few points in a row.
+The shape of each segment comes from the slope the line has as it leaves
+one point and arrives at the next. Catmull-Rom copies that slope from the
+neighbors, so a point next to a steep drop leaves at a steep angle and the
+curve bulges to make the turn.
+
+A monotone curve limits those slopes. Where the data turns from rising to
+falling, the slope at that point is zero, so the line flattens there
+instead of sailing past. Everywhere else the slope is capped by the
+segments on either side. Fritsch and Carlson described the method in 1980.
+d3's `curveMonotoneX` uses a later variant by Steffen.
+
+## Bounded data
+
+Overshoot does the most damage when the data has hard limits. A percentage
+cannot go above 100 or below zero, and readers trust the line before they
+check the axis.
 
 <CurveOvershootDemo />
 
-On the left the Catmull-Rom curve drops below the floor and rises above the ceiling to make its turns look smooth. On the right the monotone curve stays inside the bounds and still looks like a curve. If the flat stretches matter, and they usually do, monotone is the safe default.
-
-## Choosing
-
-> Use monotone for any series where the reader will infer values between points. Use Catmull-Rom only for decorative lines.
-
-Sparklines, dashboards, and anything with a hover tooltip fall in the first group. A background flourish on a landing page falls in the second.
+Both charts plot the same twelve CPU readings. The Catmull-Rom line
+reaches 112% and dips to -8% around the flat stretches. The monotone line
+rests on the bounds and still reads as a curve.
 
 ## Usage
 
-The monotone curve here is about forty lines with no dependencies. It computes a tangent per point using the Fritsch and Carlson rule, then emits one cubic segment per pair of points.
-
 <CodeBlock
   tabs={[
+    {
+      label: "d3",
+      language: "ts",
+      code: `import { curveMonotoneX, line } from "d3-shape";
+
+const path = line<{ x: number; y: number }>()
+  .x((p) => p.x)
+  .y((p) => p.y)
+  .curve(curveMonotoneX);
+
+// <path d={path(points)} fill="none" stroke="currentColor" />`,
+    },
     {
       label: "React",
       language: "tsx",
       code: `type Point = { x: number; y: number };
 
-export function monotonePath(points: Point[]) {
-  const n = points.length;
-  const dx: number[] = [];
-  const slope: number[] = [];
+// Steffen's monotone cubic, the same curve as d3's curveMonotoneX.
+export function monotonePath(p: Point[]) {
+  const n = p.length;
+  if (n < 3) return p.map((q, i) => \`\${i ? "L" : "M"}\${q.x},\${q.y}\`).join("");
+
+  const h: number[] = [];
+  const s: number[] = [];
   for (let i = 0; i < n - 1; i++) {
-    dx[i] = points[i + 1].x - points[i].x;
-    slope[i] = (points[i + 1].y - points[i].y) / dx[i];
+    h[i] = p[i + 1].x - p[i].x;
+    s[i] = (p[i + 1].y - p[i].y) / h[i];
   }
 
-  // One tangent per point. Zero where the slope changes sign,
-  // so the curve flattens instead of overshooting.
-  const tangent: number[] = [];
-  tangent[0] = slope[0];
-  tangent[n - 1] = slope[n - 2];
+  // Slope at each point: zero where the data turns, capped elsewhere.
+  const m: number[] = [];
   for (let i = 1; i < n - 1; i++) {
-    const a = slope[i - 1];
-    const b = slope[i];
-    if (a * b <= 0) {
-      tangent[i] = 0;
-    } else {
-      const w1 = 2 * dx[i] + dx[i - 1];
-      const w2 = dx[i] + 2 * dx[i - 1];
-      tangent[i] = (w1 + w2) / (w1 / a + w2 / b);
-    }
+    const mid = (s[i - 1] * h[i] + s[i] * h[i - 1]) / (h[i - 1] + h[i]);
+    const limit = Math.min(2 * Math.abs(s[i - 1]), 2 * Math.abs(s[i]), Math.abs(mid));
+    m[i] = s[i - 1] * s[i] > 0 ? Math.sign(mid) * limit : 0;
   }
+  m[0] = (3 * s[0] - m[1]) / 2;
+  m[n - 1] = (3 * s[n - 2] - m[n - 2]) / 2;
 
-  return points
-    .map((p, i) => {
-      if (i === 0) return \`M\${p.x},\${p.y}\`;
-      const a = points[i - 1];
-      const h = (p.x - a.x) / 3;
-      const c1x = a.x + h;
-      const c1y = a.y + h * tangent[i - 1];
-      const c2x = p.x - h;
-      const c2y = p.y - h * tangent[i];
-      return \`C\${c1x},\${c1y} \${c2x},\${c2y} \${p.x},\${p.y}\`;
-    })
-    .join(" ");
+  let d = \`M\${p[0].x},\${p[0].y}\`;
+  for (let i = 1; i < n; i++) {
+    const a = p[i - 1];
+    const b = p[i];
+    const t = (b.x - a.x) / 3;
+    d += \`C\${a.x + t},\${a.y + t * m[i - 1]} \${b.x - t},\${b.y - t * m[i]} \${b.x},\${b.y}\`;
+  }
+  return d;
 }
 
 // <path d={monotonePath(points)} fill="none" stroke="currentColor" />`,
@@ -99,4 +121,6 @@ export function monotonePath(points: Point[]) {
   ]}
 />
 
-If you already use d3, `d3.line().curve(d3.curveMonotoneX)` does the same thing. Either way, keep the data dots visible while you are developing the chart. Overshoot is easy to miss on a bare line and obvious once you can see where the real values are.
+Monotone assumes x only ever increases, which holds for any time series.
+While you build the chart, keep the data dots visible. Overshoot is easy to
+miss on a bare line and obvious once you can see where the real values are.

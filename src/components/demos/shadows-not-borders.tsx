@@ -30,7 +30,7 @@ function SampleCard({
       aria-hidden="true"
       className={cn(
         "w-full rounded-xl p-3.5",
-        dark ? "bg-[#1f1f1f]" : "bg-card",
+        dark ? "bg-[oklch(0.205_0_0)]" : "bg-card",
         className
       )}
       style={style}
@@ -96,7 +96,7 @@ export function ShadowsNotBordersDemo() {
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
         <CompareItem verdict="wrong" label="Border">
-          <SampleCard className="border border-black/10 dark:border-white/10" />
+          <SampleCard className="border border-border" />
         </CompareItem>
         <CompareItem verdict="right" label="Shadow">
           <SampleCard className="shadow-(--custom-shadow)" />
@@ -116,19 +116,41 @@ const LAYER_OPTIONS = [
   { value: "ambient", label: "Ambient" },
 ] as const;
 
+/** The value each step adds, light and dark, split out of `--custom-shadow`. */
+const LAYER_VALUES: Record<Layer, { light: string; dark: string }> = {
+  ring: {
+    light: "0 0 0 1px rgb(0 0 0 / 0.06)",
+    dark: "inset 0 0 0 1px rgb(255 255 255 / 0.03), 0 0 0 1px rgb(0 0 0 / 0.1)",
+  },
+  contact: {
+    light: "0 1px 2px -1px rgb(0 0 0 / 0.06)",
+    dark: "inset 0 1px 0 0 rgb(255 255 255 / 0.03)",
+  },
+  ambient: {
+    light: "0 2px 4px 0 rgb(0 0 0 / 0.04)",
+    dark: "0 2px 2px, 0 4px 4px and 0 8px 8px, all rgb(0 0 0 / 0.1)",
+  },
+};
+
 export function ShadowLayersDemo() {
   const [layer, setLayer] = useState<Layer>("ring");
   const active = LAYER_ORDER.slice(0, LAYER_ORDER.indexOf(layer) + 1);
 
   return (
-    <Demo className="gap-10 px-4 sm:px-8">
-      <div className="w-full max-w-60">
+    <Demo className="gap-8 px-4 sm:px-8">
+      <div className="flex w-full flex-col items-center gap-5">
         <SampleCard
-          className="[--ring:0_0_0_1px_rgba(0,0,0,0.06)] [--contact:0_1px_2px_-1px_rgba(0,0,0,0.06)] [--ambient:0_2px_4px_0_rgba(0,0,0,0.04)] transition-shadow duration-300 ease-out motion-reduce:transition-none dark:[--ring:inset_0_0_0_1px_rgba(255,255,255,0.03),0_0_0_1px_rgba(0,0,0,0.1)] dark:[--contact:inset_0_1px_0_0_rgba(255,255,255,0.03),0_2px_2px_0_rgba(0,0,0,0.1)] dark:[--ambient:0_4px_4px_0_rgba(0,0,0,0.1),0_8px_8px_0_rgba(0,0,0,0.1)]"
+          className="max-w-60 [--ring:0_0_0_1px_rgba(0,0,0,0.06)] [--contact:0_1px_2px_-1px_rgba(0,0,0,0.06)] [--ambient:0_2px_4px_0_rgba(0,0,0,0.04)] transition-shadow duration-300 ease-out motion-reduce:transition-none dark:[--ring:inset_0_0_0_1px_rgba(255,255,255,0.03),0_0_0_1px_rgba(0,0,0,0.1)] dark:[--contact:inset_0_1px_0_0_rgba(255,255,255,0.03)] dark:[--ambient:0_2px_2px_0_rgba(0,0,0,0.1),0_4px_4px_0_rgba(0,0,0,0.1),0_8px_8px_0_rgba(0,0,0,0.1)]"
           style={{
             boxShadow: active.map((name) => `var(--${name})`).join(", "),
           }}
         />
+        <code className="h-8 max-w-xs text-center font-mono text-[10px] leading-4 text-balance text-muted-foreground">
+          <span className="dark:hidden">+ {LAYER_VALUES[layer].light}</span>
+          <span className="hidden dark:inline">
+            + {LAYER_VALUES[layer].dark}
+          </span>
+        </code>
       </div>
 
       <SegmentedControl
@@ -141,21 +163,17 @@ export function ShadowLayersDemo() {
   );
 }
 
+// Every level starts from the site token and only adds layers on top, so
+// the edge and contact stay identical as the surface rises.
 const LEVELS = [
-  {
-    label: "Card",
-    className:
-      "shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_1px_2px_-1px_rgba(0,0,0,0.06)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04),0_0_0_1px_rgba(0,0,0,0.12),0_1px_2px_0_rgba(0,0,0,0.2)]",
-  },
+  { label: "Card", lift: "" },
   {
     label: "Hover",
-    className:
-      "shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_1px_2px_-1px_rgba(0,0,0,0.06),0_4px_8px_-2px_rgba(0,0,0,0.08)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04),0_0_0_1px_rgba(0,0,0,0.12),0_4px_8px_-2px_rgba(0,0,0,0.35)]",
+    lift: "[--lift:0_4px_8px_-2px_rgba(0,0,0,0.08)] dark:[--lift:0_8px_16px_-4px_rgba(0,0,0,0.3)]",
   },
   {
     label: "Popover",
-    className:
-      "shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_1px_2px_-1px_rgba(0,0,0,0.06),0_4px_8px_-2px_rgba(0,0,0,0.08),0_12px_24px_-6px_rgba(0,0,0,0.12)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05),0_0_0_1px_rgba(0,0,0,0.14),0_4px_8px_-2px_rgba(0,0,0,0.35),0_16px_32px_-8px_rgba(0,0,0,0.5)]",
+    lift: "[--lift:0_4px_8px_-2px_rgba(0,0,0,0.08),0_12px_24px_-6px_rgba(0,0,0,0.12)] dark:[--lift:0_8px_16px_-4px_rgba(0,0,0,0.3),0_16px_32px_-8px_rgba(0,0,0,0.5)]",
   },
 ] as const;
 
@@ -172,8 +190,13 @@ export function ShadowElevationDemo() {
               aria-hidden="true"
               className={cn(
                 "flex h-20 w-full flex-col gap-2 rounded-xl bg-card p-3",
-                level.className
+                level.lift
               )}
+              style={{
+                boxShadow: level.lift
+                  ? "var(--custom-shadow), var(--lift)"
+                  : "var(--custom-shadow)",
+              }}
             >
               <span className="h-1.5 w-1/2 rounded-full bg-foreground/15" />
               <span className="h-1.5 w-4/5 rounded-full bg-foreground/8" />
@@ -192,7 +215,7 @@ export function ShadowElevationDemo() {
 export function ShadowDarkModeDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
-      <div className="w-full max-w-lg rounded-2xl bg-[#141414] p-4 sm:p-6">
+      <div className="w-full max-w-lg rounded-2xl bg-[oklch(0.17_0_0)] p-4 sm:p-6">
         <Compare className="max-w-none">
           <CompareItem verdict="wrong">
             <SampleCard dark style={{ boxShadow: LIGHT_SHADOW }} />

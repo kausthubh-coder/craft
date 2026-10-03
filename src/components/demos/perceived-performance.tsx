@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 
 const ROWS = [
   { title: "Design review", meta: "Today" },
-  { title: "Ship OG images", meta: "Yesterday" },
-  { title: "Fix Safari overscroll", meta: "Monday" },
+  { title: "Ship OG images", meta: "Mon" },
+  { title: "Fix Safari overscroll", meta: "Fri" },
 ] as const;
 
 type LoadState = "loading" | "done";
@@ -46,7 +46,7 @@ function Spinner({
     <span
       aria-hidden="true"
       className={cn(
-        "block size-4 animate-spin rounded-full border-2 border-foreground/15 border-t-foreground motion-reduce:animate-none",
+        "block size-4 animate-spin rounded-full border-2 border-foreground/15 border-t-foreground",
         className
       )}
       style={{ animationDuration: `${duration}s` }}
@@ -58,8 +58,12 @@ function Rows({ visible }: { visible: boolean }) {
   return (
     <ul
       className={cn(
-        "flex flex-col divide-y divide-[#E7E7E7] transition-opacity duration-300 ease-out motion-reduce:transition-none dark:divide-[#1E1E1E]",
-        visible ? "opacity-100" : "opacity-0"
+        "flex flex-col divide-y divide-[#E7E7E7] dark:divide-[#1E1E1E]",
+        // New content fades in; old content disappears at once when a load
+        // starts, the way it would on a real navigation.
+        visible
+          ? "opacity-100 transition-opacity duration-300 ease-out motion-reduce:transition-none"
+          : "opacity-0"
       )}
     >
       {ROWS.map((row) => (
@@ -82,8 +86,10 @@ function Skeleton({ visible }: { visible: boolean }) {
     <ul
       aria-hidden="true"
       className={cn(
-        "absolute inset-0 flex flex-col divide-y divide-[#E7E7E7] transition-opacity duration-200 ease-out motion-reduce:transition-none dark:divide-[#1E1E1E]",
-        visible ? "opacity-100" : "pointer-events-none opacity-0"
+        "absolute inset-0 flex flex-col divide-y divide-[#E7E7E7] dark:divide-[#1E1E1E]",
+        visible
+          ? "opacity-100"
+          : "pointer-events-none opacity-0 transition-opacity duration-200 ease-out motion-reduce:transition-none"
       )}
     >
       {ROWS.map((row, index) => (
@@ -106,8 +112,10 @@ function CenteredSpinner({ visible }: { visible: boolean }) {
   return (
     <div
       className={cn(
-        "absolute inset-0 grid place-items-center transition-opacity duration-200 ease-out motion-reduce:transition-none",
-        visible ? "opacity-100" : "pointer-events-none opacity-0"
+        "absolute inset-0 grid place-items-center",
+        visible
+          ? "opacity-100"
+          : "pointer-events-none opacity-0 transition-opacity duration-200 ease-out motion-reduce:transition-none"
       )}
     >
       <Spinner />
@@ -274,10 +282,10 @@ export function OptimisticDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
-        <CompareItem verdict="wrong" caption="Waits for the server">
+        <CompareItem verdict="wrong" caption="Waits 700ms">
           <TaskList optimistic={false} />
         </CompareItem>
-        <CompareItem verdict="right" caption="Updates right away">
+        <CompareItem verdict="right" caption="Updates at once">
           <TaskList optimistic />
         </CompareItem>
       </Compare>
@@ -323,10 +331,10 @@ export function SpinnerSpeedDemo() {
   return (
     <Demo className="gap-7 px-4 sm:px-8">
       <Compare>
-        <CompareItem caption="1.6s per turn">
+        <CompareItem verdict="wrong" label="Slow" caption="1.6s per turn">
           <SpinnerCard duration={1.6} loading={loading} />
         </CompareItem>
-        <CompareItem caption="0.5s per turn">
+        <CompareItem verdict="right" label="Fast" caption="0.5s per turn">
           <SpinnerCard duration={0.5} loading={loading} />
         </CompareItem>
       </Compare>

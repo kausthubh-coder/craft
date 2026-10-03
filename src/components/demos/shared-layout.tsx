@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowLeftIcon } from "@phosphor-icons/react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 
 import {
@@ -14,10 +14,13 @@ import { Demo } from "@/components/app/demo";
 import { SegmentedControl } from "@/components/app/segmented-control";
 import { cn } from "@/lib/utils";
 
-const TABS = ["Overview", "Activity", "Settings"] as const;
+const TABS = ["Day", "Week", "Month"] as const;
 type Tab = (typeof TABS)[number];
 
+// The reader triggers every move here and the motion is the lesson, so these
+// demos keep animating under reduced motion.
 const SETTLE = { type: "spring", duration: 0.3, bounce: 0 } as const;
+const FADE = { duration: 0.2 } as const;
 
 function TabRow({
   active,
@@ -30,43 +33,46 @@ function TabRow({
   shared: boolean;
   label: string;
 }) {
-  const reduceMotion = useReducedMotion();
-
   return (
     <div
       aria-label={label}
       className="flex w-full max-w-60 rounded-lg bg-muted p-1 shadow-(--custom-shadow) dark:bg-muted/60"
-      role="tablist"
+      role="group"
     >
       {TABS.map((tab) => {
         const isActive = tab === active;
         return (
           <button
             key={tab}
-            aria-selected={isActive}
+            aria-pressed={isActive}
             className={cn(
-              "relative min-w-0 flex-1 truncate rounded-md px-1 py-1.5 text-[11px] transition-colors sm:text-xs",
+              "relative min-w-0 flex-1 cursor-pointer rounded-md px-1 py-1.5 text-[11px] outline-none focus-visible:ring-2 focus-visible:ring-ring/50 sm:text-xs",
               isActive ? "text-foreground" : "text-muted-foreground"
             )}
             onClick={() => onChange(tab)}
-            role="tab"
             type="button"
           >
             {isActive &&
               (shared ? (
+                // Radius goes through style so Motion can correct it while
+                // the indicator scales between tabs of different widths.
                 <motion.span
                   aria-hidden="true"
-                  className="absolute inset-0 rounded-md bg-card shadow-(--custom-shadow)"
+                  className="absolute inset-0 bg-card shadow-(--custom-shadow)"
                   layoutId={`${label}-indicator`}
-                  transition={reduceMotion ? { duration: 0 } : SETTLE}
+                  style={{ borderRadius: 6 }}
+                  transition={SETTLE}
                 />
               ) : (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-0 rounded-md bg-card shadow-(--custom-shadow)"
+                  className="absolute inset-0 bg-card shadow-(--custom-shadow)"
+                  style={{ borderRadius: 6 }}
                 />
               ))}
-            <span className="relative">{tab}</span>
+            {/* Truncate the label, not the button: the button must not clip the
+                indicator while it travels in from a neighbour. */}
+            <span className="relative block truncate">{tab}</span>
           </button>
         );
       })}
@@ -75,7 +81,7 @@ function TabRow({
 }
 
 export function SharedLayoutDemo() {
-  const [active, setActive] = useState<Tab>("Overview");
+  const [active, setActive] = useState<Tab>("Day");
 
   return (
     <Demo className="gap-7 px-4 sm:px-8">
@@ -131,12 +137,11 @@ const MODES = [
 type Mode = (typeof MODES)[number]["value"];
 
 export function SharedLayoutDetailDemo() {
-  const reduceMotion = useReducedMotion();
-  const [mode, setMode] = useState<Mode>("shared");
+  const [mode, setMode] = useState<Mode>("swap");
   const [selected, setSelected] = useState<Project | null>(null);
   const shared = mode === "shared";
-  const settle = reduceMotion ? { duration: 0 } : SETTLE;
-  const fade = reduceMotion ? { duration: 0 } : { duration: 0.2 };
+  const settle = SETTLE;
+  const fade = FADE;
 
   // Only hand out layoutIds in shared mode so the swap mode really swaps.
   const idFor = (kind: string, id: string) =>
@@ -144,7 +149,12 @@ export function SharedLayoutDetailDemo() {
 
   return (
     <Demo className="gap-8">
-      <div className="relative h-64 w-full max-w-xs overflow-hidden rounded-xl bg-card shadow-(--custom-shadow)">
+      {/* Keyed on mode: Motion registers a layoutId when the element mounts,
+          so ids handed out after a mode switch need a fresh mount to count. */}
+      <div
+        key={mode}
+        className="relative h-64 w-full max-w-xs overflow-hidden rounded-xl bg-card shadow-(--custom-shadow)"
+      >
         <AnimatePresence initial={false} mode="popLayout">
           {selected ? (
             <motion.div
@@ -176,7 +186,7 @@ export function SharedLayoutDetailDemo() {
                   aria-hidden="true"
                   className="flex flex-col gap-2"
                   initial={{ opacity: 0 }}
-                  transition={{ ...fade, delay: reduceMotion ? 0 : 0.1 }}
+                  transition={{ ...fade, delay: 0.1 }}
                 >
                   <div className="h-1.5 w-4/5 rounded-full bg-foreground/10" />
                   <div className="h-1.5 w-3/5 rounded-full bg-foreground/10" />
@@ -185,7 +195,7 @@ export function SharedLayoutDetailDemo() {
               </div>
               <button
                 aria-label="Back to projects"
-                className="absolute top-3 left-3 inline-flex size-7 items-center justify-center rounded-full bg-card/90 text-foreground shadow-(--custom-shadow) backdrop-blur"
+                className="absolute top-3 left-3 inline-flex size-7 cursor-pointer items-center justify-center rounded-full bg-card/90 text-foreground shadow-(--custom-shadow) outline-none backdrop-blur focus-visible:ring-2 focus-visible:ring-ring/50"
                 onClick={() => setSelected(null)}
                 type="button"
               >
@@ -204,7 +214,7 @@ export function SharedLayoutDetailDemo() {
               {PROJECTS.map((project) => (
                 <li key={project.id}>
                   <button
-                    className="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-muted"
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-lg p-2 text-left outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50"
                     onClick={() => setSelected(project)}
                     type="button"
                   >

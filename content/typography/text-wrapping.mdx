@@ -7,54 +7,45 @@ publishedAt: "2026-07-14"
 resources:
   - url: https://developer.chrome.com/docs/css-ui/css-text-wrap-balance
     title: CSS text-wrap balance
-    description: Chrome's write up of how balancing works and where it stops.
-  - url: https://developer.chrome.com/blog/css-text-wrap-pretty
-    title: CSS text-wrap pretty
-    description: What pretty fixes beyond orphans, with examples.
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap
-    title: text-wrap
-    description: The property reference and current browser support.
-  - url: https://tailwindcss.com/docs/text-wrap
-    title: Text wrap in Tailwind
-    description: The text-balance and text-pretty utilities.
+    description: Chrome's write-up of how balancing works and where it stops.
+  - url: https://webkit.org/blog/16547/better-typography-with-text-wrap-pretty/
+    title: Better typography with text-wrap pretty
+    description: WebKit on how Safari's pretty looks at the whole paragraph, and how that differs from Chrome.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-wrap-style
+    title: text-wrap-style
+    description: The values, their line limits, and browser support on MDN.
+  - url: https://jakub.kr/writing/details-that-make-interfaces-feel-better
+    title: Details that make interfaces feel better
+    description: Jakub Krehel's list of small fixes, which opens with these two values.
 ---
 
-Browsers wrap text one line at a time. Each line takes as many words as fit,
-then breaks. That is fast, and it produces a lot of headings that read
-"Introducing the new dashboard for" and then "teams" on its own line.
+Browsers wrap text greedily. Each line takes as many words as fit, then
+breaks. That is fast, but it often leaves one word alone on the last line of a
+heading.
 
-**text-wrap: balance** looks at the whole block and picks breaks that make
-every line about the same length. Drag the width and watch the left heading
-strand a word while the right one stays even.
+**Balance short text and make long text pretty.**
 
 <TextBalanceDemo />
 
-Balance is for short things: headings, card titles, toast messages, empty
-state copy. Chromium only balances blocks of up to six lines, and the extra
-layout work would not be worth it on long text anyway.
+`text-wrap: balance` looks at the whole block and picks breaks that make every
+line about the same length. Use it on headings, card titles, toasts and empty
+states. Chrome only balances blocks of six lines or fewer and Firefox ten, so
+it is not meant for long text anyway.
 
 ## Paragraphs
 
-For body copy you want something gentler. **text-wrap: pretty** keeps the
-lines roughly as they were and only intervenes at the end, so the last line
-never holds a single word.
+Balancing a paragraph would leave a ragged block with short lines everywhere.
+`text-wrap: pretty` keeps the normal wrapping and only steps in to avoid a
+very short last line.
 
 <TextPrettyDemo />
 
-Newer versions of Chrome also let pretty fix short last lines and rivers of
-whitespace in the middle of a paragraph. Firefox and Safari both support the
-value, so it is safe to set on every paragraph.
+The two browsers that support it go about it differently. Chrome adjusts the
+last four lines of a paragraph. Safari, since version 26, evaluates the whole
+paragraph and also evens out the rag. Firefox does not support `pretty` yet,
+so both paragraphs above look the same there.
 
-## Together
-
-Most small pieces of UI carry a title and a line of description. Give the
-title balance and the description pretty.
-
-<TextWrapToastDemo />
-
-This one is a small change and it is worth being honest about that. Nobody
-will thank you for it. They will just find the toast slightly easier to read
-and never know why.
+Every paragraph on this site uses it.
 
 ## Usage
 
@@ -64,17 +55,17 @@ and never know why.
       label: "Tailwind",
       language: "html",
       icon: "tailwind",
-      code: `<h2 class="text-balance">Introducing the new dashboard for teams</h2>
+      code: `<h2 class="text-balance">Your export is ready to download</h2>
 
 <p class="text-pretty">
-    Exports now run in the background, so you can keep working.
+  Exports now run in the background, so you can keep working.
 </p>`,
     },
     {
       label: "CSS",
       language: "css",
       icon: "css",
-      code: `h1, h2, h3, blockquote {
+      code: `h1, h2, h3 {
   text-wrap: balance;
 }
 
@@ -86,5 +77,5 @@ p, li {
 />
 
 Both values are progressive enhancement. A browser that does not understand
-them falls back to normal wrapping, so there is no reason to wait. Set them
-once in your base styles and forget about them.
+them falls back to normal wrapping, so you can set them once in your base
+styles and stop thinking about them.

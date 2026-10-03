@@ -47,7 +47,9 @@ export default function IndexPage() {
       </p>
       <RepoCard />
       <p className="mt-3 text-sm text-muted-foreground">
-        Obs: the articles in the repo that are not out yet are AI placeholders.
+        Obs: this fork completes the concepts that were still coming soon and
+        adds an Interaction section. They were written with AI and checked
+        against the originals.
       </p>
       <div className="mt-8 flex flex-col gap-12">
         {sections.map(({ section, concepts }) => (

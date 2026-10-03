@@ -7,29 +7,30 @@ publishedAt: "2026-07-15"
 resources:
   - url: https://emilkowal.ski/ui/7-practical-animation-tips
     title: 7 practical animation tips
-    description: Emil Kowalski's short list of rules for interface motion, including the press scale.
+    description: Emil Kowalski's short list of rules for interface motion, starting with a 0.97 scale on press.
   - url: https://emilkowal.ski/ui/great-animations
     title: Great animations
-    description: What separates motion that feels right from motion that just moves.
+    description: Why speed and purpose matter more than how much something moves.
   - url: https://developer.mozilla.org/en-US/docs/Web/CSS/:active
     title: The :active pseudo-class
-    description: When the browser considers an element pressed, on mouse and on keyboard.
+    description: When the browser considers an element pressed.
   - url: https://web.dev/articles/animations-guide
     title: Animations guide
-    description: Why transform and opacity are the properties you can animate for free.
+    description: Why transform and opacity are the cheapest properties to animate.
 ---
 
 A real button moves when you push it. A button on screen can borrow that with
-one rule: **scale it down a little while it is pressed**. It is the cheapest
-feedback the web has, and it makes an interface feel like it heard you.
+one rule: **scale it down a little while it is pressed.** It tells you the
+click landed before anything else has happened.
 
-Press and hold both buttons below.
+Press and hold both buttons.
 
 <ButtonPressDemo />
 
-The one on the right is not doing much. It shrinks to 97% for as long as your
-finger is down, then springs back to full size. The difference is easy to feel
-and hard to see, which is exactly what you want from press feedback.
+The right one shrinks to `0.97` while your finger is down and comes back when
+you let go. On a 120px button that is less than 2px per edge. You feel it more
+than you see it, which is exactly what you want from press feedback. Every
+button on this site does this.
 
 ## Finding the amount
 
@@ -38,25 +39,24 @@ Drag the sliders and keep pressing.
 
 <PressAmountDemo />
 
-Around `0.97` the press reads as tactile. Past `0.92` it starts to look like
-an effect, and the reader notices the animation instead of the click. Keep the
-duration around `100ms`. Longer than that and the button lags behind your
-finger, which feels worse than no feedback at all.
+Around `0.97` the press feels physical. Below about `0.92` it turns into an
+effect, and you notice the animation instead of the click. Keep the duration
+near `100ms`. A quick click is over in about that long, so at 300ms the
+button is still shrinking when you let go and never seems to land.
 
-Scale runs on the compositor, so this costs nothing at runtime. Because
-`scale()` also scales the children, the label and icon move with the button
-and nothing needs a second rule.
+Scale runs on the compositor, so the press costs nothing, and the label and
+icon shrink with the button for free.
 
 ## Not just buttons
 
-Anything you can press deserves the same treatment: cards, list rows, tiles,
-chips. Toggle the feedback on and press the tiles.
+Anything you can press can do the same: cards, tiles, chips. Toggle the
+feedback and press the tiles.
 
 <PressEverywhereDemo />
 
-Larger surfaces can take a smaller amount. A full-width card at `0.97` moves
-several pixels at the edges, which is more than a button does at the same
-scale. Try `0.98` and judge by eye.
+Larger surfaces want less. At `0.97` a 600px card pulls each edge in by 9px,
+which starts to look like a zoom. Try `0.98` or `0.99` on anything wider than
+a tile.
 
 ## Usage
 
@@ -67,7 +67,7 @@ scale. Try `0.98` and judge by eye.
       language: "html",
       icon: "tailwind",
       code: `<button class="transition-transform duration-100 ease-out active:scale-[0.97]">
-    Save changes
+  Save changes
 </button>`,
     },
     {
@@ -85,5 +85,5 @@ scale. Try `0.98` and judge by eye.
   ]}
 />
 
-Transition `transform` only, not `all`. A button usually also changes color on
-hover, and you do not want the press timing to leak into that.
+Transition `transform` only, not `all`. A button usually changes color on
+hover too, and you don't want the press timing to leak into that.

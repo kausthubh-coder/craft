@@ -5,54 +5,55 @@ section: Sound
 order: 2
 publishedAt: "2026-07-15"
 resources:
-  - url: https://audio.raphaelsalaja.com/library/retro
-    title: Retro, @web-kits/audio
-    description: The 8-bit patch this site's success sound comes from.
   - url: https://audio.raphaelsalaja.com
     title: "@web-kits/audio"
-    description: Layers, envelopes, and delays in one small library.
+    description: Raphael Salaja's synth library, where layers, envelopes, and delays are plain objects.
+  - url: https://audio.raphaelsalaja.com/library/retro
+    title: Retro patch
+    description: The 8-bit patch this site's success sound is adapted from.
   - url: https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode
     title: OscillatorNode
-    description: The four wave shapes every layer here is built from.
-  - url: https://en.wikipedia.org/wiki/Chorus_(audio_effect)
-    title: Chorus effect
-    description: Why slightly detuned copies of one sound feel wider than the original.
+    description: The sine, square, sawtooth, and triangle waves behind every pitched layer.
+  - url: https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode
+    title: BiquadFilterNode
+    description: The bandpass filter that turns white noise into a short tap.
   - url: https://learningsynths.ableton.com
     title: Learning Synths
-    description: Ableton's hands-on intro to oscillators, envelopes, and detuning.
+    description: Ableton's hands-on intro to oscillators, envelopes, and filters.
 ---
 
-One sine wave is the thinnest sound a speaker can make. It is fine for a
-tick, and not much else.
+A single sine wave is the plainest sound a speaker can make. It is fine
+for a tick and not much else.
 
-A **layer** is a second source that plays with the first: a different
-wave shape, a few cents off pitch, a little quieter, and a few
-milliseconds late. Stack three or four and the same note stops sounding
-like a test tone. Play the note below, then add layers.
+A **layer** is another source that plays along with the first: a
+different wave shape, an octave up or down, a little quieter, and a few
+milliseconds late. Stack three or four and the note stops sounding like a
+test tone. Play the note below, then add layers.
 
 <SoundLayersDemo />
 
-Each bar is one layer on a timeline. Two things make the stack feel like
-one sound instead of several. The layers start within about `30ms` to
-`60ms` of each other, and each one is quieter than the one before it.
-Push the spacing to `80ms` and you start to hear the seams.
+Each bar is one layer on a timeline. Two things make the stack read as
+one sound instead of several: the layers start within about `40ms` of each
+other, and each one is quieter than the one before it, from a gain of
+`0.08` down to `0.02`. Push the spacing to `80ms` and you start to hear
+the seams.
 
-The small detune matters as much as the delay. Two copies of the exact
-same frequency just get louder. Copies that are `5` to `8` cents apart
-drift against each other, and that drift is what reads as width.
+**Every layer should add something the others don't.** Two copies of the
+same wave at the same pitch mostly just make it louder. A triangle adds
+softer harmonics, an octave up adds air, an octave down adds weight.
 
 ## From chord to arpeggio
 
-Layers do not have to share a pitch. This site's success sound is four
+Layers don't have to share a pitch. This site's success sound is four
 square waves on C, E, G, and C, each starting `60ms` after the last.
 Drag the spacing to hear where a chord turns into an arpeggio.
 
 <ArpeggioSpacingDemo />
 
 At `0ms` all four notes land together, which is heavier than a
-confirmation needs to be. Between `40ms` and `80ms` the ear hears one
-rising gesture. Past `120ms` it becomes a melody, and a cue that takes
-half a second is asking for more attention than a copy button deserves.
+confirmation needs to be. Between `40ms` and `80ms` you hear one rising
+gesture. Past `120ms` it becomes a melody, and a cue that takes half a
+second asks for more attention than a copy button deserves.
 
 ## Mixing textures
 
@@ -63,9 +64,9 @@ was pressed. Flip the switch with each texture selected.
 <TextureLayersDemo />
 
 The tone on its own is a beep. The noise on its own is a tap. Together
-they are a click with a pitch, which is what most physical switches
-sound like. The noise layer is under `30ms` long and sits behind a
-bandpass filter, so it adds edge without hiss.
+they make a click with a pitch. The noise layer is under `30ms` long and
+passes through a bandpass filter at `2600Hz`, so it adds edge without
+hiss.
 
 ## Usage
 
@@ -77,7 +78,7 @@ bandpass filter, so it adds edge without hiss.
       code: `import { definePatch } from "@web-kits/audio";
 
 export const patch = definePatch({
-  name: "Minimal",
+  name: "ui",
   sounds: {
     // one note, three layers
     note: {
@@ -88,7 +89,7 @@ export const patch = definePatch({
           gain: 0.08,
         },
         {
-          source: { type: "triangle", frequency: 523, detune: 8 },
+          source: { type: "triangle", frequency: 523 },
           envelope: { attack: 0.002, decay: 0.09, sustain: 0, release: 0.03 },
           gain: 0.05,
           delay: 0.04,
@@ -102,11 +103,13 @@ export const patch = definePatch({
       ],
     },
   },
-});`,
+});
+
+// patch.play("note") from a click handler`,
     },
   ]}
 />
 
-Build one layer at a time. Get the first layer right on its own, then
-add the next at a lower gain and only keep it if you can hear what it
-adds. If muting a layer changes nothing, delete it.
+Build one layer at a time. Get the first one right on its own, then add
+the next at a lower gain and keep it only if you can hear what it adds.
+If muting a layer changes nothing, delete it.

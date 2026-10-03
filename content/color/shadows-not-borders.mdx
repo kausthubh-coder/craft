@@ -7,57 +7,73 @@ publishedAt: "2026-07-15"
 resources:
   - url: https://www.joshwcomeau.com/css/designing-shadows/
     title: Designing Beautiful Shadows in CSS
-    description: The best explanation of layered shadows and why one big blur looks wrong.
-  - url: https://jakub.kr/components/details-that-make-interfaces-feel-better
+    description: Josh Comeau on layered shadows and why one big blur looks wrong.
+  - url: https://jakub.kr/writing/details-that-make-interfaces-feel-better
     title: Details that make interfaces feel better
-    description: Includes the ring plus shadow recipe and how it changes in dark mode.
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow
+    description: Jakub Krehel's list of small fixes, including the three-layer shadow this site uses.
+  - url: https://tobiasahlin.com/blog/layered-smooth-box-shadows/
+    title: Smoother and sharper shadows with layered box-shadows
+    description: Tobias Ahlin shows how stacking several soft shadows beats a single one.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/box-shadow
     title: box-shadow
-    description: Reference for the syntax, including inset and spread, which the dark mode version leans on.
-  - url: https://shadows.brumm.af/
-    title: Smooth Shadow
-    description: A generator for layered shadows with an easing curve, useful for elevation scales.
+    description: The syntax on MDN, including the inset and spread values the recipe relies on.
 ---
 
-A 1px border is the default way to give a card an edge. It works, but every border is a line, and a screen full of lines starts to look like a spreadsheet. A **layered shadow** draws the same edge with a faint ring, then adds a hint of depth below it. Same card, two treatments.
+A 1px border is the default way to give a card an edge. It works, but every
+border is a line, and a screen full of lines starts to look like a
+spreadsheet. A **layered shadow** draws the same edge with a faint ring, then
+adds a hint of depth below it.
+
+**Give surfaces their edge with a faint shadow, not a border.**
 
 <ShadowsNotBordersDemo />
 
-The shadow version is not softer or blurrier, it is still sharp at the edge. The difference is that the card now sits slightly above the page instead of being drawn on it. That is what lets you stack surfaces, like a card inside a panel inside a page, without the lines piling up.
+The shadow is just as sharp at the edge. The difference is that the card now
+sits slightly above the page instead of being drawn on it, so you can stack a
+card inside a panel inside a page without the lines piling up.
 
 ## Three layers
 
-The recipe this site uses has three parts, and each does one job. Step through them.
+The recipe this site uses has three layers, and each does one job. Step
+through them.
 
 <ShadowLayersDemo />
 
-- The **ring** is a `0 0 0 1px` shadow at 6% black. This is the edge. It replaces the border, but because it is a shadow it does not take up space or change the box size.
-- The **contact** layer is a tight, 1px offset shadow at 6%. It darkens the pixels right under the bottom edge, which is where a real object would touch the surface.
-- The **ambient** layer is a wider, 4px blur at 4%. It suggests light from above without ever becoming a visible smudge.
+- The **ring** is a `0 0 0 1px` shadow at 6% black. It is the edge, and
+  unlike a border it takes up no space.
+- The **contact** layer sits 1px down with a 2px blur at 6%. It darkens the
+  pixels right under the bottom edge, where the card touches the page.
+- The **ambient** layer sits 2px down with a 4px blur at 4%. It suggests light
+  from above without becoming a smudge.
 
-> Several faint shadows look like one real shadow. One strong shadow looks like a drop shadow filter.
-
-None of the layers is above 6% opacity. If you can consciously see the shadow, it is too strong.
+In light mode no layer goes above 6%. If you can consciously see the shadow,
+it is too strong.
 
 ## Elevation
 
-Once the base is built from layers, elevation is just adding more of them. A card at rest has a ring and a contact shadow. On hover it picks up a mid blur. A popover adds a long soft one on top of that.
+Elevation is adding layers on top of the same base. Hover adds a mid blur,
+and a popover adds a long, soft one on top of that.
 
 <ShadowElevationDemo />
 
-Keep the first two layers the same across every level. That is what makes the levels read as the same material at different heights, instead of three different styles.
+All three levels start from the same token. That is what makes them read as
+the same material at different heights, instead of three different styles.
 
 ## Dark mode
 
-Shadows are dark, and a dark shadow on a dark background is invisible. Here is the light mode shadow dropped onto a dark surface, next to the version this site actually uses in dark mode.
+A dark shadow on a dark background is invisible. Here is the light mode
+shadow on a dark surface, next to the version this site uses in dark mode.
 
 <ShadowDarkModeDemo />
 
-In dark mode the edge comes from light, not dark. A 1px inset ring at 3% white draws the outline from the inside, and a 1px inset highlight along the top edge suggests light hitting the surface. The outer shadows stay, but they are there for separation from what is below, not for the edge.
+In dark mode the edge comes from light. A 1px inset ring at 3% white draws
+the outline from the inside, and a 1px inset highlight along the top suggests
+light hitting the surface. The black shadows below, at 10% each, only
+separate the card from what is behind it.
 
 ## Usage
 
-These are the real token values from this site's `globals.css`. The Tailwind tab uses the token directly, the CSS tab shows what is inside it.
+These are the `--custom-shadow` values from this site's `globals.css`.
 
 <CodeBlock
   tabs={[
@@ -91,11 +107,13 @@ These are the real token values from this site's `globals.css`. The Tailwind tab
 }
 
 .card {
-  border-radius: 12px;
+  border-radius: 0.75rem;
   box-shadow: var(--custom-shadow);
 }`,
     },
   ]}
 />
 
-Borders still have a place. Inputs, table rows, and dividers want a plain line, because they are not surfaces and should not look raised. Save the shadow for things that contain other things.
+Borders still have a place. Inputs, table rows and dividers want a plain
+line, because they are not surfaces and should not look raised. Save the
+shadow for things that hold other things.

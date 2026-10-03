@@ -7,81 +7,95 @@ publishedAt: "2026-07-15"
 resources:
   - url: https://benji.org/liveline
     title: Liveline
-    description: Benji Taylor on building a live line chart that moves continuously, and the tricks that make it feel right.
-  - url: https://shud.in/thoughts/adaptive-polynomial-curve-fitting
-    title: Adaptive Polynomial Curve Fitting
-    description: How to smooth streaming values without lagging behind them.
+    description: A React component for real-time line charts that eases toward every new value instead of jumping.
   - url: https://motion.dev/docs/react-layout-animations
     title: Layout animations in Motion
-    description: The layout prop used in the second demo, which animates elements that change position in the DOM.
-  - url: https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
-    title: requestAnimationFrame on MDN
-    description: The loop the first demo uses to move numbers a little each frame.
+    description: The layout prop the ranked list uses to slide rows into their new places.
+  - url: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame
+    title: requestAnimationFrame
+    description: The per-frame loop that drives the tween in the first demo.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion
+    title: prefers-reduced-motion
+    description: The media query for people who would rather the chart stepped than moved.
 ---
 
-Live data arrives in steps. A server sends a number every second or so, and the chart has to show it. If you render each value the moment it lands, the chart jumps. If you move towards each value over a few hundred milliseconds, the chart appears to breathe. A **living chart** is one that never teleports.
+Live data arrives in steps. A server sends a number every second or so, and
+if the chart draws each one the moment it lands, the whole line jumps.
 
-Both cards below receive the same value at the same time, every second and a half. The left one draws it immediately. The right one tweens from where it was to where it should be.
+A **living chart** never teleports. Each new value eases in over a few
+hundred milliseconds, so the chart moves the way the data feels like it
+should.
 
 <LivingChartsDemo />
 
-Nothing about the data changed. The right card just spreads each change over `900ms` with an ease-out curve, so most of the movement happens early and the number settles gently. A tween that finishes before the next update arrives keeps the chart honest: at every tick, both cards agree.
+Both cards get the same value every 1.5 seconds. The left one redraws on
+the spot: every point hops one slot to the left and the counter flips to a
+new number. The right one spends `900ms` on the same change with an
+ease-out curve. The line slides left, the new point comes in from the
+right edge, and the dot and the counter ride up or down the new segment
+with it.
+
+**Animate the change, not the data.** The tween finishes well before the
+next value arrives, so at every update both cards agree.
 
 ## The number is part of the chart
 
-Notice the counter above the sparkline. A number that flips from 620 to 790 gets read as two facts. A number that counts up gets read as a change, which is what it is. Use `tabular-nums` so the digits do not shift sideways while they move.
+A counter that flips from 620 to 790 reads as two separate facts. One that
+counts up reads as a change, which is what it is. Use `tabular-nums` so the
+digits don't shift sideways while they count.
 
 ## Ranked lists
 
-When live values change order, the reorder is the interesting part. A snapped list makes rows swap places between frames, and the reader loses track of which one is which.
+When live values change order, the reorder is the interesting part. A
+snapped list swaps rows between frames, and you have to read the labels
+again to work out what moved.
 
 <LivingBarsDemo />
 
-With animation on, each row slides to its new slot and its bar grows or shrinks in place. The eye can follow GitHub overtaking X without reading the labels again.
+With animation on, each row slides to its new place over `600ms` while its
+bar and number ease to the new value. You can follow a single source as it
+climbs or falls without reading anything.
 
 ## Usage
 
-The tween is a short hook. It keeps the last displayed values in a ref, and on every new target it eases from those to the new ones with `requestAnimationFrame`.
+The hook eases a progress value from 0 to 1 every time a new point arrives.
+Everything else is derived from it.
 
 <CodeBlock
   tabs={[
     {
       label: "React",
       language: "tsx",
-      code: `import { useEffect, useRef, useState } from "react";
+      code: `import { useEffect, useState } from "react";
 
-export function useTweened(target: number[], duration = 900) {
-  const [display, setDisplay] = useState(target);
-  const current = useRef(target);
+// Eases from 0 to 1 over \`duration\` ms every time \`key\` changes.
+export function useProgress(key: number, duration = 900) {
+  const [state, setState] = useState({ key, t: 1 });
 
   useEffect(() => {
-    const from = current.current;
     const start = performance.now();
     let frame = 0;
-
     const step = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      const next = target.map((value, i) => {
-        const origin = from[i] ?? value;
-        return origin + (value - origin) * eased;
-      });
-      current.current = next;
-      setDisplay(next);
-      if (t < 1) frame = requestAnimationFrame(step);
+      const p = Math.min(1, (now - start) / duration);
+      setState({ key, t: 1 - (1 - p) ** 3 }); // ease-out
+      if (p < 1) frame = requestAnimationFrame(step);
     };
-
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [target, duration]);
+  }, [key, duration]);
 
-  return display;
+  // A new key starts at 0 before the first frame runs.
+  return state.key === key ? state.t : 0;
 }
 
-// const smooth = useTweened(series);
-// <path d={toPath(smooth)} />`,
+// values keeps one extra point past the left edge, clipped away.
+const t = useProgress(tick);
+const x = (i: number) => (i - t) * slot;
+const head = previous + (latest - previous) * t;`,
     },
   ]}
 />
 
-Two things to check. Keep the y axis fixed to a known range while data streams, or the whole chart will rescale every tick and undo the calm you just added. And respect `prefers-reduced-motion`: when it is set, skip the tween and render the target directly.
+Keep the y axis fixed to a known range while data streams in, or the chart
+rescales on every update and undoes the calm. When `prefers-reduced-motion`
+is set, return 1 from the hook and the chart steps like the left card.

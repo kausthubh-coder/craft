@@ -8,50 +8,60 @@ resources:
   - url: https://emilkowal.ski/ui/the-magic-of-clip-path
     title: The Magic of Clip Path
     description: Emil Kowalski walks through tabs, hold-to-delete buttons, and comparison sliders built with a single property.
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/clip-path
-    title: clip-path on MDN
-    description: Every shape function clip-path accepts, with browser support and animation notes.
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/basic-shape/inset
-    title: inset() on MDN
-    description: The one shape you will use most, including the round keyword for rounded corners.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/clip-path
+    title: clip-path
+    description: MDN's reference for every shape clip-path accepts, and how they animate.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Values/basic-shape/inset
+    title: inset()
+    description: The shape you will use most, including the round keyword for rounded corners.
   - url: https://web.dev/articles/animations-guide
     title: How to create high-performance CSS animations
-    description: Why animating width and height is expensive, and which properties the browser can animate cheaply.
+    description: Why animating width and height is expensive, and which properties are cheaper.
 ---
 
-**clip-path** cuts away part of an element without changing its layout. The element keeps its size, its position, and its text wrapping. Only the visible window changes. That one property replaces a surprising amount of work that would otherwise involve resizing boxes, duplicating layouts, or reaching for JavaScript.
-
-The demo below animates the same card two ways. On the left the width shrinks, so the text inside reflows and the icon squashes. On the right the card is clipped, so it just slides out of view.
+`clip-path` hides part of an element without touching its layout. The box
+keeps its size and the text keeps its wrapping. Only the visible window
+changes.
 
 <ClipPathRevealDemo />
 
-Clipping does not trigger layout. The browser keeps the element painted at full size and hides part of it at composite time, which is why it stays smooth even on long lists or heavy content.
+The left card animates its width, so its text gets squeezed into an ellipsis
+on every frame. The right card is clipped, so it wipes away in one piece.
 
-## Tabs that transition properly
+**Animate the window, not the box.** A width change makes the browser
+recalculate layout on every frame. A clip change only repaints.
 
-Picture a segmented control with a dark pill that slides between options. The pill can move with a transform, but the text has to change color too. If you transition `color` on each label, the label leaving fades out while the label arriving fades in. For a moment both are half-gray and the control looks muddy.
+## Tabs
 
-Rather than tinting labels, render the tab list twice. The second copy sits on top with inverted colors and is clipped down to the pill. Then animate the clip.
+A segmented control has a pill that slides between options, and the label
+under it changes color. If you transition each label's `color`, one label
+fades out while the next fades in, and for a moment both are half gray.
+
+Instead, render the tabs twice. The copy on top has inverted colors and is
+clipped down to the pill. Then animate the clip.
 
 <ClipPathTabsDemo />
 
-The dark copy on the right is not fading anything. It is always fully colored and only the clipped window moves. The text swaps color exactly at the pill edge, which is what a physical slider would do.
+The text on the right switches color exactly at the pill's edge. The
+segmented controls on this site work the same way.
 
 ## Hold to delete
 
-Destructive actions benefit from a short hold. A clipped overlay is a good way to show that time passing. The full red state is rendered underneath, clipped to zero width, and revealed with a linear transition while the pointer is down.
+A destructive action can ask for a short hold. Render the red state on top,
+clipped to zero width, and reveal it while the button is held.
 
 <ClipPathHoldDemo />
 
-The trick is in the two transition timings. The reveal runs slowly and linearly so the progress feels honest. On release, the overlay snaps back in `200ms` with an ease-out curve. Nobody wants to wait for a cancel.
+The reveal runs for `1.5s` with a linear curve, so the progress reads as
+time. Letting go snaps it back in `200ms` with an ease-out. Nobody wants to
+wait for a cancel.
 
 ## Comparison slider
 
-Stack two full-size layers and clip the top one. Because both images are the same size and position, moving the clip edge produces a before and after slider with no distortion. Drag the handle below.
+Stack two images of the same size and clip the top one. Moving the clip edge
+gives you a before and after slider. Neither image moves or stretches.
 
 <ClipPathCompareDemo />
-
-Note that neither image ever moves or resizes. The only thing that changes is the right edge of the inset on the top layer.
 
 ## Usage
 
@@ -61,13 +71,9 @@ Note that neither image ever moves or resizes. The only thing that changes is th
       label: "Tailwind",
       language: "html",
       icon: "tailwind",
-      code: `<!-- Shown -->
-<div class="[clip-path:inset(0_0_0_0)] transition-[clip-path] duration-300 ease-out">
-  ...
-</div>
-
-<!-- Hidden, slides out to the right -->
-<div class="[clip-path:inset(0_100%_0_0)] transition-[clip-path] duration-300 ease-out">
+      code: `<div
+  class="transition-[clip-path] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] [clip-path:inset(0_0_0_0)] data-hidden:[clip-path:inset(0_100%_0_0)]"
+>
   ...
 </div>`,
     },
@@ -76,21 +82,18 @@ Note that neither image ever moves or resizes. The only thing that changes is th
       language: "css",
       icon: "css",
       code: `.card {
+  /* top right bottom left */
   clip-path: inset(0 0 0 0);
-  transition: clip-path 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: clip-path 500ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .card[data-hidden] {
-  /* top right bottom left */
   clip-path: inset(0 100% 0 0);
-}
-
-/* Rounded corners on the visible window */
-.pill {
-  clip-path: inset(2px 66% 2px 2px round 9999px);
 }`,
     },
   ]}
 />
 
-A gotcha worth knowing: clip-path only interpolates between shapes of the same type with the same number of arguments. `inset(0 0 0 0)` to `inset(0 100% 0 0)` animates. `inset(0)` to `inset(0 100% 0 0)` does not, and neither does `inset()` to `circle()`. Write both ends of the transition in the same form.
+`clip-path` cuts off everything outside the box, including shadows and focus
+rings. Negative values give them room. The card in the first demo goes from
+`inset(-16px)` to `inset(-16px calc(100% + 16px) -16px -16px)`.

@@ -5,57 +5,60 @@ section: Typography
 order: 6
 publishedAt: "2026-07-16"
 resources:
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/font-smooth
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/font-smooth
     title: font-smooth
-    description: MDN on the non-standard smoothing properties and their browser support.
+    description: MDN on the non-standard smoothing properties, their values, and the macOS-only support.
+  - url: https://dbushell.com/2024/11/05/webkit-font-smoothing/
+    title: What's the deal with WebKit font smoothing?
+    description: David Bushell tests the property across operating systems and finds it only matters on macOS.
   - url: https://jakub.kr/writing/details-that-make-interfaces-feel-better
     title: Details that make interfaces feel better
-    description: A practical collection of small interface improvements, including this one.
-  - url: https://www.zachleat.com/web/font-smooth/
-    title: Laissez-faire font smoothing and anti-aliasing
-    description: Zach Leatherman on what the property does and the case against using it blindly.
+    description: Jakub Krehel's list of small fixes, including antialiased text.
+  - url: https://www.joshwcomeau.com/css/custom-css-reset/
+    title: A modern CSS reset
+    description: Josh Comeau's reset, which sets antialiased on the body and explains why.
   - url: https://tailwindcss.com/docs/font-smoothing
     title: Font smoothing in Tailwind
-    description: The antialiased and subpixel-antialiased utilities.
+    description: The antialiased utility, which sets both properties at once.
 ---
 
-Put white text on a dark surface and look closely. On a Mac, it comes out a
-little bolder and a little fuzzier than the same text on white. The CSS did not
-change. The rasterizer did.
+On a Mac, browsers draw text a little bolder than the font says. macOS
+thickens every glyph slightly, and on a dark background that extra weight
+blooms. White text ends up looking heavier than the same text in dark ink.
 
-By default, WebKit and Blink render text with **subpixel antialiasing**, which
-thickens the edges of glyphs to make them look sharper. On dark backgrounds
-that extra thickness reads as bloom. Toggle the demo to see the text drop back
-to the weight you actually chose.
+**On macOS, turn the thickening off so text renders at the weight you
+chose.**
 
 <FontSmoothingDemo />
 
-The property is `-webkit-font-smoothing: antialiased`. It tells the browser to
-use plain **grayscale antialiasing** instead, which renders the glyph at its
-honest weight. Firefox on macOS has its own version,
-`-moz-osx-font-smoothing: grayscale`.
+The difference is easy to see on the dark card and hard to see on the light
+one. That is why this usually comes up when a product ships a dark mode, and
+every heading suddenly feels half a weight heavier than in the design file.
 
-## Where it shows
+## What it does
 
-The difference is easy to see on dark backgrounds and hard to see on light
-ones. Toggle the same text on both.
+Macs used to render text with subpixel antialiasing, using the red, green and
+blue parts of each pixel to sharpen edges. To make up for how thin that
+looked, macOS also thickened each glyph. macOS Mojave (10.14) turned subpixel
+antialiasing off in 2018 but kept the thickening, and browsers still apply it
+by default.
 
-<FontSmoothingContrastDemo />
-
-That is why this mostly comes up when a product ships a dark mode. Everything
-looks fine in light mode, then the dark theme arrives and every heading feels
-half a weight heavier than the design file.
+`-webkit-font-smoothing: antialiased` switches to plain grayscale
+antialiasing, without the thickening. Firefox's version is
+`-moz-osx-font-smoothing: grayscale`. Windows, Linux, iOS and Android ignore
+both, so if you are not on a Mac, the demos fake the default with a hairline
+stroke.
 
 ## Thin weights
 
-Grayscale rendering cuts both ways. Weights that were leaning on the bloom can
-turn wispy once it is gone. Check the lighter rows below.
+The thickening also props up light weights. Without it, 300 and below can
+turn wispy on dark surfaces.
 
 <FontSmoothingWeightsDemo />
 
-If you use 300 or below for body text on dark surfaces, test it on a
-non-Retina screen before turning this on globally. Most products only use 400
-and up, where it is a clear improvement.
+Most interfaces use 400 and up, where antialiased is a clear improvement. If
+you set small text in a light weight, check it on a Mac before turning this
+on everywhere.
 
 ## Usage
 
@@ -79,7 +82,6 @@ and up, where it is a clear improvement.
   ]}
 />
 
-Both properties are non-standard and only do anything on macOS. Windows uses
-ClearType and ignores them, which is fine, because the bloom is a macOS
-problem. This site applies it on the `body`, and so do most design-led
-products.
+Both properties are non-standard, and they only do anything on macOS. That is
+fine, because the extra weight is a macOS problem. Set them once on the
+`body`, like this site does, and every element inherits them.

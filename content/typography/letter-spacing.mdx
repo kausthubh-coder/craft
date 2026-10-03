@@ -5,58 +5,56 @@ section: Typography
 order: 1
 publishedAt: "2026-07-14"
 resources:
-  - url: https://rsms.me/inter/dynmetrics/
+  - url: https://d.rsms.me/inter-website/v3/dynmetrics/
     title: Inter dynamic metrics
-    description: Rasmus Andersson's formula for the ideal tracking of Inter at any size.
-  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing
+    description: Rasmus Andersson's tracking formula for Inter 3, the one the first demo follows.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/letter-spacing
     title: letter-spacing
-    description: The property reference, including why em units are the right choice.
+    description: The property reference, with syntax and examples on MDN.
+  - url: https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/font-optical-sizing
+    title: font-optical-sizing
+    description: How browsers pick an optical size for fonts that ship one.
   - url: https://tailwindcss.com/docs/letter-spacing
     title: Letter spacing in Tailwind
-    description: The tracking utilities and how to add your own steps.
-  - url: https://fonts.google.com/knowledge/using_type/optical_sizes
-    title: Optical sizes
-    description: Google Fonts Knowledge on why letterforms need to change with size.
+    description: The tracking utilities and how to set your own values.
 ---
 
-A typeface is drawn once, usually at a size close to body text. Its
-letters are spaced so that a paragraph reads well. Scale that same drawing up
-to a headline and the spaces between letters scale with it, which is more room
-than a headline needs. Scale it down to a caption and the letters start to
-touch.
+Most typefaces are spaced for text sizes. Scale one up to a headline and the
+gaps between letters grow with it, until the word reads as a row of letters.
+Set it small in capitals and the letters crowd together.
 
-**Letter spacing**, or tracking, is the fix. Drag the size slider and compare
-the untouched word with the one that tightens as it grows.
+**Tighten letter spacing as text gets bigger, and loosen it for small
+uppercase.**
 
 <LetterSpacingDemo />
 
-The second line follows the formula Rasmus Andersson published for Inter, the
-typeface this site uses. Around body size it barely moves. Above 24px it
-settles near `-0.02em`. That number sounds tiny and it is, but the headline
-reads as one word instead of a row of letters.
+The second word follows the formula Rasmus Andersson published for Inter 3.
+Around body size it barely moves. From 24px up it settles near `-0.02em`,
+which pulls "Headline" in by about 8px at 48px. The dashed line marks where
+the tracked word ends. The untouched one runs past it.
 
-## Across a scale
+## Fonts with optical sizes
 
-The rule holds for every step of a type scale, not only the headline. Toggle
-the card to see all four sizes adjust at once.
+Some fonts already do this for you. Inter 4, the version this site uses, has
+an [optical size](/optical-alignment) axis, and browsers apply it on their own
+through `font-optical-sizing: auto`. From 32px up you get the display design,
+which sets "Headline" about 13px narrower at 48px than the text design does.
+The demo pins the text design so you can see the problem.
 
-<TrackingScaleDemo />
-
-The display line tightens, the body copy stays put, and the caption opens up
-by a hair. If you only remember one thing: tighten as you go up, loosen as you
-go down, and leave body text alone.
+So check your font before you add tracking. If it has optical sizes, a
+headline may need little or none, and `-0.02em` on top of the display design
+starts to look cramped.
 
 ## Uppercase
 
-Capital letters were designed to sit next to lowercase letters. Set a whole
-word in caps and the even sidebearings of lowercase are gone, so the word
-looks cramped, especially small.
+Capitals are spaced to sit next to lowercase letters. Set a whole label in
+caps and they look jammed together, and the smaller the label, the worse it
+gets.
 
 <UppercaseTrackingDemo />
 
 Small uppercase labels like section headers and status pills want extra room,
-somewhere between `0.05em` and `0.1em`. The same applies to all caps buttons
-and tabs, if you use them.
+somewhere between `0.05em` and `0.1em`.
 
 ## Usage
 
@@ -66,13 +64,9 @@ and tabs, if you use them.
       label: "Tailwind",
       language: "html",
       icon: "tailwind",
-      code: `<h1 class="text-5xl font-semibold tracking-tight">Launch week</h1>
+      code: `<h1 class="text-5xl font-semibold tracking-[-0.02em]">Launch week</h1>
 
-<p class="text-base">Every day this week we release one thing.</p>
-
-<span class="text-[10px] font-semibold uppercase tracking-wider">
-    Pinned
-</span>`,
+<span class="text-xs font-semibold uppercase tracking-wider">Pinned</span>`,
     },
     {
       label: "CSS",
@@ -84,14 +78,14 @@ and tabs, if you use them.
 }
 
 .label {
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }`,
     },
   ]}
 />
 
-Always write tracking in `em`. It is relative to the font size, so the same
-value keeps working when the text scales, and it survives a change of
-typeface far better than a pixel value would.
+Always write tracking in `em`. It scales with the font size, so one value
+keeps working when the text grows or shrinks, while a pixel value is only
+right at the size you tested.

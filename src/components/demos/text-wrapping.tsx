@@ -1,71 +1,59 @@
 "use client";
 
 import { CheckCircleIcon } from "@phosphor-icons/react";
-import { useState } from "react";
 
 import { Compare, CompareItem } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
-import { SegmentedControl } from "@/components/app/segmented-control";
-import { Slider } from "@/components/ui/slider";
 
-function unwrap(value: number | readonly number[]) {
-  return Array.isArray(value) ? value[0] : (value as number);
-}
+type TextWrap = React.CSSProperties["textWrap"];
 
-function WidthSlider({
-  value,
-  onChange,
-}: {
-  value: number;
-  onChange: (value: number) => void;
-}) {
+/**
+ * The widths in this file are fixed on purpose. Wrapping depends on the
+ * exact measure, and at these widths the default wrap strands the last word
+ * on its own line (measured in Inter, the site font).
+ */
+function Toast({ textWrap }: { textWrap: TextWrap }) {
   return (
-    <label className="grid w-full max-w-xs gap-2.5">
-      <span className="flex justify-between text-xs text-muted-foreground">
-        Width
-        <span className="tabular-nums text-foreground">{value}%</span>
-      </span>
-      <Slider
-        aria-label="Container width"
-        max={100}
-        min={55}
-        onValueChange={(next) => onChange(unwrap(next))}
-        step={1}
-        value={[value]}
+    <div className="flex w-full max-w-60 gap-3 rounded-xl bg-card px-4 py-3.5 shadow-(--custom-shadow)">
+      <CheckCircleIcon
+        aria-hidden="true"
+        className="size-5 shrink-0 text-emerald-500"
+        weight="fill"
       />
-    </label>
-  );
-}
-
-const HEADING = "Introducing the new dashboard for teams";
-
-function HeadingCard({ textWrap, width }: { textWrap: string; width: number }) {
-  return (
-    <div className="flex w-full justify-center rounded-xl bg-card px-4 py-5 shadow-(--custom-shadow)">
-      <h3
-        className="text-base leading-snug font-semibold text-foreground"
-        style={{ textWrap: textWrap as React.CSSProperties["textWrap"], width: `${width}%` }}
-      >
-        {HEADING}
-      </h3>
+      <div className="flex min-w-0 flex-col gap-1">
+        <span
+          className="text-sm leading-snug font-medium text-foreground"
+          style={{ textWrap }}
+        >
+          Your export is ready to download
+        </span>
+        <span className="text-xs leading-relaxed text-muted-foreground">
+          The link works for 24 hours.
+        </span>
+      </div>
     </div>
   );
 }
 
 export function TextBalanceDemo() {
-  const [width, setWidth] = useState(100);
-
   return (
     <Demo className="gap-7 px-4 sm:px-8">
-      <Compare>
-        <CompareItem verdict="wrong">
-          <HeadingCard textWrap="normal" width={width} />
+      <Compare className="grid-cols-1 justify-items-center gap-8 sm:grid-cols-2 sm:gap-10">
+        <CompareItem
+          className="w-full max-w-60"
+          verdict="wrong"
+          caption="text-wrap: wrap"
+        >
+          <Toast textWrap="wrap" />
         </CompareItem>
-        <CompareItem verdict="right">
-          <HeadingCard textWrap="balance" width={width} />
+        <CompareItem
+          className="w-full max-w-60"
+          verdict="right"
+          caption="text-wrap: balance"
+        >
+          <Toast textWrap="balance" />
         </CompareItem>
       </Compare>
-      <WidthSlider onChange={setWidth} value={width} />
     </Demo>
   );
 }
@@ -73,19 +61,10 @@ export function TextBalanceDemo() {
 const PARAGRAPH =
   "Exports now run in the background, so you can keep working while we prepare the file. We will send you a link when it is ready.";
 
-function ParagraphCard({
-  textWrap,
-  width,
-}: {
-  textWrap: string;
-  width: number;
-}) {
+function ParagraphCard({ textWrap }: { textWrap: TextWrap }) {
   return (
-    <div className="flex w-full justify-center rounded-xl bg-card px-4 py-4 shadow-(--custom-shadow)">
-      <p
-        className="text-sm leading-relaxed text-foreground"
-        style={{ textWrap: textWrap as React.CSSProperties["textWrap"], width: `${width}%` }}
-      >
+    <div className="w-65 rounded-xl bg-card px-4 py-3.5 shadow-(--custom-shadow)">
+      <p className="text-sm leading-relaxed text-foreground" style={{ textWrap }}>
         {PARAGRAPH}
       </p>
     </div>
@@ -93,67 +72,16 @@ function ParagraphCard({
 }
 
 export function TextPrettyDemo() {
-  const [width, setWidth] = useState(100);
-
   return (
-    <Demo className="gap-7 px-4 sm:px-8">
-      <Compare className="grid-cols-1 sm:grid-cols-2">
-        <CompareItem verdict="wrong">
-          <ParagraphCard textWrap="normal" width={width} />
+    <Demo className="gap-7 px-4">
+      <Compare className="w-fit max-w-none grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-4">
+        <CompareItem verdict="wrong" caption="text-wrap: wrap">
+          <ParagraphCard textWrap="wrap" />
         </CompareItem>
-        <CompareItem verdict="right">
-          <ParagraphCard textWrap="pretty" width={width} />
+        <CompareItem verdict="right" caption="text-wrap: pretty">
+          <ParagraphCard textWrap="pretty" />
         </CompareItem>
       </Compare>
-      <WidthSlider onChange={setWidth} value={width} />
-    </Demo>
-  );
-}
-
-type Wrapping = "off" | "on";
-
-const WRAPPING_OPTIONS = [
-  { value: "off", label: "Off" },
-  { value: "on", label: "On" },
-] as const;
-
-export function TextWrapToastDemo() {
-  const [mode, setMode] = useState<Wrapping>("off");
-  const on = mode === "on";
-
-  return (
-    <Demo className="gap-8">
-      <div
-        className="flex w-full max-w-[19rem] gap-3 rounded-xl bg-card px-4 py-3.5 shadow-(--custom-shadow)"
-        role="status"
-      >
-        <CheckCircleIcon
-          aria-hidden="true"
-          className="mt-0.5 size-5 shrink-0 text-emerald-500"
-          weight="fill"
-        />
-        <div className="flex min-w-0 flex-col gap-1">
-          <span
-            className="text-sm leading-snug font-medium text-foreground"
-            style={{ textWrap: on ? "balance" : "normal" }}
-          >
-            Your workspace export is ready to download
-          </span>
-          <span
-            className="text-xs leading-relaxed text-muted-foreground"
-            style={{ textWrap: on ? "pretty" : "normal" }}
-          >
-            The link works for 24 hours. After that, start a new export from
-            settings to get a fresh one.
-          </span>
-        </div>
-      </div>
-      <SegmentedControl
-        ariaLabel="Text wrapping"
-        onChange={setMode}
-        options={WRAPPING_OPTIONS}
-        value={mode}
-      />
     </Demo>
   );
 }

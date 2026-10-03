@@ -1,12 +1,19 @@
 "use client";
 
-import { definePatch, ensureReady } from "@web-kits/audio";
+import {
+  definePatch,
+  defineSound,
+  ensureReady,
+  type SoundDefinition,
+} from "@web-kits/audio";
 
-// A subset of the "Minimal" patch by Raphael Salaja
-// (audio.raphaelsalaja.com/library/minimal) - quiet sine-based UI feedback.
+// Adapted from the "Minimal" patch by Raphael Salaja for his @web-kits/audio
+// library (audio.raphaelsalaja.com/library/minimal) - quiet sine-based UI
+// feedback. "tick" is Minimal's "tap" and "toggle" is its "toggle-on".
 const minimal = definePatch({
   name: "Minimal",
   sounds: {
+    // Minimal's hover at a quarter of its 0.04 gain.
     hover: {
       source: { type: "sine", frequency: 1300 },
       envelope: { attack: 0, decay: 0.01, sustain: 0, release: 0.004 },
@@ -23,7 +30,7 @@ const minimal = definePatch({
       gain: 0.1,
     },
     // "Success" from the Retro patch (audio.raphaelsalaja.com/library/retro)
-    // - a rising 8-bit C–E–G–C arpeggio.
+    // - a rising 8-bit C-E-G-C arpeggio, at under half of Retro's gains.
     success: {
       layers: [
         {
@@ -115,6 +122,9 @@ if (typeof window !== "undefined") {
 
 /** Plays a sound regardless of the mute toggle (for explicit demos). */
 export async function playSoundAlways(name: SoundName, opts?: PlayOptions) {
+  // Nothing can play before the page's first gesture, so drop the request
+  // rather than queue it behind a resume() that resolves later.
+  if (!hasBeenActive()) return;
   if (!audioUnlocked) {
     if (name === "hover") {
       // A hover can't grant user activation; don't queue a stale blip.
@@ -129,6 +139,27 @@ export async function playSoundAlways(name: SoundName, opts?: PlayOptions) {
   } catch {
     // Audio not available - stay silent.
   }
+}
+
+/** Plays a one-off definition regardless of mute (for demos outside the patch). */
+export async function playDefinitionAlways(
+  definition: SoundDefinition,
+  opts?: PlayOptions
+) {
+  if (!hasBeenActive()) return;
+  if (!audioUnlocked) await unlockAudio();
+  if (!audioUnlocked) return;
+  try {
+    defineSound(definition)(opts);
+  } catch {
+    // Audio not available - stay silent.
+  }
+}
+
+function hasBeenActive() {
+  if (typeof navigator === "undefined") return false;
+  // Browsers without the User Activation API fall back to the old behavior.
+  return navigator.userActivation?.hasBeenActive ?? true;
 }
 
 export async function playSound(name: SoundName, opts?: PlayOptions) {
