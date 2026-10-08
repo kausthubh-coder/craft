@@ -29,31 +29,6 @@ const inter = localFont({
   display: "swap",
 });
 
-const redaction = localFont({
-  src: [
-    { path: "../../public/fonts/Redaction35-Regular.woff2", weight: "400" },
-    { path: "../../public/fonts/Redaction35-Bold.woff2", weight: "700" },
-  ],
-  variable: "--font-redaction-35",
-  display: "swap",
-});
-
-const redaction70 = localFont({
-  src: [
-    { path: "../../public/fonts/Redaction70-Regular.woff2", weight: "400" },
-  ],
-  variable: "--font-redaction-70",
-  display: "swap",
-});
-
-const redaction50 = localFont({
-  src: [
-    { path: "../../public/fonts/Redaction50-Regular.woff2", weight: "400" },
-  ],
-  variable: "--font-redaction-50",
-  display: "swap",
-});
-
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains-mono",
@@ -98,7 +73,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${redaction.variable} ${redaction70.variable} ${redaction50.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
       >
         <JsonLd
           data={{
@@ -109,8 +84,8 @@ export default function RootLayout({
             url: SITE_URL,
             author: {
               "@type": "Person",
-              name: "Gustavo Fior",
-              url: "https://gustavofior.com",
+              name: "Kausthubh",
+              url: "https://github.com/kausthubh-coder",
             },
           }}
         />

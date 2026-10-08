@@ -57,6 +57,15 @@ const LAUNCH_CONCEPT_SLUGS = new Set([
   "layering-sounds",
   "curve-smoothing",
   "living-charts",
+  "springs",
+  "momentum",
+  "liquid-motion",
+  "smooth-animation",
+  "liquid-glass",
+  "responsiveness",
+  "instant-navigation",
+  "image-loading",
+  "long-lists",
 ]);
 
 /** True only for concepts that are live in production. */

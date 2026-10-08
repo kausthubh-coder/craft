@@ -123,6 +123,7 @@ import {
   TextureLayersDemo,
 } from "@/components/demos/layering-sounds";
 import { FontSwapDemo, LayoutShiftDemo } from "@/components/demos/layout-shift";
+import { ChatAnchorDemo, LongListDemo } from "@/components/demos/long-lists";
 import {
   LetterSpacingDemo,
   UppercaseTrackingDemo,
@@ -133,6 +134,23 @@ import {
   LineReturnDemo,
 } from "@/components/demos/line-length";
 import {
+  ImageArrivalDemo,
+  PlaceholderDemo,
+} from "@/components/demos/image-loading";
+import {
+  PrefetchDemo,
+  SpinnerDelayDemo,
+} from "@/components/demos/instant-navigation";
+import {
+  GlassLegibilityDemo,
+  LiquidGlassDemo,
+} from "@/components/demos/liquid-glass";
+import {
+  GooeyTabsDemo,
+  MorphDemo,
+  StretchDemo,
+} from "@/components/demos/liquid-motion";
+import {
   LivingBarsDemo,
   LivingChartsDemo,
 } from "@/components/demos/living-charts";
@@ -141,6 +159,7 @@ import {
   MicrocopyDemo,
   PluralCountDemo,
 } from "@/components/demos/microcopy";
+import { ProjectionDemo, VelocityHandoffDemo } from "@/components/demos/momentum";
 import {
   NestedRadiusDemo,
   NestedRadiusExamplesDemo,
@@ -188,6 +207,10 @@ import {
 } from "@/components/demos/real-content";
 import { ReducedMotionDemo } from "@/components/demos/reduced-motion";
 import {
+  PaintFirstDemo,
+  TypingLagDemo,
+} from "@/components/demos/responsiveness";
+import {
   DepthOfFieldDemo,
   RubberBandDemo,
 } from "@/components/demos/references";
@@ -216,9 +239,14 @@ import {
   SharedLayoutDetailDemo,
 } from "@/components/demos/shared-layout";
 import {
+  MainThreadDemo,
+  ShadowLiftDemo,
+} from "@/components/demos/smooth-animation";
+import {
   SpacingScaleDemo,
   SpacingStepsDemo,
 } from "@/components/demos/spacing-scale";
+import { SpringBounceDemo, SpringTunerDemo } from "@/components/demos/springs";
 import {
   SquircleCompareDemo,
   SquircleCurvatureDemo,
@@ -485,6 +513,25 @@ const components: MDXComponents = {
   WhitespaceDemo,
   WhitespaceDividersDemo,
   WhitespaceSquintDemo,
+  GlassLegibilityDemo,
+  GooeyTabsDemo,
+  LiquidGlassDemo,
+  MainThreadDemo,
+  MorphDemo,
+  ProjectionDemo,
+  ShadowLiftDemo,
+  SpringBounceDemo,
+  SpringTunerDemo,
+  StretchDemo,
+  VelocityHandoffDemo,
+  ImageArrivalDemo,
+  PaintFirstDemo,
+  PlaceholderDemo,
+  PrefetchDemo,
+  SpinnerDelayDemo,
+  TypingLagDemo,
+  ChatAnchorDemo,
+  LongListDemo,
   CodeBlock,
   LinkList,
 };

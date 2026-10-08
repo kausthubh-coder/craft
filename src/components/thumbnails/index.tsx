@@ -1471,6 +1471,138 @@ function DesignTokensThumbnail() {
   );
 }
 
+/* Springs, momentum, liquid motion, smooth animation, liquid glass */
+
+function SpringsThumbnail() {
+  // The ball overshoots the dashed target, then settles back onto it.
+  return (
+    <div className="relative h-10 w-28 rounded-full bg-muted ring-1 ring-border">
+      <div
+        className={`absolute top-1 bottom-1 left-[4.6rem] border-l ${GUIDE}`}
+      />
+      <span className="absolute top-1 left-1 size-8 rounded-full bg-foreground transition-transform duration-700 ease-spring group-hover:translate-x-[3.6rem]" />
+    </div>
+  );
+}
+
+function MomentumThumbnail() {
+  // A flicked window coasts to the far corner the throw was aimed at.
+  return (
+    <div className="relative h-20 w-28 overflow-hidden rounded-xl bg-muted ring-1 ring-border">
+      <span
+        className={`absolute top-1.5 right-1.5 h-6 w-9 rounded-md border ${GUIDE}`}
+      />
+      <span className="absolute bottom-1.5 left-1.5 h-6 w-9 rounded-md bg-foreground shadow-sm transition-transform duration-700 ease-snappy group-hover:translate-x-[3.75rem] group-hover:-translate-y-[2.5rem]" />
+    </div>
+  );
+}
+
+function LiquidMotionThumbnail() {
+  // The button itself grows into the menu, from the corner it sat in.
+  return (
+    <div className="relative h-20 w-28">
+      <div className="absolute bottom-0 left-0 h-7 w-16 overflow-hidden rounded-[14px] bg-card shadow-sm ring-1 ring-border transition-[width,height,border-radius] duration-500 ease-spring group-hover:h-20 group-hover:w-28 group-hover:rounded-[12px]">
+        <div className="mt-2.5 ml-3 h-1.5 w-8 rounded-full bg-muted-foreground/40" />
+        <div className="mt-3 ml-3 h-1.5 w-14 rounded-full bg-muted-foreground/20 opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100" />
+        <div className="mt-2 ml-3 h-1.5 w-10 rounded-full bg-muted-foreground/20 opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100" />
+      </div>
+    </div>
+  );
+}
+
+function SmoothAnimationThumbnail() {
+  // Layers already painted: the top one only moves, nothing redraws.
+  return (
+    <div className="relative h-20 w-28">
+      <div className="absolute top-6 left-6 h-12 w-16 rounded-lg bg-muted ring-1 ring-border" />
+      <div className="absolute top-3 left-3 h-12 w-16 rounded-lg bg-muted ring-1 ring-border" />
+      <div className="absolute top-0 left-0 h-12 w-16 rounded-lg bg-card shadow-sm ring-1 ring-border transition-transform duration-500 ease-snappy group-hover:translate-x-10">
+        <div className="mt-2.5 ml-2.5 h-1.5 w-8 rounded-full bg-muted-foreground/40" />
+        <div className="mt-2 ml-2.5 h-1.5 w-10 rounded-full bg-muted-foreground/20" />
+      </div>
+    </div>
+  );
+}
+
+function LiquidGlassThumbnail() {
+  // A glass pill slides over stripes, blurring them as it passes.
+  return (
+    <div
+      className="relative h-20 w-28 overflow-hidden rounded-xl ring-1 ring-border"
+      style={{
+        backgroundImage:
+          "repeating-linear-gradient(90deg, var(--muted-foreground) 0 2px, transparent 2px 9px)",
+        backgroundColor: "var(--muted)",
+      }}
+    >
+      <div className="absolute top-6 left-2 h-8 w-14 rounded-full bg-white/15 shadow-[inset_0_1px_0_rgb(255_255_255/0.5),0_0_0_0.5px_rgb(0_0_0/0.14),0_6px_16px_rgb(0_0_0/0.14)] backdrop-blur-[3px] transition-transform duration-700 ease-snappy group-hover:translate-x-10" />
+    </div>
+  );
+}
+
+/* Performance */
+
+function ResponsivenessThumbnail() {
+  // The button answers the moment it's touched: "Save" becomes "Saving".
+  return (
+    <div className="relative grid h-9 w-24 place-items-center rounded-full bg-card text-[11px] font-medium shadow-sm ring-1 ring-border transition-transform duration-100 ease-out group-hover:scale-[0.97]">
+      <span className="transition-opacity duration-0 group-hover:opacity-0">Save</span>
+      <span className="absolute flex items-center gap-1.5 text-muted-foreground opacity-0 transition-opacity duration-0 group-hover:opacity-100">
+        <span className="size-2.5 rounded-full border-[1.5px] border-current border-t-transparent group-hover:animate-spin" />
+        Saving
+      </span>
+    </div>
+  );
+}
+
+function InstantNavigationThumbnail() {
+  // Hovering the link is enough: the next page is already filling in.
+  return (
+    <div className="flex h-20 w-28 overflow-hidden rounded-xl bg-card ring-1 ring-border">
+      <div className="flex w-9 flex-col gap-1.5 border-r border-border p-1.5">
+        <div className="h-1.5 w-full rounded-full bg-muted-foreground/25" />
+        <div className={`h-1.5 w-full rounded-full border bg-muted-foreground/40 ${GUIDE}`} />
+        <div className="h-1.5 w-full rounded-full bg-muted-foreground/25" />
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-2">
+        <div className="h-1.5 w-10 rounded-full bg-muted-foreground/40 opacity-0 transition-opacity delay-75 duration-300 group-hover:opacity-100" />
+        <div className="h-1.5 w-14 rounded-full bg-muted-foreground/20 opacity-0 transition-opacity delay-100 duration-300 group-hover:opacity-100" />
+        <div className="h-1.5 w-12 rounded-full bg-muted-foreground/20 opacity-0 transition-opacity delay-150 duration-300 group-hover:opacity-100" />
+      </div>
+    </div>
+  );
+}
+
+function ImageLoadingThumbnail() {
+  // The box was there all along, tinted with the photo's colour; the photo fades in.
+  return (
+    <div className="flex w-24 flex-col gap-1.5 rounded-xl bg-card p-1.5 ring-1 ring-border">
+      <div className="relative h-12 overflow-hidden rounded-md bg-[oklch(0.72_0.04_200)]">
+        <div className="absolute inset-0 bg-linear-to-b from-[oklch(0.8_0.07_230)] via-[oklch(0.75_0.06_190)] to-[oklch(0.6_0.08_140)] opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100" />
+      </div>
+      <div className="h-1.5 w-14 rounded-full bg-muted-foreground/30" />
+      <div className="h-1.5 w-10 rounded-full bg-muted-foreground/20" />
+    </div>
+  );
+}
+
+function LongListsThumbnail() {
+  // Only the rows inside the window exist; the rest fade back to space.
+  return (
+    <div className="relative flex h-20 w-24 flex-col justify-center gap-1">
+      {Array.from({ length: 9 }, (_, i) => (
+        <div
+          key={i}
+          className={`h-1.5 rounded-full bg-muted-foreground/30 transition-opacity duration-500 ${
+            i >= 3 && i <= 5 ? "w-20" : "w-16 group-hover:opacity-0"
+          }`}
+        />
+      ))}
+      <div className={`absolute inset-x-[-6px] top-[1.85rem] h-[1.6rem] rounded-md border ${GUIDE}`} />
+    </div>
+  );
+}
+
 const thumbnails: Record<string, () => React.ReactNode> = {
   "letter-spacing": LetterSpacingThumbnail,
   "text-wrapping": TextWrappingThumbnail,
@@ -1530,6 +1662,15 @@ const thumbnails: Record<string, () => React.ReactNode> = {
   timelessness: TimelessnessThumbnail,
   "product-feel": ProductFeelThumbnail,
   "design-tokens": DesignTokensThumbnail,
+  springs: SpringsThumbnail,
+  momentum: MomentumThumbnail,
+  "liquid-motion": LiquidMotionThumbnail,
+  "smooth-animation": SmoothAnimationThumbnail,
+  "liquid-glass": LiquidGlassThumbnail,
+  responsiveness: ResponsivenessThumbnail,
+  "instant-navigation": InstantNavigationThumbnail,
+  "image-loading": ImageLoadingThumbnail,
+  "long-lists": LongListsThumbnail,
 };
 
 export function ConceptThumbnail({

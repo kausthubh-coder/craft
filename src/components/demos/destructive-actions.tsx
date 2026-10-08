@@ -430,7 +430,7 @@ export function ConfirmDialogDemo() {
           className="flex h-full flex-col p-4 sm:p-5"
           inert={open}
         >
-          <p className="text-sm font-medium text-foreground">Craft website</p>
+          <p className="text-sm font-medium text-foreground">Critly website</p>
           <p className="mt-0.5 text-xs text-muted-foreground">
             Project settings
           </p>
@@ -452,7 +452,7 @@ export function ConfirmDialogDemo() {
             {deletedProject ? (
               <>
                 <p className="text-xs text-muted-foreground">
-                  Craft website was deleted.
+                  Critly website was deleted.
                 </p>
                 <Button
                   ref={restoreRef}
@@ -515,7 +515,7 @@ export function ConfirmDialogDemo() {
               role="alertdialog"
             >
               <p id={titleId} className="text-sm font-medium text-foreground">
-                {specific ? "Delete “Craft website”?" : "Are you sure?"}
+                {specific ? "Delete “Critly website”?" : "Are you sure?"}
               </p>
               <p
                 id={bodyId}

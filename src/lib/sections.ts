@@ -6,6 +6,7 @@ export const SECTIONS = [
   "Interaction",
   "Content",
   "Motion",
+  "Performance",
   "Sound",
   "Data",
 ] as const;

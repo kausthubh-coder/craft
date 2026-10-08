@@ -1,4 +1,4 @@
-// Regenerates the self-contained agent skill in skills/craft-design-engineering
+// Regenerates the self-contained agent skill in skills/critly
 // from the launched concepts in content/. Run with `bun run build:skill` after
 // publishing or editing a concept, and commit the result.
 
@@ -16,7 +16,7 @@ import { SECTIONS } from "../src/lib/sections";
 
 const ROOT = path.resolve(import.meta.dirname, "..");
 const CONTENT_DIR = path.join(ROOT, "content");
-const SKILL_DIR = path.join(ROOT, "skills", "craft-design-engineering");
+const SKILL_DIR = path.join(ROOT, "skills", "critly");
 const REFERENCES_DIR = path.join(SKILL_DIR, "references");
 
 type Concept = MarkdownConcept & { order: number };

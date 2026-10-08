@@ -6,6 +6,7 @@ import {
   CirclesThreeIcon,
   CursorClickIcon,
   LayoutIcon,
+  LightningIcon,
   PenNibIcon,
   SpeakerHighIcon,
   TextAaIcon,
@@ -20,6 +21,7 @@ const icons = {
   Interaction: CursorClickIcon,
   Content: ChatTextIcon,
   Motion: BezierCurveIcon,
+  Performance: LightningIcon,
   Sound: SpeakerHighIcon,
   Data: ChartBarHorizontalIcon,
   Craft: PenNibIcon,
@@ -34,6 +36,7 @@ export const sectionTextColor: Record<Section, string> = {
   Interaction: "text-lime-600 dark:text-lime-400",
   Content: "text-teal-600 dark:text-teal-400",
   Motion: "text-violet-600 dark:text-violet-400",
+  Performance: "text-fuchsia-600 dark:text-fuchsia-400",
   Sound: "text-emerald-600 dark:text-emerald-400",
   Data: "text-cyan-600 dark:text-cyan-400",
   Craft: "text-orange-600 dark:text-orange-400",
@@ -59,6 +62,8 @@ export const dotColorFrom: Record<DotColor, string> = {
     "[--dot-from:var(--color-teal-500)] dark:[--dot-from:var(--color-teal-400)]",
   Motion:
     "[--dot-from:var(--color-violet-500)] dark:[--dot-from:var(--color-violet-400)]",
+  Performance:
+    "[--dot-from:var(--color-fuchsia-500)] dark:[--dot-from:var(--color-fuchsia-400)]",
   Sound:
     "[--dot-from:var(--color-emerald-500)] dark:[--dot-from:var(--color-emerald-400)]",
   Data: "[--dot-from:var(--color-cyan-500)] dark:[--dot-from:var(--color-cyan-400)]",
@@ -80,6 +85,8 @@ export const dotColorTo: Record<DotColor, string> = {
     "[--dot-to:var(--color-teal-500)] dark:[--dot-to:var(--color-teal-400)]",
   Motion:
     "[--dot-to:var(--color-violet-500)] dark:[--dot-to:var(--color-violet-400)]",
+  Performance:
+    "[--dot-to:var(--color-fuchsia-500)] dark:[--dot-to:var(--color-fuchsia-400)]",
   Sound:
     "[--dot-to:var(--color-emerald-500)] dark:[--dot-to:var(--color-emerald-400)]",
   Data: "[--dot-to:var(--color-cyan-500)] dark:[--dot-to:var(--color-cyan-400)]",

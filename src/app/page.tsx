@@ -6,7 +6,13 @@ import { ProseLink } from "@/components/app/prose-link";
 import { RepoCard } from "@/components/app/repo-card";
 import { SectionIcon } from "@/components/app/section-icon";
 import { groupBySection } from "@/lib/sections";
-import { GITHUB_REPO, SITE_DESCRIPTION } from "@/lib/site";
+import {
+  GITHUB_REPO,
+  ORIGINAL_AUTHOR,
+  ORIGINAL_NAME,
+  ORIGINAL_URL,
+  SITE_DESCRIPTION,
+} from "@/lib/site";
 
 export default function IndexPage() {
   const sections = groupBySection(
@@ -22,15 +28,13 @@ export default function IndexPage() {
     <article>
       <h1 className="text-base font-medium">Index</h1>
       <p className="mt-3 text-sm text-muted-foreground">
-        {SITE_DESCRIPTION} These essays are short and simple, meant as a
-        collection of useful ideas and tricks rather than an exhaustive
-        resource.
+        {SITE_DESCRIPTION} Each one is a short idea with a rule, real numbers
+        and a demo you can feel, meant as a collection of useful ideas and
+        tricks rather than an exhaustive resource.
       </p>
       <p className="mt-3 text-sm text-muted-foreground">
-        This project is brought to you by{" "}
-        <ProseLink href="https://gustavofior.com">Gustavo</ProseLink>, a guy
-        who likes computers and beautiful things. I also created a skill
-        based on these guides:
+        Your coding agent can read them too. Install the skill and it uses
+        these concepts to build, review and audit your interface:
       </p>
       <CodeBlock
         hideHeader
@@ -43,13 +47,18 @@ export default function IndexPage() {
         ]}
       />
       <p className="mt-3 text-sm text-muted-foreground">
-        Also, if you want to contribute, here&apos;s the repo:
+        Critly is open source. To contribute, here&apos;s the repo:
       </p>
       <RepoCard />
       <p className="mt-3 text-sm text-muted-foreground">
-        Obs: this fork completes the concepts that were still coming soon and
-        adds an Interaction section. They were written with AI and checked
-        against the originals.
+        Critly began as a fork of{" "}
+        <ProseLink href={ORIGINAL_URL}>{ORIGINAL_NAME}</ProseLink> by{" "}
+        {ORIGINAL_AUTHOR}, who built the site, its design language, the demo
+        framework and the first concepts. Critly completes the rest and adds
+        the Interaction and Content sections, the newer motion and
+        performance concepts, and the review and audit skills. Many of the
+        newer concepts were written with AI and checked against their
+        sources.
       </p>
       <div className="mt-8 flex flex-col gap-12">
         {sections.map(({ section, concepts }) => (

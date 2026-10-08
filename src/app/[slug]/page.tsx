@@ -89,8 +89,8 @@ export default async function ConceptPage({
           image: `${SITE_URL}/og/${concept.slug}`,
           author: {
             "@type": "Person",
-            name: "Gustavo Fior",
-            url: "https://gustavofior.com",
+            name: "Kausthubh",
+            url: "https://github.com/kausthubh-coder",
           },
           isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
         }}

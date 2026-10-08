@@ -165,10 +165,9 @@ export async function GET(
   const title = page?.title ?? SITE_NAME;
   const description = page?.description ?? SITE_DESCRIPTION;
 
-  const [inter, redaction] = await Promise.all([
-    readFile(path.join(process.cwd(), "src/assets/Inter-Medium.otf")),
-    readFile(path.join(process.cwd(), "src/assets/Redaction35-Regular.otf")),
-  ]);
+  const inter = await readFile(
+    path.join(process.cwd(), "src/assets/Inter-Medium.otf"),
+  );
 
   return new ImageResponse(
     (
@@ -186,9 +185,19 @@ export async function GET(
       >
         {page ? (
           <div
-            style={{ display: "flex", fontSize: 30, fontFamily: "Redaction" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              fontSize: 30,
+              color: "#171717",
+            }}
           >
-            Craft
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+              <rect x="2.75" y="4.75" width="8" height="14.5" rx="2.25" stroke="#171717" strokeWidth="1.5" />
+              <rect x="13" y="4" width="9.5" height="16" rx="2.75" fill="#171717" />
+            </svg>
+            Critly
           </div>
         ) : null}
         <div
@@ -206,7 +215,7 @@ export async function GET(
             style={{
               display: "flex",
               fontSize: 52,
-              fontFamily: page ? "Inter" : "Redaction",
+              fontFamily: "Inter",
             }}
           >
             {title}
@@ -222,7 +231,6 @@ export async function GET(
       height: 630,
       fonts: [
         { name: "Inter", data: inter, weight: 500 },
-        { name: "Redaction", data: redaction, weight: 400 },
       ],
     },
   );

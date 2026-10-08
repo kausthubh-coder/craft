@@ -191,7 +191,7 @@ export function OverlayFocusDemo() {
   const [mode, setMode] = useState<FocusMode>("lost");
   const [openField, setOpenField] = useState<FieldId | null>(null);
   const [values, setValues] = useState<Record<FieldId, string>>({
-    name: "Craft",
+    name: "Critly",
     domain: "craft.dev",
     owner: "Ada Lovelace",
   });

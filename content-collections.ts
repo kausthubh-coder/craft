@@ -71,7 +71,7 @@ async function resolveResource(input: ResourceInput): Promise<Resource> {
     try {
       const res = await fetch(input.url, {
         signal: AbortSignal.timeout(8000),
-        headers: { "user-agent": "craft.gustavofior.com resource resolver" },
+        headers: { "user-agent": "critly resource resolver" },
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const html = (await res.text()).slice(0, 200_000);
@@ -115,6 +115,7 @@ const concepts = defineCollection({
       "Interaction",
       "Content",
       "Motion",
+      "Performance",
       "Sound",
       "Data",
       "Craft",

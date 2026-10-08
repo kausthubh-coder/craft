@@ -11,7 +11,7 @@ import lime from "@/assets/gradient-lime.jpg";
 import mint from "@/assets/gradient-mint.jpg";
 import peach from "@/assets/gradient-peach.jpg";
 import reeded from "@/assets/gradient-reeded.jpg";
-import gustavo from "@/assets/gustavo.jpg";
+import waterLilies from "@/assets/claude-monet-water-lilies.jpg";
 import { RIGHT_ICON, WRONG_ICON } from "@/components/app/compare";
 import { Demo } from "@/components/app/demo";
 import { SegmentedControl } from "@/components/app/segmented-control";
@@ -169,7 +169,7 @@ type Avatar =
 
 const AVATARS: Avatar[] = [
   { kind: "image", src: mint },
-  { kind: "image", src: gustavo },
+  { kind: "image", src: waterLilies },
   { kind: "image", src: peach },
   { kind: "initials", label: "G" },
   { kind: "image", src: reeded },

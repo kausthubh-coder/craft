@@ -1,4 +1,4 @@
-# Keeps skills/craft-design-engineering in sync with the published concepts.
+# Keeps skills/critly in sync with the published concepts.
 # Runs on every push to main that could change the generated output, commits
 # the result if anything changed, and does nothing otherwise. Vercel builds
 # cannot write back to the repo, which is why this lives here instead.
