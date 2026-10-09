@@ -1,6 +1,6 @@
 ---
 name: critly-audit
-description: 'Audit the design of an existing app or website and optionally fix it, using the Critly design engineering concepts. Works from a running URL (localhost or deployed), the codebase, or both. Use when the user runs /audit, says "audit my app", "audit the design", "what is wrong with this UI", "fix the design", "make this app look and feel better", or hands over a localhost link and asks to improve the design. Checks the system (type scale, spacing, color roles, tokens, dark mode), composition (alignment, whitespace, hierarchy, density, responsive, layout shift), and details (states, focus, hit areas, inputs, overlays, motion, copy, feedback).'
+description: 'Audit the design of an existing app or website and optionally fix it, using the Critly design engineering concepts. Works from a running URL (localhost or deployed), the codebase, or both. Use when the user runs /audit, says "audit my app", "audit the design", "what is wrong with this UI", "fix the design", "make this app look and feel better", or hands over a localhost link and asks to improve the design. Checks the system (type scale, spacing, color roles, tokens, dark mode), composition (alignment, whitespace, hierarchy, density, responsive, layout shift), and details (states, focus, hit areas, inputs, overlays, motion, copy, feedback), and times the main actions for performance (load, navigation, typing, scrolling). Also use when the user asks to audit speed, "why is my app slow", or "make the whole app faster".'
 metadata:
   author: kausthubh-coder
   source: https://critly.vercel.app
@@ -103,13 +103,31 @@ concepts:
   Motion.
 - **Content**: Microcopy, Real Content, Tabular Numbers, Text Wrapping.
 - **Images and icons**: Image Outlines, Icons, Optical Alignment.
+- **Glass and effects**: Liquid Glass, Effect Cost, Shadows, Not Borders.
 
 Also note where a screen looks like an unmodified template instead of this
 product: a leftover default accent color, everything boxed in identical
 cards, decoration that has nothing to do with the intent. Only report it when
 it works against the intent.
 
-## 6. Report
+## 6. Performance pass
+
+Design includes how fast it feels. Follow **Measuring Performance** in
+`../critly/references/performance.md` for the method, then time the three to
+five actions people do most (open the main page, open an item, search,
+navigate between sections, start the main task), on a production build, on a
+throttled phone profile and on desktop. For each action, write down the wait
+in milliseconds and what the person sees while waiting. Then check against:
+
+- **Waiting**: Responsiveness, Instant Navigation, Performance Is Design.
+- **Weight**: JavaScript Cost, Image Loading, Font Loading, Video and Embeds.
+- **Rendering**: Long Lists, Smooth Animation, Effect Cost.
+
+Report each slow action as one finding, with the number in **Before** (for
+example "phone Home 8.5s, 42,000 DOM nodes"). Skip this pass only if you
+can't run the app, and say so in the summary.
+
+## 7. Report
 
 Write the report in this order and keep it scannable.
 
@@ -121,7 +139,8 @@ Write the report in this order and keep it scannable.
    | --- | --- | --- |
    | System | Needs work | 11 font sizes, 23 spacing values, 3 radii on cards |
 
-   Use the areas System, Composition, Interaction, Motion and Content, with
+   Use the areas System, Composition, Interaction, Motion, Performance and
+   Content, with
    the grades Good, Needs work or Poor.
 3. **Findings**, most severe first, at most 25 rows:
 
@@ -138,11 +157,11 @@ Write the report in this order and keep it scannable.
      rows.
    - Put anything that matters but has no matching concept under
      **Outside Critly** after the table, one line each.
-4. **Fix plan** in three batches, in this order: System (tokens and scales
+4. **Fix plan** in batches, in this order: System (tokens and scales
    first, since every later fix builds on them), then Composition, then
-   Details. One line of scope per batch and the files it touches.
+   Details, then Performance. One line of scope per batch and the files it touches.
 
-## 7. Fixing
+## 8. Fixing
 
 If the user asked you to fix the design ("fix the design", "make it
 better"), apply the plan after the report without asking again. Otherwise
@@ -160,6 +179,9 @@ When applying:
 - After each batch, re-check the affected screens in the browser if you have
   one, at both widths and in both themes, and run the project's typecheck or
   build.
+- For performance fixes, measure again the same way and put before and
+  after numbers side by side. Measure each fix on its own, so you know which
+  one helped. Run the exact checks CI runs before saying anything passes.
 - Finish with a short before and after table: what changed, where, and the
   concept. If you ran the inventory before, run it again and show the change
   in distinct values (for example, font sizes 11 to 6).

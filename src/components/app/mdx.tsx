@@ -58,10 +58,12 @@ import {
   EmptySearchDemo,
   EmptyStatesDemo,
 } from "@/components/demos/empty-states";
+import { EffectCountDemo } from "@/components/demos/effect-cost";
 import {
   ExitAnimationsDemo,
   ExitListDemo,
 } from "@/components/demos/exit-animations";
+import { FontRaceDemo } from "@/components/demos/font-loading";
 import {
   FocusForcedColorsDemo,
   FocusObscuredDemo,
@@ -122,7 +124,12 @@ import {
   SoundLayersDemo,
   TextureLayersDemo,
 } from "@/components/demos/layering-sounds";
+import {
+  HydrationGapDemo,
+  LoadOnIntentDemo,
+} from "@/components/demos/javascript-cost";
 import { FontSwapDemo, LayoutShiftDemo } from "@/components/demos/layout-shift";
+import { ReadySignalDemo, RepeatRunsDemo } from "@/components/demos/measuring";
 import { ChatAnchorDemo, LongListDemo } from "@/components/demos/long-lists";
 import {
   LetterSpacingDemo,
@@ -281,6 +288,7 @@ import {
   HierarchyLabelsDemo,
   VisualHierarchyDemo,
 } from "@/components/demos/visual-hierarchy";
+import { EmbedFacadeDemo, VideoRevealDemo } from "@/components/demos/video-embeds";
 import {
   WhitespaceDemo,
   WhitespaceDividersDemo,
@@ -532,6 +540,14 @@ const components: MDXComponents = {
   TypingLagDemo,
   ChatAnchorDemo,
   LongListDemo,
+  EffectCountDemo,
+  ReadySignalDemo,
+  RepeatRunsDemo,
+  HydrationGapDemo,
+  LoadOnIntentDemo,
+  FontRaceDemo,
+  EmbedFacadeDemo,
+  VideoRevealDemo,
   CodeBlock,
   LinkList,
 };

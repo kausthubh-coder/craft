@@ -353,7 +353,7 @@ const FALLBACK_OPTIONS = [
 
 // The overrides next/font generated for this site's Inter.
 const FALLBACK_FACE = `@font-face {
-  font-family: "Craft Inter Fallback";
+  font-family: "Critly Inter Fallback";
   src: local("Arial");
   ascent-override: 89.79%;
   descent-override: 22.36%;
@@ -363,7 +363,7 @@ const FALLBACK_FACE = `@font-face {
 
 const FALLBACK_STACK: Record<Fallback, string> = {
   plain: "Arial, sans-serif",
-  adjusted: '"Craft Inter Fallback", Arial, sans-serif',
+  adjusted: '"Critly Inter Fallback", Arial, sans-serif',
 };
 
 // How long the fallback shows before the web font "arrives".

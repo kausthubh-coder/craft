@@ -2,7 +2,7 @@
 title: Smooth Animation
 description: Animate what the compositor can run.
 section: Performance
-order: 5
+order: 9
 publishedAt: "2026-10-08"
 resources:
   - url: https://web.dev/articles/stick-to-compositor-only-properties-and-manage-layer-count
@@ -83,12 +83,18 @@ A few more habits keep frames steady:
   Every layer costs GPU memory.
 - Pause loops that are off screen.
 
+Effects also cost when nothing moves. A blur, a `backdrop-filter` or a
+`will-change` keeps its own layer even at opacity 0, so hundreds of hidden
+glass buttons cost hundreds of layers. See [Effect Cost](/effect-cost).
+
 ## Measure it
 
 In Chrome DevTools, record a trace and open the Animations track. A red
 triangle marks an animation that wasn't composited, and the summary says
 why. CPU throttling shows main-thread problems, but it doesn't slow the GPU,
-so check blur and glass on a real phone.
+so check blur and glass on a real phone. Measure a production build, more
+than once, before and after; [Measuring Performance](/measuring-performance)
+has the full method.
 
 ## Usage
 

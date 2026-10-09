@@ -384,9 +384,18 @@ above has neither problem.
 
 CSS `linear()` can draw a spring's shape in every browser, but it's a
 recording: a fixed duration, no velocity when interrupted, and in Safari
-it's not run on the [compositor](https://critly.vercel.app/smooth-animation). Use it for things that
-play once, like an entrance, and keep JavaScript springs for anything people
-can toggle mid-flight.
+it's not run on the [compositor](https://critly.vercel.app/smooth-animation). It's still a good fit for
+hover and open/close motion, where reversing from the current position is
+enough. Use JavaScript springs where velocity matters, like drags and flicks.
+
+JavaScript springs run on the main thread, so they stutter while the page is
+busy, for example during a route change. To get both, compute the spring's
+positions once in JavaScript and play them as `transform` keyframes with the
+Web Animations API, which the browser can run off the main thread. On
+interruption, read the current position and velocity and compute a new set.
+
+If the brand or the person asks for overshoot, a small bounce (0.2 to 0.25)
+on an open is fine. Keep closes and opacity flat.
 
 ### Resources
 
@@ -752,6 +761,13 @@ should appear at once. You have already shown you want the labels, and
 making you wait again for each one is frustrating.
 
 > **Interactive demo: Hover Tooltip.** Open https://critly.vercel.app/hover-restraint to try it.
+
+The same rule covers anything heavier that opens on hover: a preview card, an
+expanding tile, a video. That isn't a hover state, it's a decision, so it
+waits for the pointer to rest (about 500ms to 700ms, and only if it has
+stopped moving), opens neighbors quickly once one is open, and closes after a
+short grace period so the pointer can cross gaps without flicker. Don't
+start it on touch screens, which have no hover.
 
 ### Keyboard actions
 

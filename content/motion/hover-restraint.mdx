@@ -43,6 +43,13 @@ making you wait again for each one is frustrating.
 
 <HoverTooltipDemo />
 
+The same rule covers anything heavier that opens on hover: a preview card, an
+expanding tile, a video. That isn't a hover state, it's a decision, so it
+waits for the pointer to rest (about 500ms to 700ms, and only if it has
+stopped moving), opens neighbors quickly once one is open, and closes after a
+short grace period so the pointer can cross gaps without flicker. Don't
+start it on touch screens, which have no hover.
+
 ## Keyboard actions
 
 The same thinking applies away from the pointer.

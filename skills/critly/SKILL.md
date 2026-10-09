@@ -1,23 +1,29 @@
 ---
 name: critly
-description: 'Design engineering concepts from Critly (critly.vercel.app) for the small details that make interfaces feel right - typography, color, spacing and layout, interaction states, focus, forms, motion, sound, and data. Use when building, polishing or reviewing UI: buttons, hover/press/focus/disabled states, inputs and forms, menus, modals and drawers, empty and loading states, cards, borders, shadows, border radius, icons, numbers, tables, charts, animations, easings, transitions, or when the user says "make it feel better", "polish this", "something feels off", "review my UI", "add some craft", or asks about taste, whitespace, hierarchy, or design details.'
+description: 'Design engineering concepts from Critly (critly.vercel.app) for the details that make interfaces feel right and fast - typography, color, spacing and layout, interaction states, focus, forms, motion, sound, data, and web performance. Use when building, polishing or reviewing UI: buttons, hover/press/focus/disabled states, inputs and forms, menus, modals and drawers, empty and loading states, cards, borders, shadows, glass and blur, border radius, icons, numbers, tables, lists and feeds, charts, images, video, animations, springs, easings, transitions. Also use for performance work: slow pages, load times, laggy typing, janky or stuttering animation, slow navigation, heavy images or video, big lists, bundle size. Triggers include "make it feel better", "polish this", "something feels off", "review my UI", "make it faster", "why is this slow", "smooth this out", or questions about taste, whitespace, hierarchy, or design details.'
 metadata:
   author: kausthubh-coder
   source: https://critly.vercel.app
+  version: "2026-10-08"
   forked-from: https://github.com/gustavo-fior/craft
 ---
 
 # Critly
 
 A collection of design engineering concepts, forked from Gustavo Fior's
-Craft and extended. Each concept is a short explainer with a rule you can apply directly, plus the CSS, Tailwind, or
-React to do it. The live site pairs every concept with an interactive demo.
+Craft and extended. Each concept is a short explainer with a rule you can
+apply directly, plus the CSS, Tailwind, or React to do it. The live site
+pairs every concept with an interactive demo.
+
+`references/rules.md` lists every concept's rule in one line. It is short on
+purpose: re-read it whenever you start a new piece of work and before you
+finish. Open the full reference for any rule you are about to apply.
 
 ## How to use this skill
 
 There are two modes. Pick the one that matches the request. To audit or fix
-a whole existing app (a URL or a repo), use the `audit` skill instead; it
-runs a full top-down pass with these concepts.
+a whole existing app (a URL or a repo), use the `critly-audit` skill instead;
+it runs a full top-down pass with these concepts.
 
 ### Build mode: writing or changing UI
 
@@ -26,24 +32,53 @@ runs a full top-down pass with these concepts.
    or animated, quiet or expressive. Read **Product Feel** for how each
    choice maps to values. If the project already has tokens (spacing scale,
    type scale, color roles, radii), use them instead of adding new ones.
-2. Find the concepts that match the work in the index below. A button needs
-   interaction states, press, hover and hit areas; a form needs input details,
-   focus rings and microcopy; a table or timer needs tabular numbers and
-   density; a modal needs overlays and scale entrances; a page needs
-   alignment, whitespace and hierarchy; anything with an image needs image
-   outlines.
-3. Read the matching section in `references/` before writing code. Each
-   concept there has the full reasoning, the rule, and the code. Do not apply a
-   concept from its one-line summary alone.
+2. Map the work to concepts with the table in **What to open** below, and
+   skim `references/rules.md`.
+3. Read the matching sections in `references/` before writing code. Each
+   concept there has the full reasoning, the rule, and the code. Do not apply
+   a concept from its one-line summary alone.
 4. Apply the rule, and prefer the exact values from the reference (durations,
    easings, scales, radii, opacities, spacing steps) over inventing your own.
    Reuse the same few values everywhere instead of tuning each component.
-5. Mention the concepts you applied in one line at the end, so the user can
+5. **Come back when the work changes shape.** What you read at the start only
+   covers what you planned. The moment the work grows a new kind of thing (you
+   add a blur, an animation, a long list, an image or video, a slow action, a
+   drag), stop and open the concepts for that row of the table before writing
+   that code.
+6. **Check before you say it's done.** Re-read `references/rules.md` and, for
+   every concept your change touched, confirm the rule holds in the code you
+   wrote. Check the states, not just the resting one. For anything that
+   affects speed or smoothness, measure it as **Measuring Performance**
+   describes and report before and after numbers with the environment. Never
+   say tests or checks pass unless you ran them. If what you built differs
+   from an approved mockup or design, say what changed and why before the
+   user finds it.
+7. Mention the concepts you applied in one line at the end, so the user can
    look them up.
+
+### What to open
+
+| When the work involves | Open |
+| --- | --- |
+| Any animation or transition | Easings, Springs, Interruptibility, Smooth Animation, Reduced Motion |
+| Animating size, position or layout | Smooth Animation, Shared Layout, Liquid Motion |
+| Drags, swipes, sheets, carousels | Momentum, Springs, Interruptibility |
+| Blur, glass, `backdrop-filter`, big shadows, filters | Liquid Glass, Effect Cost, Shadows, Not Borders |
+| Lists, grids, feeds or rows of cards | Long Lists, Responsiveness, Density |
+| Images | Image Loading, Layout Shift, Image Outlines |
+| Video, iframes, maps, widgets | Video and Embeds, Instant Navigation |
+| Fonts or text rendering | Font Loading, Layout Shift, Type Scale |
+| A click, keystroke or route that waits on work or the network | Responsiveness, Instant Navigation, Performance Is Design |
+| "Slow", "laggy", "janky", load times, bundle size | Measuring Performance first, then JavaScript Cost and the matching rows |
+| Hover effects and previews | Hover Restraint, Interaction States |
+| Menus, modals, drawers, popovers | Overlays, Scale Entrances, Exit Animations, Focus Rings |
+| Forms and inputs | Input Details, Focus Rings, Microcopy |
+| Empty, loading and error states | Empty States, Performance Is Design, Real Content |
 
 ### Review mode: "review", "polish" or "what feels off" on a component or page
 
-1. Read the code (and screenshots, if you can take them) with the index open.
+1. Read the code (and screenshots, if you can take them) with
+   `references/rules.md` and the index open.
    Check every state, not just the resting one: hover, pressed, focus,
    disabled, loading, empty, error, light and dark, narrow and wide. Read
    only the reference sections for concepts the code actually touches.
@@ -173,11 +208,16 @@ is in the index.
 
 ### Performance
 
+- **Measuring Performance**: Measure the wait people feel, more than once. ([reference](references/performance.md#measuring-performance), [demo](https://critly.vercel.app/measuring-performance))
 - **Responsiveness**: Answer every input on the next frame. ([reference](references/performance.md#responsiveness), [demo](https://critly.vercel.app/responsiveness))
 - **Instant Navigation**: Start loading before the click lands. ([reference](references/performance.md#instant-navigation), [demo](https://critly.vercel.app/instant-navigation))
 - **Image Loading**: Hold the space, then fade in. ([reference](references/performance.md#image-loading), [demo](https://critly.vercel.app/image-loading))
+- **Font Loading**: Text first, in a fallback that fits. ([reference](references/performance.md#font-loading), [demo](https://critly.vercel.app/font-loading))
+- **Video and Embeds**: Load the player when someone wants it. ([reference](references/performance.md#video-and-embeds), [demo](https://critly.vercel.app/video-and-embeds))
+- **JavaScript Cost**: Ship less script, load the rest on intent. ([reference](references/performance.md#javascript-cost), [demo](https://critly.vercel.app/javascript-cost))
 - **Long Lists**: Render what's on screen, not everything. ([reference](references/performance.md#long-lists), [demo](https://critly.vercel.app/long-lists))
 - **Smooth Animation**: Animate what the compositor can run. ([reference](references/performance.md#smooth-animation), [demo](https://critly.vercel.app/smooth-animation))
+- **Effect Cost**: Budget effects by how many, not how they look. ([reference](references/performance.md#effect-cost), [demo](https://critly.vercel.app/effect-cost))
 
 ### Sound
 
@@ -192,6 +232,11 @@ is in the index.
 
 ## Keeping this skill current
 
-This file's concept index and `references/` are generated from the site's
-content with `bun run build:skill` in the Critly repository. Edit the
+This copy is dated by `version` above. The live index is
+https://critly.vercel.app/llms.txt. If a concept named in this file or on the
+live site is missing from `references/`, this copy is out of date: tell the
+user once, and suggest `npx skills add kausthubh-coder/craft` to update it.
+
+The concept index, `references/` and `rules.md` are generated from the
+site's content with `bun run build:skill` in the Critly repository. Edit the
 articles, not the references.

@@ -1603,6 +1603,84 @@ function LongListsThumbnail() {
   );
 }
 
+function MeasuringPerformanceThumbnail() {
+  // A timeline: the early "load" tick is grey, the real "ready" tick lights up.
+  return (
+    <div className="flex w-28 flex-col gap-2">
+      <div className="relative h-1.5 rounded-full bg-muted-foreground/20">
+        <div className="absolute inset-y-0 left-0 w-0 rounded-full bg-muted-foreground/50 transition-[width] duration-1000 ease-linear group-hover:w-full" />
+        <span className="absolute -top-1 left-[18%] h-3.5 w-0.5 rounded-full bg-muted-foreground/60" />
+        <span className={`absolute -top-1.5 left-[80%] h-4.5 w-1 rounded-full border bg-muted-foreground/30 transition-colors delay-700 duration-300 group-hover:bg-emerald-500 ${GUIDE}`} />
+      </div>
+      <div className="flex justify-between text-[9px] text-muted-foreground">
+        <span>load</span>
+        <span>ready</span>
+      </div>
+    </div>
+  );
+}
+
+function EffectCostThumbnail() {
+  // Many hidden blurred chips on a grid; on hover all but one turn into scrims.
+  return (
+    <div className="grid w-24 grid-cols-4 gap-1">
+      {Array.from({ length: 12 }, (_, i) => (
+        <div
+          key={i}
+          className={`aspect-[2/3] rounded-sm ring-1 ring-border transition-colors duration-300 ${
+            i === 0
+              ? "bg-muted-foreground/40"
+              : "bg-muted-foreground/25 group-hover:bg-muted-foreground/10"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
+function JavascriptCostThumbnail() {
+  // A tall stack of script blocks shrinks to the one the first screen needs.
+  return (
+    <div className="flex h-16 w-24 items-end gap-1">
+      {[64, 48, 56, 40, 52].map((h, i) => (
+        <div
+          key={i}
+          className={`h-(--h) w-full rounded-sm bg-muted-foreground/30 ring-1 ring-border transition-[height,opacity] duration-500 ease-snappy ${
+            i === 0 ? "group-hover:h-3" : "group-hover:h-1 group-hover:opacity-30"
+          }`}
+          style={{ "--h": `${h}px` } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
+
+function FontLoadingThumbnail() {
+  // The same word in the fallback and the brand font: the box doesn't move.
+  return (
+    <div className={`relative rounded-md border px-3 py-1.5 ${GUIDE}`}>
+      <span className="block text-2xl font-medium opacity-100 transition-opacity duration-300 [font-family:Arial,sans-serif] group-hover:opacity-0">
+        Aa Text
+      </span>
+      <span className="absolute inset-0 grid place-items-center text-2xl font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        Aa Text
+      </span>
+    </div>
+  );
+}
+
+function VideoAndEmbedsThumbnail() {
+  // A light poster with a play button; the player only arrives on hover.
+  return (
+    <div className="relative grid h-16 w-28 place-items-center overflow-hidden rounded-lg bg-linear-to-br from-muted-foreground/20 to-muted-foreground/40 ring-1 ring-border">
+      <span className="grid size-7 place-items-center rounded-full bg-foreground/70 transition-transform duration-200 ease-out group-hover:scale-110">
+        <span className="ml-0.5 size-0 border-y-[5px] border-l-[8px] border-y-transparent border-l-background" />
+      </span>
+      <span className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 bg-foreground/60 transition-transform duration-1000 ease-linear group-hover:scale-x-100" />
+    </div>
+  );
+}
+
 const thumbnails: Record<string, () => React.ReactNode> = {
   "letter-spacing": LetterSpacingThumbnail,
   "text-wrapping": TextWrappingThumbnail,
@@ -1671,6 +1749,11 @@ const thumbnails: Record<string, () => React.ReactNode> = {
   "instant-navigation": InstantNavigationThumbnail,
   "image-loading": ImageLoadingThumbnail,
   "long-lists": LongListsThumbnail,
+  "measuring-performance": MeasuringPerformanceThumbnail,
+  "effect-cost": EffectCostThumbnail,
+  "javascript-cost": JavascriptCostThumbnail,
+  "font-loading": FontLoadingThumbnail,
+  "video-and-embeds": VideoAndEmbedsThumbnail,
 };
 
 export function ConceptThumbnail({

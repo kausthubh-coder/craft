@@ -80,6 +80,22 @@ function anchor(title: string) {
     .replace(/ /g, "-");
 }
 
+// The rule each article states once in bold, as a sentence. Falls back to the
+// one-line description for the few articles that state it differently.
+function ruleOf(concept: Concept) {
+  const prose = concept.content
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/<CodeBlock[\s\S]*?\/>/g, "")
+    .replace(/\s+/g, " ");
+  const bold = prose
+    .split("**")
+    .filter((_, i) => i % 2 === 1)
+    .map((s) => s.trim());
+  const rule = bold.find((s) => s.length >= 20 && /[.!?]$/.test(s));
+  if (!rule) return concept.description;
+  return rule.charAt(0).toUpperCase() + rule.slice(1);
+}
+
 function referenceFile(section: string) {
   return `${section.toLowerCase()}.md`;
 }
@@ -101,6 +117,29 @@ async function main() {
       `# ${section}\n\n${body}`,
     );
   }
+
+  // A short checklist, cheap enough to re-read mid-task and before finishing.
+  const rules = bySection.flatMap(({ section, concepts }) => [
+    `## ${section}`,
+    "",
+    ...concepts.map(
+      (c) =>
+        `- **${c.title}**: ${ruleOf(c)} ([full](${referenceFile(section)}#${anchor(c.title)}))`,
+    ),
+    "",
+  ]);
+  await writeFile(
+    path.join(REFERENCES_DIR, "rules.md"),
+    [
+      "# Rules",
+      "",
+      "One rule per concept. Re-read this before you finish any UI change, and open the full reference for every rule your change touches.",
+      "",
+      ...rules,
+    ]
+      .join("\n")
+      .trimEnd() + "\n",
+  );
 
   const index = bySection.flatMap(({ section, concepts }) => [
     `### ${section}`,

@@ -29,7 +29,12 @@ The left card animates its width, so its text gets squeezed into an ellipsis
 on every frame. The right card is clipped, so it wipes away in one piece.
 
 **Animate the window, not the box.** A width change makes the browser
-recalculate layout on every frame. A clip change only repaints.
+recalculate layout on every frame. A clip change skips layout, but most
+browsers still repaint the clipped element each frame (Chrome can run basic
+shapes like `inset()` off the main thread). That is cheap for a small,
+one-off wipe. For a large or frequent reveal, slide two layers with
+`transform` instead: an outer one that clips and an inner one that moves the
+opposite way. See [Smooth Animation](/smooth-animation).
 
 ## Tabs
 

@@ -66,6 +66,11 @@ const LAUNCH_CONCEPT_SLUGS = new Set([
   "instant-navigation",
   "image-loading",
   "long-lists",
+  "measuring-performance",
+  "effect-cost",
+  "javascript-cost",
+  "font-loading",
+  "video-and-embeds",
 ]);
 
 /** True only for concepts that are live in production. */

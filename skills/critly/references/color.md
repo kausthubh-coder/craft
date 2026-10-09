@@ -274,6 +274,11 @@ and a popover adds a long, soft one on top of that.
 All three levels start from the same token. That is what makes them read as
 the same material at different heights, instead of three different styles.
 
+Layers have a price when they multiply. A stack on one card is nothing; the
+same stack on hundreds of list items, on elements that animate, or on a
+blurred glass surface adds paint time to every frame. On glass, keep to a
+light rim and one drop shadow. See [Effect Cost](https://critly.vercel.app/effect-cost).
+
 ### Dark mode
 
 A dark shadow on a dark background is invisible. Here is the light mode
@@ -732,7 +737,17 @@ surfaces" setting of your own, the web version of Apple's Tinted option.
 
 Glass is expensive. The browser re-renders the backdrop every time anything
 under it changes, including every scroll frame. Keep glass small and use
-three or four surfaces per screen at most. Never animate the blur radius;
+three or four glass elements per screen at most. Count elements in the page,
+not designs: glass in a shared button component, repeated on every card in a
+list, can quietly put a thousand blurs on one screen, and hidden ones still
+count. Turn page glass off while a modal covers it, and drop the blur from
+anything over about 90% opaque, where nobody can see it. See
+[Effect Cost](https://critly.vercel.app/effect-cost).
+
+Glass also needs something behind it. Over a flat background it reads as a
+plain grey card, so let imagery or content run underneath, or don't use it.
+If an approved mockup used refraction and the build will ship the frosted
+fallback, say so before building. Never animate the blur radius;
 animate the glass element's transform and opacity instead, and build
 displacement maps once per size.
 

@@ -2,7 +2,7 @@
 title: Instant Navigation
 description: Start loading before the click lands.
 section: Performance
-order: 2
+order: 3
 publishedAt: "2026-10-08"
 resources:
   - url: https://instant.page/
@@ -47,8 +47,12 @@ with over 300ms still to go. Pressing the button gives about 80ms more
 before the click fires, and on touch screens `touchstart` gives about 90ms.
 That's why the right app also loads on press: it's free and wastes nothing.
 
-Prefetch the data as well as the code, and let a click join the request
-already in flight instead of starting a new one. On touch screens there's
+Match the head start to the cost. A short hover (about 65ms) is right for
+cheap, read-only work like fetching a page's data. Expensive or side-effecting
+work, like starting a video, a stream or a server job, should wait for a
+longer rest (about 300ms) and cancel when the pointer leaves. Prefetch the
+data as well as the code, and let a click join the request already in flight
+instead of starting a new one. On touch screens there's
 no hover, so prefetch only the few links people are most likely to tap,
 such as the first items in a list.
 
