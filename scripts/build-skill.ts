@@ -162,7 +162,11 @@ async function main() {
   }
   await writeFile(
     skillPath,
-    `${before}${start}\n${index.join("\n").trimEnd()}\n${end}${after}`,
+    // Stamp the build date so installed copies can tell when they're stale.
+    `${before}${start}\n${index.join("\n").trimEnd()}\n${end}${after}`.replace(
+      /version: "[^"]*"/,
+      `version: "${new Date().toISOString().slice(0, 10)}"`,
+    ),
   );
 
   console.log(

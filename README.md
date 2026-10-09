@@ -6,7 +6,8 @@ rule, real numbers and an interactive demo, and the same concepts ship as
 agent skills, so your agent builds, reviews and audits with them.
 
 ```bash
-npx skills add kausthubh-coder/craft
+npx skills add kausthubh-coder/craft -g   # install for all your agents
+npx skills update -g                     # pull the latest concepts later
 ```
 
 - `skills/critly`: build and review with the concepts (generated from `content/`)

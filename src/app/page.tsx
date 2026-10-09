@@ -42,7 +42,7 @@ export default function IndexPage() {
           {
             label: "Terminal",
             language: "bash",
-            code: `npx skills add ${GITHUB_REPO}`,
+            code: `npx skills add ${GITHUB_REPO} -g`,
           },
         ]}
       />

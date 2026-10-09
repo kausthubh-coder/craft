@@ -4,7 +4,7 @@ description: 'Design engineering concepts from Critly (critly.vercel.app) for th
 metadata:
   author: kausthubh-coder
   source: https://critly.vercel.app
-  version: "2026-10-08"
+  version: "2026-10-09"
   forked-from: https://github.com/gustavo-fior/craft
 ---
 
@@ -235,7 +235,10 @@ is in the index.
 This copy is dated by `version` above. The live index is
 https://critly.vercel.app/llms.txt. If a concept named in this file or on the
 live site is missing from `references/`, this copy is out of date: tell the
-user once, and suggest `npx skills add kausthubh-coder/craft` to update it.
+user once, and suggest `npx skills update -g` to update it (or
+`npx skills add kausthubh-coder/craft -g` if it wasn't installed that way).
+Don't keep a vendored copy inside a project; install it globally so every
+project gets updates.
 
 The concept index, `references/` and `rules.md` are generated from the
 site's content with `bun run build:skill` in the Critly repository. Edit the
